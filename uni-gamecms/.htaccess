@@ -1,0 +1,22 @@
+AddDefaultCharset utf-8
+
+RewriteBase /
+Options All
+Options -Indexes
+Options +FollowSymLinks
+
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+RewriteCond %{REQUEST_FILENAME} !-f 
+RewriteCond %{REQUEST_FILENAME} !-d 
+RewriteCond %{REQUEST_FILENAME} !-l
+
+<IfModule !mod_rewrite.c>
+	RewriteRule ^(.*)$ index.php/$1 [L,QSA]
+</IfModule>
+
+<IfModule mod_rewrite.c>
+	RewriteRule ^(.*)$ index.php?/$1 [L,QSA]
+</IfModule>

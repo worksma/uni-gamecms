@@ -1,0 +1,1 @@
+<img src="/templates/standart/img/verification/bange_1.png" title="Аккаунт официально подтверждён!" width="18px" tooltip="yes" data-original-title="Аккаунт официально подтверждён!">
