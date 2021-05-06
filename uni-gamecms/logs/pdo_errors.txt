@@ -1,1 +1,0 @@
-[2021-05-06 13:05:04] : [SQLSTATE[HY000] [1045] Access denied for user 'worksmaru_xneworld'@'localhost' (using password: YES)]

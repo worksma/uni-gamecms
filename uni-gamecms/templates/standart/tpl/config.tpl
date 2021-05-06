@@ -99,13 +99,13 @@
 // ------------------------
 //banner 1
 {var:footer_banners[0]['link']} https://worksma.ru/ {/var}
-{var:footer_banners[0]['img']} ../templates/standart/img/88x32.jpg {/var}
+{var:footer_banners[0]['img']} ../templates/standart/img/88x31.jpg{/var}
 //banner 2
 {var:footer_banners[1]['link']} https://worksma.ru/ {/var}
-{var:footer_banners[1]['img']} ../templates/standart/img/88x32.jpg {/var}
+{var:footer_banners[1]['img']} ../templates/standart/img/88x31.jpg{/var}
 //banner 3
 {var:footer_banners[2]['link']} https://worksma.ru/ {/var}
-{var:footer_banners[2]['img']} ../templates/standart/img/88x32.jpg {/var}
+{var:footer_banners[2]['img']} ../templates/standart/img/88x31.jpg{/var}
 
 
 // Описание проекта в футере
