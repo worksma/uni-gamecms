@@ -201,7 +201,7 @@ if (isset($_POST['edit_user_login'])) {
 		exit('<span class="m-icon icon-remove"></span> Введеный Вами логин уже зарегистрирован!');
 	}
 
-	if ($host == 'demo.gamecms.ru' and $_SESSION['id'] == '2') {
+	if ($host == 'demo.worksma.ru' and $_SESSION['id'] == '2') {
 		exit('<span class="m-icon icon-remove"></span> Менять логин на данном аккаунте запрещено!');
 	}
 
@@ -402,7 +402,7 @@ if (isset($_POST['edit_user_password'])) {
 		exit('<span class="m-icon icon-remove"></span> Новые пароли не совпадают!');
 	}
 
-	if ($host == 'demo.gamecms.ru' and $_SESSION['id'] == '2') {
+	if ($host == 'demo.worksma.ru' and $_SESSION['id'] == '2') {
 		exit('<span class="m-icon icon-remove"></span> Менять пароль на данном аккаунте запрещено!');
 	}
 

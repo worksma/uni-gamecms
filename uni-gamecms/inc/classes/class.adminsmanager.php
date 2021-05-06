@@ -642,7 +642,7 @@ class AdminsManager {
 				$pass = htmlspecialchars_decode($row[$i]['pass'], ENT_QUOTES);
 			}
 
-			$ftp_data .= $active.'"'.$name.'" "'.$pass.'" "'.$rights['flags'].'" "'.$row[$i]['type'].'";'. "'".$admin_services."' '".$row[$i]['user_id']."' written by gamecms :end:"."\n";
+			$ftp_data .= $active.'"'.$name.'" "'.$pass.'" "'.$rights['flags'].'" "'.$row[$i]['type'].'";'. "'".$admin_services."' '".$row[$i]['user_id']."' written by uni-gamecms :end:"."\n";
 		}
 
 		if(!$ftp_connection = $this->ftp_connection($server->ftp_host, $server->ftp_port, $server->ftp_login, $server->ftp_pass, $title)){

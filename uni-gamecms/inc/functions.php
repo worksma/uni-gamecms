@@ -822,7 +822,7 @@ function getMonitoringUrl() {
 	) {
 		$monitoringUrl = $config_additional['monitoring_url'];
 	} else {
-		$monitoringUrl = 'http://monitoring-api.gamecms.ru/';
+		$monitoringUrl = 'http://worksma.ru/monitor';
 	}
 
 	return $monitoringUrl;

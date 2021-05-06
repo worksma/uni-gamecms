@@ -34,7 +34,7 @@ if(isset($_POST['create_page'])) {
 	$content     = magic_quotes($_POST['content']);
 
 	if(check_for_php($content)) {
-		exit('<p class="text-danger">Использование PHP кода в режиме безопасной эксплуатации запрещено, используйте синтаксис шаблонизатора:  https://gamecms.ru/wiki/template_syntax</p>');
+		exit('<p class="text-danger">Использование PHP кода в режиме безопасной эксплуатации запрещено, используйте синтаксис шаблонизатора.</p>');
 	}
 
 	if(empty($class) or empty($privacy) or empty($robots) or empty($active) or empty($url) or empty($title) or empty($description) or empty($keywords) or empty($image)) {
@@ -122,7 +122,7 @@ if(isset($_POST['page_edit'])) {
 	$content     = magic_quotes($_POST['content']);
 
 	if(check_for_php($content)) {
-		exit('<p class="text-danger">Использование PHP кода в режиме безопасной эксплуатации запрещено, используйте синтаксис шаблонизатора:  https://gamecms.ru/wiki/template_syntax</p>');
+		exit('<p class="text-danger">Использование PHP кода в режиме безопасной эксплуатации запрещено, используйте синтаксис шаблонизатора.</p>');
 	}
 
 	if(empty($class) or empty($privacy) or empty($robots) or empty($active) or empty($url) or empty($title) or empty($description) or empty($keywords)) {
@@ -1250,7 +1250,7 @@ if(isset($_POST['onQiwiPaymentSystem'])) {
 		exit(
 			'<p class="text-danger">'
 			. 'Для использования qiwi требуется наличие '
-			. '<a target="_blank" href="https://gamecms.ru/wiki/SSL-sertifikat-pokupka-ustanovka">SSL сертификата!</a>'
+			. 'SSL сертификата!'
 			. '</p>'
 			. '<script>'
 			. '$("#qiwiTrigger label:nth-child(1)").removeClass("active");'
@@ -2254,7 +2254,7 @@ if(isset($_POST['save_code'])) {
 	}
 	if(check_for_php($content)) {
 		exit(json_encode(array('status'  => '2',
-							   'message' => 'Использование PHP кода в режиме безопасной эксплуатации запрещено, используйте синтаксис шаблонизатора:  https://gamecms.ru/wiki/template_syntax')));
+							   'message' => 'Использование PHP кода в режиме безопасной эксплуатации запрещено, используйте синтаксис шаблонизатора.')));
 	}
 
 	$content = magic_quotes($content);
@@ -3111,14 +3111,14 @@ if(isset($_POST['load_servers'])) {
 					<div class="bs-callout bs-callout-info bs-callout-sm mt-5">
 						<h4>Поддержка: привилегии и баны</h4>
 						<p>Для чтения/записи привилегий используется база данных текущего сайта, для чтения/записи банов используется база данных от AmxBans/CsBans. Данный тип интеграции требует установку плагина
-							<a href="https://gamecms.ru/wiki/game-plugins" target="_blank">GameCMS API(amx)</a> на игровой сервер</p>
+							GameCMS API(amx) на игровой сервер</p>
 					</div>
 				</div>
 				<div id="tip6_<?php echo $row->id ?>" class="disp-n">
 					<div class="bs-callout bs-callout-info bs-callout-sm mt-5">
 						<h4>Поддержка: привилегии и баны</h4>
 						<p>Для чтения/записи привилегий используется база данных текущего сайта, для чтения/записи банов используется база данных от SourceBans/<a href="https://github.com/SB-MaterialAdmin" target="_blank">MaterialAdmin</a>. Данный тип интеграции требует установку плагина
-							<a href="https://gamecms.ru/wiki/game-plugins" target="_blank">GameCMS API(sm)</a> на игровой сервер</p>
+							GameCMS API(sm) на игровой сервер</p>
 					</div>
 				</div>
 				<div id="auth_prefix<?php echo $row->id ?>" class="disp-n">
