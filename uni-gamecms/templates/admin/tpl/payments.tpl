@@ -28,7 +28,6 @@
 				</div>
 				<div id="edit_freekassa_result"></div>
 				<div class="bs-callout bs-callout-info mt-10">
-					<h5><a target="_blank" href="https://gamecms.ru/wiki/FreeKassa"><span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции</a></h5>
 					<p>
 						<table>
 							<tr>
@@ -82,7 +81,6 @@
 				</div>
 				<div id="edit_robokassa_result"></div>
 				<div class="bs-callout bs-callout-info mt-10">
-					<h5><a target="_blank" href="https://gamecms.ru/wiki/RoboKassa"><span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции</a></h5>
 					<p>
 						<table>
 							<tr>
@@ -131,7 +129,6 @@
 				</div>
 				<div id="edit_interkassa_result"></div>
 				<div class="bs-callout bs-callout-info mt-10">
-					<h5><a target="_blank" href="https://gamecms.ru/wiki/InterKassa"><span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции</a></h5>
 					<p>
 						<table>
 							<tr>
@@ -254,7 +251,6 @@
 				</div>
 				<div id="edit_liqpay_result"></div>
 				<div class="bs-callout bs-callout-info mt-10">
-					<h5><a target="_blank" href="https://gamecms.ru/wiki/LiqPay"><span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции</a></h5>
 					<table>
 						<tr>
 							<td colspan="2">Необходимые данные:</td>
@@ -296,7 +292,6 @@
 				</div>
 				<div id="edit_unitpay_result"></div>
 				<div class="bs-callout bs-callout-info mt-10">
-					<h5><a target="_blank" href="https://gamecms.ru/wiki/UnitPay"><span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции</a></h5>
 					<p>
 						<table>
 							<tr>
@@ -345,7 +340,6 @@
 				</div>
 				<div id="edit_walletone_result"></div>
 				<div class="bs-callout bs-callout-info mt-10">
-					<h5><a target="_blank" href="https://gamecms.ru/wiki/WalletOne"><span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции</a></h5>
 					<p>
 						<table>
 							<tr>
@@ -391,7 +385,6 @@
 				</div>
 				<div id="edit_webmoney_result"></div>
 				<div class="bs-callout bs-callout-info mt-10">
-					<h5><a target="_blank" href="https://gamecms.ru/wiki/WebMoney"><span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции</a></h5>
 					<p>
 						<table>
 							<tr>
@@ -440,7 +433,6 @@
 				</div>
 				<div id="edit_yandexmoney_result"></div>
 				<div class="bs-callout bs-callout-info mt-10">
-					<h5><a target="_blank" href="https://gamecms.ru/wiki/yoomoney"><span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции</a></h5>
 					<p>Адрес для уведомлений: <b>{full_site_host}purse?result_ya=get</b></p>
 				</div>
 			</div>
@@ -469,7 +461,6 @@
 				</div>
 				<div id="edit_qiwi_result"></div>
 				<div class="bs-callout bs-callout-info mt-10">
-					<h5><a target="_blank" href="https://gamecms.ru/wiki/QIWI"><span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции</a></h5>
 					<p>Адрес для серверных уведомлений: <b>{full_site_host}purse?result_qw=get</b></p>
 				</div>
 			</div>
@@ -499,7 +490,6 @@
 				</div>
 				<div id="edit_anypay_result"></div>
 				<div class="bs-callout bs-callout-info mt-10">
-					<h5><a target="_blank" href="https://gamecms.ru/wiki/AnyPay"><span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции</a></h5>
 					<table>
 						<tr>
 							<td colspan="2">Необходимые данные:</td>

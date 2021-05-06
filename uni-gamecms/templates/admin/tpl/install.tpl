@@ -1,13 +1,13 @@
 <div class="header container-fluid" id="vFoxHead">
 	<div class="container">
-		<a alt="Игровой движок GameCMS" class="logo full_logo" href="https://vfoxcms.ru/gamecms" target="_blank">
+		<a alt="Игровой движок UNI GameCMS" class="logo full_logo" href="https://worksma.ru" target="_blank">
 			<img class="full_logo" src="../templates/admin/img/logo.png">
 		</a>
 		
         <div id="navbar" class="navbar-collapse collapse">
 			<ul class="nav navbar-nav">
 				<li>
-					<a href="https://vfoxcms.ru" style="color:#eee;background:#4B0082;">
+					<a href="https://worksma.ru" style="color:#eee;background:#4B0082;">
 						UNI GameCMS
 					</a>
 				</li>

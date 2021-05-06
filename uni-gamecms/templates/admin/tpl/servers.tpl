@@ -235,13 +235,13 @@
 				<div id="tip5_" class="disp-n">
 					<div class="bs-callout bs-callout-info bs-callout-sm mt-5">
 						<h4>Поддержка: привилегии и баны</h4>
-						<p>Для чтения/записи привилегий используется база данных текущего сайта, для чтения/записи банов используется база данных от AmxBans/CsBans. Данный тип интеграции требует установку плагина <a href="https://gamecms.ru/wiki/game-plugins" target="_blank">GameCMS API(amx)</a> на игровой сервер</p>
+						<p>Для чтения/записи привилегий используется база данных текущего сайта, для чтения/записи банов используется база данных от AmxBans/CsBans. Данный тип интеграции требует установку плагина GameCMS API(amx) на игровой сервер</p>
 					</div>
 				</div>
 				<div id="tip6_" class="disp-n">
 					<div class="bs-callout bs-callout-info bs-callout-sm mt-5">
 						<h4>Поддержка: привилегии и баны</h4>
-						<p>Для чтения/записи привилегий используется база данных текущего сайта, для чтения/записи банов используется база данных от SourceBans/<a href="https://github.com/SB-MaterialAdmin" target="_blank">MaterialAdmin</a>. Данный тип интеграции требует установку плагина <a href="https://gamecms.ru/wiki/game-plugins" target="_blank">GameCMS API(sm)</a> на игровой сервер</p>
+						<p>Для чтения/записи привилегий используется база данных текущего сайта, для чтения/записи банов используется база данных от SourceBans/<a href="https://github.com/SB-MaterialAdmin" target="_blank">MaterialAdmin</a>. Данный тип интеграции требует установку плагина GameCMS API(sm) на игровой сервер</p>
 					</div>
 				</div>
 				<div id="auth_prefix" class="disp-n">

@@ -124,7 +124,7 @@
 							<label for="input_url">
 								<h4>
 									Адрес
-									<small>Для url (Пример: gamecms.ru/pages/<b>test</b>)</small>
+									<small>Для url (Пример: worksma.ru/pages/<b>test</b>)</small>
 								</h4>
 							</label>
 							<input type="text" class="form-control" id="input_url" maxlength="30">

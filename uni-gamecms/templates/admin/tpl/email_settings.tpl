@@ -4,11 +4,6 @@
 			Настройка почтового сервера
 		</div>
 
-		<div class="bs-callout bs-callout-info mt-10">
-			<h5>Информация</h5>
-			<p><a target="_blank" href="https://gamecms.ru/wiki/nastroyka-pochtovogo-servera"><span class="glyphicon glyphicon-link"></span> Описание и инструкция по настройке</a></p>
-		</div>
-
 		<div class="form-group mt-10">
 			<div class="btn-group mb-10" data-toggle="buttons">
 				<label class="btn btn-default {pact}" onclick="change_value('config__email','use_email','1','1');" checked>

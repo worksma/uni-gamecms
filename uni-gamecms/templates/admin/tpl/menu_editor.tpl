@@ -1,9 +1,4 @@
 <div class="page">
-	<div class="bs-callout bs-callout-info mt-10">
-		<h5>Полезная информация</h5>
-		<p><a target="_blank" href="https://gamecms.ru/wiki/menu_editor"><span class="glyphicon glyphicon-link"></span> Теги для редактора меню</a></p>
-	</div>
-	<br>
 	<div class="block">
 		<div class="block_head">
 			Добавить пункт

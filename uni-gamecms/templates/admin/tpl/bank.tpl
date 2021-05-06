@@ -185,10 +185,6 @@
 						<input type="number" class="form-control" id="referral_percent" maxlength="2" autocomplete="off" placeholder="от 0 до 99" value="{referral_percent}">
 					</div>
 					<div id="edit_referral_percent_result"></div>
-
-					<div class="bs-callout bs-callout-info mt-10">
-						<a target="_blank" href="https://gamecms.ru/wiki/referral_program"><span class="glyphicon glyphicon-link"></span> Описание реферальной программы</a>
-					</div>
 				</div>
 			</div>
 

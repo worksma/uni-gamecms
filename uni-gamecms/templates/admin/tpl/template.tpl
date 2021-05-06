@@ -1,14 +1,5 @@
 <div class="page">
 	<div class="row">
-		<div class="col-md-12">
-			<div class="bs-callout bs-callout-info mt-10">
-				<h5>Полезная информация</h5>
-				<p>
-					<a target="_blank" href="https://gamecms.ru/wiki/template_documentation"><span class="glyphicon glyphicon-link"></span> Документация по шаблонам</a>
-				</p>
-			</div>
-			<br>
-		</div>
 		<div class="col-md-6">
 			<div class="block">
 				<div class="block_head">
