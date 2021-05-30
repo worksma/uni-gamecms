@@ -873,7 +873,7 @@ CREATE TABLE `playground` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 INSERT INTO `playground` (`id`, `currency`, `course`) VALUES (1, 'поинт', 0.1);
-ALTER TABLE `playground` ADD PRIMARY KEY (`id`);
+ALTER TABLE `playground` MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 CREATE TABLE `playground__category` (
   `id` int(9) NOT NULL,
@@ -882,7 +882,7 @@ CREATE TABLE `playground__category` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 INSERT INTO `playground__category` (`id`, `name`, `code_name`) VALUES (1, 'Фон профиля', 'background'), (2, 'Аватар', 'avatar'), (3, 'Рамка профиля', 'frame');
-ALTER TABLE `playground__category` ADD PRIMARY KEY (`id`);
+ALTER TABLE `playground__category` MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 CREATE TABLE `playground__product` (
   `id` int(9) NOT NULL,
@@ -893,7 +893,7 @@ CREATE TABLE `playground__product` (
   `id_category` int(9) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-ALTER TABLE `playground__product` ADD PRIMARY KEY (`id`);
+ALTER TABLE `playground__product` MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 CREATE TABLE `playground__purchases` (
   `id` int(9) NOT NULL,
@@ -905,7 +905,7 @@ CREATE TABLE `playground__purchases` (
   `active` int(9) NOT NULL DEFAULT '0'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-ALTER TABLE `playground__purchases` ADD PRIMARY KEY (`id`);
+ALTER TABLE `playground__purchases` MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 CREATE TABLE `playground__sale` (
   `id` int(9) NOT NULL,
@@ -914,7 +914,7 @@ CREATE TABLE `playground__sale` (
   `id_seller` int(9) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-ALTER TABLE `playground__sale` ADD PRIMARY KEY (`id`);
+ALTER TABLE `playground__sale` MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS `vouchers` (
   `id` int(9) NOT NULL AUTO_INCREMENT,
