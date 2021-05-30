@@ -1,7 +1,8 @@
 <div class="left_block hidden-xs" role="navigation">
 	<ul class="navigation">
 		<a href="{site_host}admin/index"><li><span class="glyphicon glyphicon-cog"></span> Главные настройки движка</li></a>
-		<a href="{site_host}admin/verifications"><li><span class="glyphicon glyphicon-check"></span> Верификация пользователей <span class="badge" style="background-color:purple;">NEW</span></li></a>
+		<a href="{site_host}admin/market"><li><span class="glyphicon glyphicon-credit-card"></span> Торговая площадка <span class="badge" style="background-color:purple;">NEW</span></li></a>
+		<a href="{site_host}admin/verifications"><li><span class="glyphicon glyphicon-check"></span> Верификация пользователей</li></a>
 		<a href="{site_host}admin/payments"><li><span class="glyphicon glyphicon-info-sign"></span> Платежные системы</li></a>
 		<a href="{site_host}admin/bank"><li><span class="glyphicon glyphicon-piggy-bank"></span> Монетизация</li></a>
 		<a href="{site_host}admin/store"><li><span class="glyphicon glyphicon-barcode"></span> Настройка услуг</li></a>

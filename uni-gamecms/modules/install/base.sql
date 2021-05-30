@@ -363,7 +363,7 @@ CREATE TABLE IF NOT EXISTS `levels__profile` (
   `name` varchar(512) NOT NULL,
   `experience` int(9) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=cp1251;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 INSERT IGNORE INTO `levels__profile` (`id`, `level`, `name`, `experience`) VALUES(1, 0, 'Серебро - I', 0), (2, 1, 'Серебро - II', 200), (3, 2, 'Серебро - III', 500), (4, 3, 'Серебро - IV', 700), (5, 4, 'Серебро - Элита', 1000), (6, 5, 'Серебро - Великий Магистр', 1500), (7, 6, 'Золотая Звезда - I', 1800), (8, 7, 'Золотая Звезда - II', 2500), (9, 8, 'Золотая Звезда - III', 3200), (10, 9, 'Золотая Звезда - Магистр', 3900), (11, 10, 'Магистр-Хранитель - I', 5000), (12, 11, 'Магистр-Хранитель - II', 8000), (13, 12, 'Магистр-Хранитель - Элита', 10000), (14, 13, 'Заслуженный Магистр-Хранитель', 15000), (15, 14, 'Легендарный Беркут', 20000), (16, 15, 'Легендарный Беркут-Магистр', 30000), (17, 16, 'Великий Магистр Высшего Ранга', 50000), (18, 17, 'Всемирная Элита', 100000);
 
@@ -411,8 +411,7 @@ INSERT INTO `menu__sub` (`id`, `name`, `link`, `menu`, `poz`, `for_all`) VALUES
 (6, 'Профиль', '../profile', 5, 1, 1),
 (7, 'Выход', '../exit', 5, 8, 1),
 (8, 'Услуги', '../my_stores', 5, 7, 1),
-(9, 'Магазин бонусов', '../store/points', 4, 2, 1),
-(10, 'Магазин привилегий', '../store', 4, 1, 1);
+(9, 'Магазин привилегий', '../store', 4, 1, 1);
 
 CREATE TABLE IF NOT EXISTS `modules` (
   `id` int(9) NOT NULL AUTO_INCREMENT,
@@ -600,7 +599,10 @@ INSERT INTO `pages` (`id`, `file`, `url`, `name`, `title`, `description`, `keywo
 (72, 'modules_extra/buy_key/base/index.php', 'buy_key', 'buy_key', 'Покупка VIP', 'Покупка VIP', 'Покупка, VIP', 1, 'files/miniatures/standart.jpg', 2, 2, 1, 1, 1, 0, 0),
 (73, 'modules_extra/buy_key/base/admin/servers.php', 'admin/bk_servers', 'admin_bk_servers', 'Настройка услуг модуля buy_key', 'none', 'none', 1, 'files/miniatures/standart.jpg', 0, 0, 2, 1, 1, 0, 0),
 (74, 'modules_extra/buy_key/base/admin/services.php', 'admin/bk_services', 'admin_bk_services', 'Настройка серверов модуля buy_key', 'none', 'none', 1, 'files/miniatures/standart.jpg', 0, 0, 2, 1, 1, 0, 0),
-(75, 'modules/admin/verifications.php', 'admin/verifications', 'admin_page_verification', 'Верификация пользователей', 'none', 'none', 1, 'files/miniatures/standart.jpg', 0, 0, 2, 1, 0, 0, 0);
+(75, 'modules/admin/verifications.php', 'admin/verifications', 'admin_page_verification', 'Верификация пользователей', 'none', 'none', 1, 'files/miniatures/standart.jpg', 0, 0, 2, 1, 0, 0, 0),
+(76, 'modules/playground/index.php', 'market', 'playground', 'Торговая площадка', 'Торговая площадка', 'Торговая, площадка', 1, 'files/miniatures/standart.jpg', 1, 2, 1, 1, 0, 0, 0),
+(77, 'modules/playground/inventory.php', 'inventory', 'inventory', 'Инвентарь', 'Инвентарь профиля', 'инвентарь,профиля', 1, 'files/miniatures/standart.jpg', 1, 2, 1, 1, 0, 0, 0),
+(78, 'modules/admin/playground.php', 'admin/market', 'admin_market', 'Маркет', 'none', 'none', 1, 'files/miniatures/standart.jpg', 0, 0, 2, 1, 0, 0, 0);
 
 CREATE TABLE IF NOT EXISTS `pages__classes` (
   `id` int(9) NOT NULL AUTO_INCREMENT,
@@ -778,8 +780,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `birth` date NOT NULL,
   `signature` text NOT NULL,
   `answers` int(9) DEFAULT '0',
+  `playground` int(9) DEFAULT '0',
   `shilings` float NOT NULL,
-  `points` int(9) NOT NULL DEFAULT '0',
   `stickers` int(9) NOT NULL DEFAULT '0',
   `thanks` int(9) DEFAULT '0',
   `last_activity` varchar(20) NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -863,6 +865,56 @@ CREATE TABLE IF NOT EXISTS `users__online` (
   `time` varchar(12) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `playground` (
+  `id` int(9) NOT NULL,
+  `currency` varchar(64) NOT NULL,
+  `course` float NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+INSERT INTO `playground` (`id`, `currency`, `course`) VALUES (1, 'поинт', 0.1);
+ALTER TABLE `playground` ADD PRIMARY KEY (`id`);
+
+CREATE TABLE `playground__category` (
+  `id` int(9) NOT NULL,
+  `name` varchar(64) NOT NULL,
+  `code_name` varchar(64) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+INSERT INTO `playground__category` (`id`, `name`, `code_name`) VALUES (1, 'Фон профиля', 'background'), (2, 'Аватар', 'avatar'), (3, 'Рамка профиля', 'frame');
+ALTER TABLE `playground__category` ADD PRIMARY KEY (`id`);
+
+CREATE TABLE `playground__product` (
+  `id` int(9) NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `price` float NOT NULL,
+  `resource` text NOT NULL,
+  `executor` text NOT NULL,
+  `id_category` int(9) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+ALTER TABLE `playground__product` ADD PRIMARY KEY (`id`);
+
+CREATE TABLE `playground__purchases` (
+  `id` int(9) NOT NULL,
+  `id_product` int(9) NOT NULL,
+  `id_category` int(9) NOT NULL,
+  `id_user` int(9) NOT NULL,
+  `price` float NOT NULL,
+  `buy_time` int(15) NOT NULL,
+  `active` int(9) NOT NULL DEFAULT '0'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+ALTER TABLE `playground__purchases` ADD PRIMARY KEY (`id`);
+
+CREATE TABLE `playground__sale` (
+  `id` int(9) NOT NULL,
+  `id_product` int(9) NOT NULL,
+  `id_category` int(9) NOT NULL,
+  `id_seller` int(9) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+ALTER TABLE `playground__sale` ADD PRIMARY KEY (`id`);
 
 CREATE TABLE IF NOT EXISTS `vouchers` (
   `id` int(9) NOT NULL AUTO_INCREMENT,

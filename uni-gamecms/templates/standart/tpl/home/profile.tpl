@@ -1,11 +1,66 @@
 <!--[ Система уровней ]-->
-<?$lvl = new Levels($pdo);?>
-<!--[ Система уровней ]-->
+<?
+	$lvl = new Levels($pdo);
+?>
+<!--[ Система Торговой площадки ]-->
+<?
+	$playground = new Playground($pdo, $conf);
+?>
+<style>
+	.div-frame {
+		position: relative;
+	}
+	
+	.div-frame img {
+		background: none;
+		filter: none;
+		display: block;
+		padding: 0;
+		width: 100%;
+		height: 100%;
+	}
+	
+	.div-avatar-frame {
+		position: absolute;
+	}
+	
+	.div-avatar-frame > img {
+		transform: scale(1.23);
+		background: none;
+	}
+</style>
 <div class="col-lg-9 order-is-first">
 	<div class="row profile-page">
 		<div class="col-lg-4">
 			<div class="block profile">
-				<img src="../{avatar}" alt="{login}">
+				<?
+					$fmimage = $playground->get_resource_active(3, ($_GET['id'] ? $_GET['id'] : $_SESSION['id']));
+					$avaimage = $playground->get_resource_active(2, ($_GET['id'] ? $_GET['id'] : $_SESSION['id']));
+					
+					if(isset($fmimage)) {
+						?>
+						<div class="div-frame mb-4">
+							<div class="div-avatar-frame">
+								<img src="../files/playground/<?echo $fmimage;?>">
+							</div>
+							{if(($avaimage))}
+								<img src="../files/playground/<?echo $avaimage;?>">
+							{else}
+								<img src="../{avatar}">
+							{/if}
+						</div>
+						<?
+					}
+					else {
+						?>
+						{if(($avaimage))}
+							<img src="../files/playground/<?echo $avaimage;?>">
+						{else}
+							<img src="../{avatar}">
+						{/if}
+						<?
+					}
+				?>
 				<div class="vertical-navigation">
 					<ul>
                         {if((is_auth() && $_SESSION['id'] == '{profile_id}') || is_worthy("m"))}

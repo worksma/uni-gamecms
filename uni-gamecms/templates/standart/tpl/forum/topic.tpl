@@ -1,3 +1,28 @@
+<style>
+	.div-frame {
+		position: relative;
+		margin-left:4px;
+	}
+	
+	.div-frame img {
+		background: unset !important;
+		filter: unset;
+		display: block;
+		padding: 0;
+		width: 100%;
+		height: 100%;
+		padding: 0px !important;
+	}
+	
+	.div-avatar-frame {
+		position: absolute;
+	}
+	
+	.div-avatar-frame > img {
+		transform: scale(1.23);
+		background: unset;
+	}
+</style>
 <div class="col-lg-9 order-is-first">
 	<div class="block">
 		<div class="block_head">
@@ -23,7 +48,26 @@
 
 				<div class="center-area">
 					<div class="left-side">
-						<img src="../{author_avatar}" alt="{author_login}">
+						<?$playground = new Playground($pdo, $conf);?>
+						
+						{if($fmimage = $playground->get_resource_active(3, {author_id}))}
+							<div class="div-frame mb-4">
+								<div class="div-avatar-frame">
+									<img src="../files/playground/<?echo $fmimage;?>">
+								</div>
+								{if($avaimage = $playground->get_resource_active(2, {author_id}))}
+									<img src="../files/playground/<?echo $avaimage;?>">
+								{else}
+									<img src="../{author_avatar}">
+								{/if}
+							</div>
+						{else}
+							{if($avaimage = $playground->get_resource_active(2, {author_id}))}
+								<img src="../files/playground/<?echo $avaimage;?>">
+							{else}
+								<img src="../{author_avatar}">
+							{/if}
+						{/if}
 
 						<p style="color: {group_color}">{group_name}</p><br>
 						<p>Рейтинг: {reit}</p><br>

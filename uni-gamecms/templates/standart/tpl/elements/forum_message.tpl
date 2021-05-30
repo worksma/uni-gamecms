@@ -29,7 +29,26 @@
 
 	<div class="center-area">
 		<div class="left-side">
-			<img src="../{avatar}" alt="{login}">
+			<?$playground = new Playground($pdo, $conf);?>
+			
+			{if($fmimage = $playground->get_resource_active(3, {author}))}
+				<div class="div-frame mb-4">
+					<div class="div-avatar-frame">
+						<img src="../files/playground/<?echo $fmimage;?>">
+					</div>
+					{if($avaimage = $playground->get_resource_active(2, {author}))}
+						<img src="../files/playground/<?echo $avaimage;?>">
+					{else}
+						<img src="../{avatar}">
+					{/if}
+				</div>
+			{else}
+				{if($avaimage = $playground->get_resource_active(2, {author}))}
+					<img src="../files/playground/<?echo $avaimage;?>">
+				{else}
+					<img src="../{avatar}">
+				{/if}
+			{/if}
 
 			<p style="color: {gp_color}">{gp_name}</p><br>
 			<p>Рейтинг: {reit}</p><br>
