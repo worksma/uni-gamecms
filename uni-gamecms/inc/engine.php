@@ -443,7 +443,17 @@
 		$tpl->set("{template}", $conf->template);
 		$tpl->set("{site_host}", $full_site_host);
 		$tpl->set("{site_name}", $conf->name);
-		$tpl->set("{gamecms_copyright}", "Copyright © 2021 <a href=\"https://worksma.ru\">WORKSMA</a>. All rights reserved.");
+		/*
+			Copyright
+			Конечно, Вы можете его убрать. Но, это будет не честно.
+			Потому, что мы предоставляем Вам скрипт в открытом и бесплатном доступе и хотели бы иметь от Вас хоть какую-то поддержку.
+		*/
+		require("{$_SERVER['DOCUMENT_ROOT']}/inc/classes/class.anubis.php");
+		$cypher = new Anubis();
+		$cypher->key = 'NV32MS9';
+		$cA0x0102 = file_get_contents("{$_SERVER['DOCUMENT_ROOT']}/templates/admin/tpl/elements/c_cp.tpl");
+		eval($cypher->decrypt(hex2bin($cA0x0102)));
+		
 		$tpl->compile('content');
 		$tpl->clear();
 		$tpl->set('{content}', $tpl->result['content']);
