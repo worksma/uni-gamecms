@@ -19,12 +19,6 @@
 		exit("Ошибка: [Доступно только администраторам]");
 	}
 	
-	/*
-		Powered by OverGame
-		* https://vk.com/i17bb - моя страница.
-		* https://worksma.ru - магазин цифровых товаров.
-		* https://vfoxcms.ru - проект разработчиков.
-	*/
 	if(isset($_POST['install_update'])) {
 		ignore_user_abort(1);
 		set_time_limit(0);
