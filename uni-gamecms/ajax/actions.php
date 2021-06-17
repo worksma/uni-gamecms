@@ -18,10 +18,11 @@ if(isset($_POST['admin_login'])) {
 	if(!validate_captcha($conf->captcha, $_POST["captcha"])) {
 		exit('<p class="text-danger">Неверно введена капча!</p>');
 	}
-
+	
+	$login    = check($_POST['login'], null);
 	$password = check($_POST['password'], null);
 
-	if(empty($password)) {
+	if(empty($login) or empty($password)) {
 		exit('<p class="text-danger">Вы ввели не всю информацию!</p>');
 	}
 
@@ -31,13 +32,18 @@ if(isset($_POST['admin_login'])) {
 
 	$invalid_auths = $U->check_to_invalid_auth($ip);
 	if($invalid_auths > 2) {
-		log_error("Блокировка за неправильный ввод паролей (Админ Центр)");
+		log_error("Блокировка за неправильный ввод паролей (Сайт)");
 		exit('<p class="text-danger">Вы заблокированы на 15 минут. Попробуйте позже.</p>');
 	}
 
 	$password = $U->convert_password($password, $conf->salt);
 
-	if($password != $conf->password) {
+	$STH = $pdo->prepare("SELECT `id`, `rights`, `active`, `password`, `login`, `protect`, `protect`, `multi_account` FROM `users` WHERE `password`=:password AND `login`=:login LIMIT 1");
+	$STH->setFetchMode(PDO::FETCH_OBJ);
+	$STH->execute(array(':password' => $password, ':login' => $login));
+	$user = $STH->fetch();
+
+	if(empty($user->id)) {
 		$invalid_auths = $U->up_invalid_auths($ip);
 
 		log_error("Попытка: ".$invalid_auths."/3. Введеные данные неверны");
@@ -47,13 +53,39 @@ if(isset($_POST['admin_login'])) {
 			$U->dell_invalid_auths($ip);
 		}
 
-		if($conf->ip_protect == 1) {
-			$SC->admin_ip = $ip;
+		if($user->active != 1) {
+			exit('<p class="text-danger">Пожалуйста, активируйте аккаунт, инструкция выслана на Ваш E-mail!</p>');
 		}
 
+		$U->auth_user($SC, $user->protect, $user->password, $user->login, $user->id, $user->rights, $user->multi_account);
+		
+		if(!is_worthy("h")) {
+			log_error("Попытка авторизации пользователя без доступа.");
+			exit('<p class="text-danger">
+				У Вас нет доступа.
+			</p>');
+		}
+		
+		if(is_worthy("z")) {
+			log_error("Попытка авторизации забаненного аккаунта");
+			$SC->unset_user_session();
+
+			exit('<p class="text-danger">Вы заблокированы на 15 минут. Попробуйте позже.</p>');
+		}
+		if(is_worthy("x")) {
+			log_error("Попытка авторизации забаненного аккаунта (ip+cookies)");
+			$SC->unset_user_session();
+
+			$STH = $pdo->prepare("INSERT INTO `users__blocked` (`ip`) VALUES (:ip)");
+			$STH->execute(array('ip' => $ip));
+			$SC->set_cookie("point", "1");
+			exit('<p class="text-danger">Вы заблокированы.</p>');
+		}
+		
 		$_SESSION['admin']       = "yes";
 		$_SESSION['admin_cache'] = $SC->get_admin_cache($password);
-
+		$SC->set_user_cookie();
+		
 		write_log("Успешная авторизация в Админ Центре");
 		exit("<script>reset_page();</script>");
 	}

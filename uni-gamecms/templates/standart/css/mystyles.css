@@ -1,0 +1,25 @@
+/*
+	Рамки профиля
+*/
+.profile-frame {
+	position: relative;
+}
+
+.profile-frame img {
+	background: none;
+	filter: none;
+	display: block;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.profile-frame .profile-avatar-frame {
+	position: absolute;
+	width: 100%;
+}
+
+.profile-frame .profile-avatar-frame img {
+	transform: scale(1.23);
+	background: none;
+}

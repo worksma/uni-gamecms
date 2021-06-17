@@ -822,7 +822,7 @@ function getMonitoringUrl() {
 	) {
 		$monitoringUrl = $config_additional['monitoring_url'];
 	} else {
-		$monitoringUrl = 'http://worksma.ru/monitor';
+		$monitoringUrl = 'http://monitoring-api.gamecms.ru/';
 	}
 
 	return $monitoringUrl;
@@ -1768,11 +1768,11 @@ function is_auth() {
 }
 
 function is_admin() {
-	if(isset($_SESSION['admin']) and $_SESSION['admin'] == "yes") {
+	if(isset($_SESSION['id']) && is_worthy("h")) {
 		return true;
-	} else {
-		return false;
 	}
+	
+	return false;
 }
 
 function is_admin_id($main_admins = null) {

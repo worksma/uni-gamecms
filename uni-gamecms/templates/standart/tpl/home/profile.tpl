@@ -6,29 +6,6 @@
 <?
 	$playground = new Playground($pdo, $conf);
 ?>
-<style>
-	.div-frame {
-		position: relative;
-	}
-	
-	.div-frame img {
-		background: none;
-		filter: none;
-		display: block;
-		padding: 0;
-		width: 100%;
-		height: 100%;
-	}
-	
-	.div-avatar-frame {
-		position: absolute;
-	}
-	
-	.div-avatar-frame > img {
-		transform: scale(1.23);
-		background: none;
-	}
-</style>
 <div class="col-lg-9 order-is-first">
 	<div class="row profile-page">
 		<div class="col-lg-4">
@@ -39,8 +16,8 @@
 					
 					if(isset($fmimage)) {
 						?>
-						<div class="div-frame mb-4">
-							<div class="div-avatar-frame">
+						<div class="profile-frame mb-4">
+							<div class="profile-avatar-frame">
 								<img src="../files/playground/<?echo $fmimage;?>">
 							</div>
 							{if(($avaimage))}

@@ -23,17 +23,6 @@
 				</div>
 				<div id="edit_site_name_result"></div>
 				<hr>
-				<b>Пароль админ панели</b>
-				<div class="input-group">
-					<span class="input-group-btn">
-						<button class="btn btn-default pd-40-12" type="button" onclick="edit_site_password();">Изменить</button>
-					</span>
-					<input type="password" class="form-control" id="old_password" maxlength="15" autocomplete="off" placeholder="Введите текущий пароль">
-					<input type="password" class="form-control" id="password" maxlength="15" autocomplete="off" placeholder="Введите новый пароль">
-					<input type="password" class="form-control" id="password2" maxlength="15" autocomplete="off" placeholder="Повторите">
-				</div>
-				<div id="edit_password_result"></div>
-				<hr>
 				<b>Привязка сессий к ip адресу</b>
 				<div class="form-group">
 					<div class="btn-group" data-toggle="buttons">
@@ -80,12 +69,15 @@
 						</label>
 					</div>
 				</div>
+				<div class="bs-callout bs-callout-info mt-10">
+					<p><a target="_blank" href="https://gamecms.ru/wiki/global_ban"><span class="glyphicon glyphicon-link"></span> Подробнее о глобальном бане</a></p>
+				</div>
 				<div class="clearfix"></div>
 				<hr>
 				<b>Ключ для отключения копирайта</b>
 				<div class="input-group">
 					<span class="input-group-btn">
-						<a class="btn btn-default" target="_blank" href="https://worksma.ru/service-gamecms-copyright">Получить</a>
+						<a class="btn btn-default" target="_blank" href="https://gamecms.ru/get_copyright_key">Получить</a>
 						<button class="btn btn-default" type="button" onclick="edit_copyright_key();">Изменить</button>
 					</span>
 					<input type="text" class="form-control" id="copyright_key" maxlength="40" autocomplete="off" value="{copyright_key}">
@@ -107,6 +99,9 @@
 					</div>
 					<input type="password" class="form-control" id="dev_key" maxlength="32" value="{dev_key}" placeholder="Введите ключ">
 				</div>
+				<div class="bs-callout bs-callout-info mt-10">
+					<p><a target="_blank" href="https://gamecms.ru/wiki/developer_mode"><span class="glyphicon glyphicon-link"></span> Как получить ключ и что это такое?</a></p>
+				</div>
 				<input type="hidden" class="form-control" id="host" value="{host}">
 
 				<hr>
@@ -124,6 +119,9 @@
 						</label>
 					</div>
 					<input type="text" class="form-control" id="captcha" maxlength="50" value="{captcha}" placeholder="Ключ капчи">
+				</div>
+				<div class="bs-callout bs-callout-info mt-10">
+					<p><a target="_blank" href="https://gamecms.ru/wiki/captcha"><span class="glyphicon glyphicon-link"></span> Инструкция по настройке</a></p>
 				</div>
 				<div class="clearfix"></div>
 			</div>
@@ -185,6 +183,10 @@
 					<input value="{vk_service_key}" type="text" class="form-control" id="vk_service_key" maxlength="100" autocomplete="off" placeholder="Сервисный ключ доступа">
 				</div>
 				<div id="edit_vk_result"></div>
+				<div class="bs-callout bs-callout-info mt-10">
+					<h5>Инструкция</h5>
+					<p><a target="_blank" href="https://gamecms.ru/wiki/avtorizatsiya-cherez-VK"><span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции</a></p>
+				</div>
 				<hr>
 				<b>Регистрация через steam</b><br>
 				<div class="btn-group" data-toggle="buttons">
@@ -205,6 +207,10 @@
 					<input value="{steam_key}" type="text" class="form-control" id="steam_key" maxlength="200" autocomplete="off" placeholder="Ключ">
 				</div>
 				<div id="edit_steam_result"></div>
+				<div class="bs-callout bs-callout-info mt-10">
+					<h5>Инструкция</h5>
+					<p><a target="_blank" href="https://gamecms.ru/wiki/avtorizatsiya-cherez-steam"><span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции</a></p>
+				</div>
 				<hr>
 				<b>Регистрация через facebook</b><br>
 				<div class="btn-group" data-toggle="buttons">
@@ -226,6 +232,10 @@
 					<input value="{fb_key}" type="text" class="form-control" id="fb_key" maxlength="100" autocomplete="off" placeholder="Секрет приложения">
 				</div>
 				<div id="edit_fb_result"></div>
+				<div class="bs-callout bs-callout-info mt-10">
+					<h5>Инструкция</h5>
+					<p><a target="_blank" href="https://gamecms.ru/wiki/avtorizatsiya-cherez-fb"><span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции</a></p>
+				</div>
 			</div>
 		</div>
 

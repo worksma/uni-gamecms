@@ -1,34 +1,10 @@
-<style>
-	.div-frame {
-		position: relative;
-		margin-left:4px;
-	}
-	
-	.div-frame img {
-		background: none;
-		filter: none;
-		display: block;
-		padding: 0;
-		width: 100%;
-		height: 100%;
-	}
-	
-	.div-avatar-frame {
-		position: absolute;
-	}
-	
-	.div-avatar-frame > img {
-		transform: scale(1.23);
-		background: none;
-	}
-</style>
 <div class="chat_message" id="message_id_{id}">
 	<a href="../profile?id={user_id}" title="{gp_name}">
 		<?$playground = new Playground($pdo, $conf);?>
 		
 		{if($fmimage = $playground->get_resource_active(3, {user_id}))}
-			<div class="div-frame mb-4">
-				<div class="div-avatar-frame">
+			<div class="profile-frame mb-4 ml-1">
+				<div class="profile-avatar-frame">
 					<img style="border-radius: 0px !important;" src="../files/playground/<?echo $fmimage;?>">
 				</div>
 				{if($avaimage = $playground->get_resource_active(2, {user_id}))}

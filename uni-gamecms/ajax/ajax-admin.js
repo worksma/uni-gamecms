@@ -22,8 +22,28 @@ function set_enter(input,func){$(input).keydown(function(event){if(event.which==
 function send_form(form,func){$(form).submit(function(event){event.preventDefault();eval(func);});}
 function create_material(data,dataType){dataType=dataType||0;data['phpaction']=1;data['token']=$('#token').val();var material='';if(dataType==0){$.each(data,function(key,value){material=material+key+'='+encodeURIComponent(value)+'&';});material.substring(0,material.length-1);}else{material=new FormData();$.each(data,function(key,value){material.append(key,value);});}
 	return material;}
-$(document).ajaxComplete(function(event,xhr){if(xhr.responseText.indexOf('Доступно только администраторам')+1){reset_page();}});function admin_login(){var captcha=null;if(typeof grecaptcha!="undefined"){captcha=grecaptcha.getResponse();}
-	var token=$('#token').val();var password=$('#password').val();password=encodeURIComponent(password);$.ajax({type:"POST",url:"../ajax/actions.php",data:"phpaction=1&token="+token+"&admin_login=1&password="+password+"&captcha="+captcha,success:function(html){$("#result").html(html);}});}
+$(document).ajaxComplete(function(event,xhr){if(xhr.responseText.indexOf('Доступно только администраторам')+1){reset_page();}});
+
+function admin_login(){
+	var captcha=null;
+	if(typeof grecaptcha!="undefined"){
+		captcha=grecaptcha.getResponse();
+	}
+	
+	var token = $('#token').val();
+	var login = encodeURIComponent($('#login').val());
+	var password = encodeURIComponent($('#password').val());
+	
+	$.ajax({
+		type:"POST",
+		url:"../ajax/actions.php",
+		data:"phpaction=1&token="+token+"&admin_login=1&login=" + login + "&password="+password+"&captcha="+captcha,
+		success:function(html){
+			$("#result").html(html);
+		}
+	});
+}
+
 function admin_exit(){var token=$('#token').val();$.ajax({type:"POST",url:"../ajax/actions_panel.php",data:"phpaction=1&token="+token+"&admin_exit=1",success:function(){location.href='../admin/';}});}
 function edit_site_name(){var token=$('#token').val();var site_name=$('#site_name').val();site_name=encodeURIComponent(site_name);$.ajax({type:"POST",url:"../ajax/actions_panel.php",data:"phpaction=1&token="+token+"&edit_site_name=1&site_name="+site_name,success:function(html){$("#edit_site_name_result").html(html);}});}
 function edit_ip_protect(type){var token=$('#token').val();$.ajax({type:"POST",url:"../ajax/actions_panel.php",data:"phpaction=1&token="+token+"&edit_ip_protect=1&type="+type});}

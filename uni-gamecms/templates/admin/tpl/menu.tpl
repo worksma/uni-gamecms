@@ -19,6 +19,6 @@
 		<a href="{site_host}admin/page_editor"><li><span class="glyphicon glyphicon-file"></span> Редактор страниц</li></a>
 		<a href="{site_host}admin/menu_editor"><li><span class="glyphicon glyphicon-list"></span> Редактор меню</li></a>
 		<a href="{site_host}admin/modules"><li><span class="glyphicon glyphicon-inbox"></span> Модули</li></a>
-		<li onclick="admin_exit();"><span class="glyphicon glyphicon-off"></span> Выход</li>
+		<a href="{site_host}exit"><li><span class="glyphicon glyphicon-off"></span> Выход</li></a>
 	</ul>
 </div>

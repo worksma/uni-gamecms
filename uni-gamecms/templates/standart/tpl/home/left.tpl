@@ -1,7 +1,21 @@
 <ul class="collapsible-menu user-menu">
 	<li class="collapsible">
 		<a href="">
-			<img src="../{avatar}" alt="{login}">
+			<?
+				$playground = new Playground($pdo, $conf);
+				$avaimage = $playground->get_resource_active(2, $_SESSION['id']);
+				
+				if($avaimage):
+			?>
+				<img src="../files/playground/<?echo $avaimage;?>" alt="{login}">
+			<?
+				else:
+			?>
+				<img src="../{avatar}" alt="{login}">
+			<?
+				endif;
+			?>
+			
 			<h3>{login}</h3>
 			<p>{group}</p>
 

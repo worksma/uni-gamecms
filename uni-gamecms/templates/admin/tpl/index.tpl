@@ -1,23 +1,3 @@
-<form class="modal fade" id="staticBackdrop" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-		  <div class="modal-header">
-			<h5 class="modal-title" id="staticBackdropLabel">Восстановление пароля</h5>
-		  </div>
-		  <div class="modal-body">
-			<input type="email" id="replace_email_input" maxlength="32" class="form-control" placeholder="webmaster@example.com">
-			
-			<div id="result_replace"></div>
-		  </div>
-		  <div class="modal-footer">
-			<button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
-			<button type="submit" class="btn btn-primary">Восстановить</button>
-		  </div>
-		</div>
-	</div>
-</form>
-<script> send_form('#staticBackdrop', 'replace_password();'); </script>
-
 <div class="central_block" style="-moz-box-shadow:0 0 10px #000; -webkit-box-shadow:0 0 10px #000; box-shadow:0 0 10px #000;">
 	<div class="header">
 		<a href="../">
@@ -28,20 +8,31 @@
 	<div class="central_block_body">
 		<div class="form-horizontal">
 			<form id="admin_login">
-				<p>
-					<input id="password" type="password" maxlength="15" class="form-control" placeholder="Пароль">
-				</p>
+				<div class="input-group" style="margin-bottom:0.2rem;">
+					<span class="input-group-addon">
+						<i class="fas fa-user"></i>
+					</span>
+					<input type="text" class="form-control" placeholder="Введите логин" id="login">
+				</div>
+				
+				<div class="input-group" style="margin-bottom:0.5rem;">
+					<span class="input-group-addon">
+						<i class="fas fa-unlock"></i>
+					</span>
+					<input type="password" class="form-control" placeholder="Введите пароль" id="password">
+				</div>
+			
+			
 				{if($conf->captcha != '2')}
 					<div style="transform:scale(1.13);-webkit-transform:scale(1.13);transform-origin:0 0;-webkit-transform-origin:0 0;" data-theme="light" class="g-recaptcha mb-15 clearfix" data-sitekey="{{$conf->captcha}}"></div>
 					<script src='https://www.google.com/recaptcha/api.js?hl=ru'></script>
 				{/if}
 				<div id="result"></div>
-				<p>
-					<center>
-						<input type="submit" value="Войти" class="btn2 btn-primary btn-lg btn-block" style="background:#4B0082;">
-						<a href="#" data-toggle="modal" data-target="#staticBackdrop">Забыли пароль?</a>
-					</center>
-				</p>
+				
+				<center>
+					<input type="submit" value="Войти" class="btn2 btn-primary btn-lg btn-block" style="background:#4B0082;">
+					<a href="/recovery">Забыли пароль?</a>
+				</center>
 			</form>
 			<script> send_form('#admin_login', 'admin_login();'); </script>
 		</div>

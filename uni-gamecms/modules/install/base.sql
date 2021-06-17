@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS `config__secondary` (
   `stats_lim` int(9) NOT NULL DEFAULT '30',
   `stand_rights` int(9) NOT NULL DEFAULT '1',
   `stand_balance` float NOT NULL DEFAULT '0',
-  `version` varchar(10) NOT NULL DEFAULT '4.9.0',
+  `version` varchar(10) NOT NULL DEFAULT '4.9.4',
   `col_login` int(9) NOT NULL DEFAULT '30',
   `admins_ids` varchar(80) NOT NULL DEFAULT '1',
   `off_message` varchar(250) NOT NULL DEFAULT 'Сайт находится в стадии разработки',
