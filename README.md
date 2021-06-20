@@ -15,10 +15,9 @@
 6. WebMoney
 7. Paysera
 8. ЮMoney
-9. LiqPay
-10. Qiwi
-11. LiqPay
-12. AnyPay
+9. Qiwi
+10. LiqPay
+11. AnyPay
 
 # Навигация по сайту (Site Navigation)
 1. Главная страница (Home page) ([адрес сайта]);
