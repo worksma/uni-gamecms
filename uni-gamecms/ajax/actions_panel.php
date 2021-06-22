@@ -1122,6 +1122,36 @@ if(isset($_POST['edit_fb_api'])) {
 	$STH->execute(array(':fb_id' => $fb_id, ':fb_key' => $fb_key));
 	exit('<p class="text-success">Настройки успешно изменены!</p>');
 }
+
+/*
+	AmaraPay
+*/
+if(isset($_POST['edit_amarapay'])):
+	$shop_id = check($_POST['amarapay_id'], null);
+	$key_public = check($_POST['amarapay_public'], null);
+	$key_secret= check($_POST['amarapay_secret'], null);
+	
+	if(empty($shop_id) || empty($key_public) || empty($key_secret)):
+		exit(json_encode([
+			'alert' => 'danger',
+			'message' => 'Заполните все поля!'
+		]));
+	endif;
+	
+	$sth = $pdo->prepare("UPDATE `config__bank` SET `amarapay_id`=:amarapay_id, `amarapay_public`=:amarapay_public, `amarapay_secret`=:amarapay_secret LIMIT 1");
+	$sth->execute([
+		':amarapay_id' => $shop_id,
+		':amarapay_public' => $key_public,
+		':amarapay_secret' => $key_secret
+	]);
+	
+	write_log("Отредактирована AmaraPay");
+	exit(json_encode([
+		'alert' => 'success',
+		'message' => 'Настройки изменены!'
+	]));
+endif;
+
 if(isset($_POST['edit_freekassa'])) {
 	$fk_login = check($_POST['fk_login'], null);
 	$fk_pass1 = check($_POST['fk_pass1'], null);

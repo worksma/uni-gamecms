@@ -3,6 +3,65 @@
 		<div class="col-md-6">
 			<div class="block">
 				<div class="block_head">
+					AmaraPay
+					<?
+						if(date("Ymd") < 20210630):
+						?>
+							<span class="badge" style="background-color:purple;">NEW</span>
+						<?
+						endif;
+					?>
+				</div>
+				<div class="form-group mb-10">
+					<div class="btn-group" data-toggle="buttons">
+						<label class="btn btn-default {amarapay_act}" onclick="change_value('config__bank','amarapay','1','1','amarapay_id,amarapay_public,amarapay_secret');">
+							<input type="radio">
+							Включить
+						</label>
+
+						<label class="btn btn-default {amarapay_act2}" onclick="change_value('config__bank','amarapay','2','1');">
+							<input type="radio">
+							Выключить
+						</label>
+					</div>
+				</div>
+				<div class="input-group">
+					<span class="input-group-btn">
+						<button class="btn btn-default pd-40-12" type="button" onclick="edit_amarapay();">Изменить</button>
+					</span>
+					<input type="text" class="form-control" id="amarapay_id" maxlength="255" autocomplete="off" value="{amarapay_id}" placeholder="ID магазина">
+					<input type="text" class="form-control" id="amarapay_public" maxlength="255" autocomplete="off" value="{amarapay_public}" placeholder="Публичный ключ">
+					<input type="text" class="form-control" id="amarapay_secret" maxlength="255" autocomplete="off" value="{amarapay_secret}" placeholder="Секретный ключ">
+				</div>
+				<div id="result_amarapay"></div>
+				<div class="bs-callout bs-callout-info mt-10">
+					<p>
+						<table>
+							<tr>
+								<td colspan="2">Необходимые данные:</td>
+							</tr>
+							<tr>
+								<td style="text-align: right">URL оповещ: </td>
+								<td>&nbsp&nbsp<b>{full_site_host}purse?amarapay=get</b></td>
+							</tr>
+							<tr>
+								<td style="text-align: right">URL успеха: </td>
+								<td>&nbsp&nbsp<b>{full_site_host}purse?amarapay=success</b></td>
+							</tr>
+							<tr>
+								<td style="text-align: right">URL неуспеха: </td>
+								<td>&nbsp&nbsp<b>{full_site_host}purse?amarapay=fail</b></td>
+							</tr>
+							<tr>
+								<td style="text-align: right">Методы: </td>
+								<td>&nbsp&nbsp<b>POST</b></td>
+							</tr>
+						</table>
+					</p>
+				</div>
+			</div>
+			<div class="block">
+				<div class="block_head">
 					Free-Kassa
 				</div>
 				<div class="form-group mb-10">

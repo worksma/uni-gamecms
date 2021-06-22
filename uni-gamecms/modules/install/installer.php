@@ -1,108 +1,120 @@
 <?PHP
-	if(!isset($_SERVER['SERVER_SOFTWARE'])) {
-		$_SERVER['SERVER_SOFTWARE'] = '0';
-	}
+	if(!isset($_SERVER['SERVER_SOFTWARE'])):
+		$_SERVER['SERVER_SOFTWARE'] = 0;
+	endif;
 	
-	if(!isset($_SERVER['GATEWAY_INTERFACE'])) {
-		$_SERVER['GATEWAY_INTERFACE'] = '0';
-	}
+	if(!isset($_SERVER['GATEWAY_INTERFACE'])):
+		$_SERVER['GATEWAY_INTERFACE'] = 0;
+	endif;
 	
-	if(!isset($_SERVER['DOCUMENT_ROOT'])) {
-		$_SERVER['DOCUMENT_ROOT'] = '0';
-	}
-
-	$key = md5($_SERVER['SERVER_SOFTWARE'].$_SERVER['GATEWAY_INTERFACE'].$_SERVER['DOCUMENT_ROOT']);
-
-	if ($_POST['key'] != $key) {
-		exit(json_encode(array('status' => '2', 'data' => 'Ошибка: [Прямой вызов исполнителя]')));
-	}
-
-	include_once '../../inc/functions.php';
-	include_once '../../inc/classes/class.users.php';
-
-	if (isset($_POST['try_connect'])) {
-		$host = check($_POST['host'],null);
-		$base = check($_POST['base'],null);
-		$user = check($_POST['user'],null);
-		$pass = check($_POST['pass'],null);
-
-		if (empty($host) or empty($base) or empty($user) or empty($pass)) {
-			exit(json_encode(array('status' => 2, 'data' => 'Заполните все поля.')));
-		}
-
-		if(db_connect($host, $base, $user, $pass)) {
-			exit(json_encode(array('status' => 1, 'data' => 'Соединение установленно')));
-		} else {
-			exit(json_encode(array('status' => 2, 'data' => 'Ошибка подключения к базе данных')));
-		}
-	}
-
-	if (isset($_POST['install'])) {
-		$host = check($_POST['host'],null);
-		$base = check($_POST['base'],null);
-		$user = check($_POST['user'],null);
-		$pass = check($_POST['pass'],null);
-		$name = check($_POST['name'],null);
-		$password = check($_POST['password'],null);
-		$email = check($_POST['email'],null);
-
-		if (empty($host) or empty($base) or empty($user) or empty($pass) or empty($name) or empty($password)) {
-			exit(json_encode(array('status' => '2', 'data' => 'Заполните все поля.')));
-		}
-
-		if (!is_writable('../../inc/db.php')) {
-			exit(json_encode(array('status' => '2', 'data' => 'Файл inc/db.php недоступен для записи!')));
-		}
+	if(!isset($_SERVER['DOCUMENT_ROOT'])):
+		$_SERVER['DOCUMENT_ROOT'] = 0;
+	endif;
+	
+	$key = md5($_SERVER['SERVER_SOFTWARE'] . $_SERVER['GATEWAY_INTERFACE'] . $_SERVER['DOCUMENT_ROOT']);
+	
+	if($_POST['key'] != $key):
+		exit(json_encode([
+			'status' => '2',
+			'data' => 'Ошибка: [Прямой вызов исполнителя]'
+		]));
+	endif;
+	
+	require($_SERVER['DOCUMENT_ROOT'] . '/inc/functions.php');
+	require($_SERVER['DOCUMENT_ROOT'] . '/inc/classes/class.users.php');
+	
+	if(isset($_POST['try_connect'])):
+		$hostname = check($_POST['host'], null);
+		$username = check($_POST['user'], null);
+		$password = check($_POST['pass'], null);
+		$dataname = check($_POST['base'], null);
 		
-		if (!is_writable('../../files/temp/temp.txt')) {
-			exit(json_encode(array('status' => '2', 'data' => 'Файл files/temp/temp.txt недоступен для записи!')));
-		}
+		if(empty($hostname) || empty($username) || empty($password) || empty($dataname)):
+			exit(json_encode([
+				'status' => '2',
+				'data' => 'Заполните все данные'
+			]));
+		endif;
 		
-		$sqli = new mysqli($host, $user, $pass, $base);
-		$pdo = db_connect($host, $base, $user, $pass);
+		if(db_connect($hostname, $dataname, $username, $password)):
+			exit(json_encode([
+				'status' => '1',
+				'data' => 'Соединение установлено'
+			]));
+		else:
+			exit(json_encode([
+				'status' => '2',
+				'data' => 'Ошибка подключения к базе данных'
+			]));
+		endif;
+	endif;
+	
+	if(isset($_POST['install'])):
+		$hostname = check($_POST['host'], null);
+		$username = check($_POST['user'], null);
+		$password = check($_POST['pass'], null);
+		$dataname = check($_POST['base'], null);
+		$project = check($_POST['name'], null);
 		
-		if($sqli->connect_errno) {
-			exit(json_encode(array('status' => 2, 'data' => 'Ошибка подключения к базе данных')));
-		}
-
-		mysqli_set_charset($sqli, "utf8");
+		if(empty($hostname) || empty($username) || empty($password) || empty($dataname)):
+			exit(json_encode([
+				'status' => '2',
+				'data' => 'Заполните все данные'
+			]));
+		endif;
 		
-		$U = new Users;
-
-		$salt = crate_pass(10, 2);
-		$code = crate_pass(10, 2);
-		$password = $U->convert_password($password, $salt);
+		if(!is_writable($_SERVER['DOCUMENT_ROOT'] . '/inc/db.php')):
+			exit(json_encode([
+				'status' => '2',
+				'data' => 'Файл [inc/db.php] недоступен для записи!'
+			]));
+		endif;
 		
-		$d = file_get_contents("{$_SERVER['DOCUMENT_ROOT']}/modules/install/base.sql");
+		if(!is_writable($_SERVER['DOCUMENT_ROOT'] . '/files/temp/temp.txt')):
+			exit(json_encode([
+				'status' => '2',
+				'data' => 'Файл [files/temp/temp.txt] недоступен для записи!'
+			]));
+		endif;
 		
-		$d = str_replace("{name}", $name, $d);
-		$d = str_replace("{password}", $password, $d);
-		$d = str_replace("{email}", $email, $d);
-		$d = str_replace("{salt}", $salt, $d);
-		$d = str_replace("{code}", $code, $d);
+		$pdo = db_connect($hostname, $dataname, $username, $password);
 		
-		$sqli->multi_query($d);
+		if(!$pdo):
+			exit(json_encode([
+				'status' => '2',
+				'data' => 'Ошибка подключения к базе данных'
+			]));
+		endif;
+		
+		$pdo->exec("set names utf8"); 
 		
 		ini_set('max_execution_time', 1200);
 		ignore_user_abort(1);
 		set_time_limit(0);
-		sleep(60);
 		
-		if(!$sqli->query("UPDATE `config` SET `password`='{$password}', `name`='{$name}', `salt`='{$salt}', `code`='{$code}', `email`='{$email}' WHERE `id`='1'")) {
-			if(!$pdo->query("UPDATE `config` SET `password`='{$password}', `name`='{$name}', `salt`='{$salt}', `code`='{$code}', `email`='{$email}' WHERE `id`='1'")) {
-				exit(json_encode(array('status' => 2, 'data' => 'База данных не успела импортироваться, нажми еще раз "Установка"')));
-			}
-		}
+		$result = importSqlFile($pdo, ($_SERVER['DOCUMENT_ROOT'] . '/modules/install/base.sql'), [
+			'project' => $project,
+			'salt' => crate_pass(10, 2),
+			'code' => crate_pass(10, 2)
+		]);
 		
-		$cfg = file_get_contents("{$_SERVER['DOCUMENT_ROOT']}/modules/install/database.bak.tpl");
-		$cfg = str_replace('{hostname}', $host, $cfg);
-		$cfg = str_replace('{username}', $user, $cfg);
-		$cfg = str_replace('{database}', $base, $cfg);
-		$cfg = str_replace('{password}', $pass, $cfg);
+		if($result === false):
+			exit(json_encode([
+				'status' => '2',
+				'data' => 'Ошибка импорта базы данных!'
+			]));
+		endif;
 		
-		if(file_put_contents("{$_SERVER['DOCUMENT_ROOT']}/inc/db.php", $cfg)) {
-			exit(json_encode(array('status' => 1, 'data' => 'Установка успешно завершена!')));
-		}
+		file_put_contents($_SERVER['DOCUMENT_ROOT'] . '/inc/configs/database.php', "<?PHP
+	return [
+		'hostname' => '{$hostname}',
+		'username' => '{$username}',
+		'password' => '{$password}',
+		'dataname' => '{$dataname}'
+	];");
 		
-		exit(json_encode(array('status' => 2, 'data' => 'Неизвестная ошибка..')));
-	}
+		exit(json_encode([
+			'status' => '1',
+			'data' => 'Успешная установка!'
+		]));
+	endif;

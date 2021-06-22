@@ -1,5 +1,23 @@
+<!--[ Система Торговой площадки ]!-->
+<?
+	$playground = new Playground($pdo, $conf);
+	
+	if(strpos($_SERVER['REQUEST_URI'], "profile") !== false) {
+		$bgimage = $playground->get_resource_active(1, $_GET['id']);
+	}
+?>
+<!--[ Система Торговой площадки ]!-->
 <div class="container-fluid wapper">
-	<div class="content">
+	<div class="content"
+	<?
+		if(isset($bgimage)) {
+			echo "style=\"background:url('../files/playground/{$bgimage}') no-repeat;
+			background-attachment: scroll;
+			background-size: auto;
+			background-attachment: fixed;
+			background-size: cover;\"";
+		}
+	?>>
 		<div class="header">
 			<div class="container">
 				<button class="auth-in btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#authorization">Войти на сайт</button>

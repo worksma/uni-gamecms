@@ -47,6 +47,10 @@ class Payments
 			'slug' => 'ap',
 			'name' => 'AnyPay'
 		],
+		[
+			'slug' => 'amarapay',
+			'name' => 'AmaraPay'
+		]
 	];
 
 	function selectPayment($payment)

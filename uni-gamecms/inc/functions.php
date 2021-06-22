@@ -2037,3 +2037,43 @@ function download_file($data = []) {
 	*/
 	return ['status' => fclose($fOpen), 'file' => "{$_SERVER['DOCUMENT_ROOT']}/{$data['temp']}/{$data['file']}"];
 }
+
+function importSqlFile($pdo, $sqlFile, $data = []) {
+    try {
+        $pdo->setAttribute(\PDO::MYSQL_ATTR_LOCAL_INFILE, true);
+        $errorDetect = false;
+        $tmpLine = '';
+        $lines = file($sqlFile);
+        
+        foreach ($lines as $line) {
+            if (substr($line, 0, 2) == '--' || trim($line) == '') {
+                continue;
+            }
+			
+            $line = str_replace(['<<project>>', '<<salt>>', '<<code>>'], [$data['project'], $data['salt'], $data['code']], $line);
+            $tmpLine .= $line;
+            
+            if (substr(trim($line), -1, 1) == ';') {
+                try {
+                    // Perform the Query
+                    $pdo->exec($tmpLine);
+                } catch (\PDOException $e) {
+                    echo "<br><pre>Error performing Query: '<strong>" . $tmpLine . "</strong>': " . $e->getMessage() . "</pre>\n";
+                    $errorDetect = true;
+                }
+                
+                $tmpLine = '';
+            }
+        }
+        
+        if ($errorDetect) {
+            return false;
+        }
+        
+    } catch (\Exception $e) {
+        echo "<br><pre>Exception => " . $e->getMessage() . "</pre>\n";
+        return false;
+    }
+    
+    return true;
+}

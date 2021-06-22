@@ -57,6 +57,12 @@ $yaact = get_active($bank_conf->ya, 2);
 $qwact = get_active($bank_conf->qw, 2);
 $lpact = get_active($bank_conf->lp, 2);
 $apact = get_active($bank_conf->ap, 2);
+
+/*
+	AmaraPay
+*/
+$amarapay = get_active($bank_conf->amarapay, 2);
+
 $psRUB = '';
 $psEUR = '';
 $psUSD = '';
@@ -98,6 +104,14 @@ $tpl->set("{lp_public_key}", $bank_conf->lp_public_key);
 $tpl->set("{lp_private_key}", $bank_conf->lp_private_key);
 $tpl->set("{ap_project_id}", $bank_conf->ap_project_id);
 $tpl->set("{ap_private_key}", $bank_conf->ap_private_key);
+
+/*
+	AmaraPay
+*/
+$tpl->set("{amarapay_id}", $bank_conf->amarapay_id);
+$tpl->set("{amarapay_public}", $bank_conf->amarapay_public);
+$tpl->set("{amarapay_secret}", $bank_conf->amarapay_secret);
+
 $tpl->set("{rbact}", $rbact[0]);
 $tpl->set("{rbact2}", $rbact[1]);
 $tpl->set("{wact}", $wact[0]);
@@ -125,6 +139,13 @@ $tpl->set("{lpact}", $lpact[0]);
 $tpl->set("{lpact2}", $lpact[1]);
 $tpl->set("{apact}", $apact[0]);
 $tpl->set("{apact2}", $apact[1]);
+
+/*
+	AmaraPay
+*/
+$tpl->set("{amarapay_act}", $amarapay[0]);
+$tpl->set("{amarapay_act2}", $amarapay[1]);
+
 $tpl->compile( 'content' );
 $tpl->clear();
 

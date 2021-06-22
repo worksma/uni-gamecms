@@ -47,6 +47,22 @@
 	</div>
 
 	<div class="row pay_area">
+		{if('{amarapay}' == '1')}
+			<div class="col-md-6">
+				<div class="block">
+					<div class="block_head">
+						AmaraPay - Qiwi, ЮMoney, VISA/MasterCard и т.д.
+					</div>
+					<label for="number_up">
+						<img src="../templates/{template}/img/amarapay.png" alt="AmaraPay">
+					</label>
+					<input class="form-control" id="number_amarapay" placeholder="Укажите сумму" value="{price}">
+					<div id="balance_result_amarapay" class="mt-3"></div>
+					<button class="btn btn-outline-primary btn-xl" onclick="refill_balance('amarapay');">Пополнить баланс</button>
+				</div>
+			</div>
+		{/if}
+		
         {if('{up}' == '1')}
 			<div class="col-md-6">
 				<div class="block">

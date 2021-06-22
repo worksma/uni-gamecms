@@ -248,6 +248,34 @@ if(isset($_GET['result']) && $_GET['result'] == 'get') {
 	}
 }
 
+
+if(isset($_GET['amarapay']) && $_GET['amarapay'] == 'get'):
+	$sth = $pdo->query("SELECT `amarapay_id`, `amarapay_secret` FROM config__bank LIMIT 1");
+	$sth->setFetchMode(PDO::FETCH_OBJ);
+	$bankConf = $sth->fetch();
+	$payMethod = 'amarapay';
+	
+	$amount    = clean($_POST['amount'], 'float');
+	
+	if($_POST['hash'] != hash("sha256", $bankConf->amarapay_id . $_POST['amount'] . $bankConf->amarapay_secret . $_POST['id'])):
+		die('no hash');
+	endif;
+	
+	$userInfo = $Pm->getUser($pdo, $_POST['label']);
+	if(empty($userInfo->id)):
+		$Pm->paymentLog($payMethod, "unknown user", $pdo, $_POST['label'], 2);
+		exit('Error: [User does not exist]');
+	else:
+		if($Pm->issetPay($pdo, $payMethod, $bankConf->amarapay_id)):
+			exit("YES");
+		endif;
+
+		$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $bankConf->amarapay_id, $messages['RUB']);
+		exit("YES");
+	endif;
+endif;
+
+
 if(isset($_GET['result_wb']) && $_GET['result_wb'] == 'get') {
 	$STH = $pdo->query("SELECT wb_pass1, wb_num FROM config__bank LIMIT 1");
 	$STH->setFetchMode(PDO::FETCH_OBJ);
@@ -582,6 +610,7 @@ if(
 	|| (isset($_GET['result_wb']) && $_GET['result_wb'] == 'fail')
 	|| (isset($_GET['result_ps']) && $_GET['result_ps'] == 'fail')
 	|| (isset($_GET['method']) && $_GET['method'] == 'ERROR')
+	|| (isset($_GET['amarapay']) && $_GET['amarapay'] == 'fail')
 ) {
 	$fail = 1;
 }
@@ -596,6 +625,7 @@ if(
 	|| (isset($_GET['result_qw']) && $_GET['result_qw'] == 'success')
 	|| (isset($_GET['result_ya']) && $_GET['result_ya'] == 'success')
 	|| (isset($_GET['result_wo']) && $_GET['result_wo'] == 'success')
+	|| (isset($_GET['amarapay']) && $_GET['amarapay'] == 'success')
 ) {
 	$success = 1;
 }
@@ -645,7 +675,7 @@ if(isset($_GET['pirce'])) {
 	$price = '';
 }
 
-$STH = $pdo->query("SELECT rb, wb, up, ps, fk, ik, wo, ya, qw, lp, ap FROM config__bank LIMIT 1");
+$STH = $pdo->query("SELECT rb, wb, up, ps, fk, ik, wo, ya, qw, lp, ap, amarapay FROM config__bank LIMIT 1");
 $STH->setFetchMode(PDO::FETCH_OBJ);
 $bankConf = $STH->fetch();
 
@@ -670,6 +700,7 @@ $tpl->set("{ya}", $bankConf->ya);
 $tpl->set("{qw}", $bankConf->qw);
 $tpl->set("{lp}", $bankConf->lp);
 $tpl->set("{ap}", $bankConf->ap);
+$tpl->set("{amarapay}", $bankConf->amarapay);
 $tpl->compile('content');
 $tpl->clear();
 ?>

@@ -37,8 +37,6 @@
 		<h4>Основные настройки</h4>
 		<div>
 			<input type="text" class="form-control mt-10" placeholder="Название проекта" id="name" maxlength="255">
-			<input type="email" class="form-control mt-10" placeholder="E-mail адрес" id="email" maxlength="128">
-			<input type="text" class="form-control mt-10" placeholder="Пароль для админ центра" id="password" maxlength="15">
 			<br>
 			<input id="checbox" title="dont_agree" type="checkbox" onclick="on_install();"> Я ознакомлен и согласен с <a target="_blank" href="https://vk.com/@overcsru-licenzionnoe-soglashenie-gamecms">лицензионным соглашением</a><br>
 			

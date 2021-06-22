@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS `chat` (
   `message_text` text NOT NULL,
   `message_date` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `comms` (
   `bid` int(9) NOT NULL AUTO_INCREMENT,
@@ -87,12 +87,10 @@ CREATE TABLE IF NOT EXISTS `comms` (
   KEY `authid` (`authid`),
   KEY `created` (`created`),
   KEY `aid` (`admin_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `config` (
   `id` int(9) NOT NULL AUTO_INCREMENT,
-  `password` varchar(250) NOT NULL,
-  `email` varchar(128) NOT NULL DEFAULT 'webmaster@worksma.ru',
   `name` varchar(255) NOT NULL,
   `template` varchar(20) NOT NULL,
   `template_mobile` varchar(20) NOT NULL DEFAULT 'default',
@@ -139,8 +137,7 @@ CREATE TABLE IF NOT EXISTS `config` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `config` (`id`, `password`, `email`, `name`, `template`, `template_mobile`, `violations_number`, `violations_delta`, `ban_time`, `protect`, `stat`, `stat_number`, `show_news`, `show_events`, `bank`, `date`, `cont`, `col_nick`, `col_pass`, `col_type`, `conf_us`, `cote`, `widgets_type`, `vk_group`, `vk_group_id`, `vk_admin`, `vk_admin_id`, `disp_last_online`, `new_year`, `win_day`, `copyright_key`, `developer_mode`, `off`, `dell_admin_time`, `global_ban`, `time_zone`, `protocol`, `code`, `cache`, `salt`, `ip_protect`, `privacy_policy`, `captcha`, `token`, `caching`) VALUES
-(1, '{password}', '{email}', '{name}', 'standart', 'standart', 30, '2', '15', 2, 2, '3000', 0, 3, 0, '2018-08-02', 2, 1, 1, 1, 2, 2, 2, 2, '', 2, '', 1, 2, 2, 'none', 2, 2, '2018-08-1 00:00:00', 2, 'Etc/GMT-3', 1, '{code}', 36, '{salf}', 1, 2, '2', 1, 1);
+INSERT INTO `config` (`id`, `name`, `template`, `template_mobile`, `violations_number`, `violations_delta`, `ban_time`, `protect`, `stat`, `stat_number`, `show_news`, `show_events`, `bank`, `date`, `cont`, `col_nick`, `col_pass`, `col_type`, `conf_us`, `cote`, `widgets_type`, `vk_group`, `vk_group_id`, `vk_admin`, `vk_admin_id`, `disp_last_online`, `new_year`, `win_day`, `copyright_key`, `developer_mode`, `off`, `dell_admin_time`, `global_ban`, `time_zone`, `protocol`, `code`, `cache`, `salt`, `ip_protect`, `privacy_policy`, `captcha`, `token`, `caching`) VALUES (1, '<<project>>', 'standart', 'standart', 30, '2', '15', 2, 2, '3000', 0, 3, 0, '2018-08-02', 2, 1, 1, 1, 2, 2, 2, 2, '', 2, '', 1, 2, 2, 'none', 2, 2, '2018-08-1 00:00:00', 2, 'Etc/GMT-3', 1, '<<code>>', 36, '<<salt>>', 1, 2, '2', 1, 1);
 
 CREATE TABLE IF NOT EXISTS `config__bank` (
   `id` int(9) NOT NULL AUTO_INCREMENT,
@@ -183,11 +180,15 @@ CREATE TABLE IF NOT EXISTS `config__bank` (
   `ap` int(11) NOT NULL DEFAULT '2',
   `ap_project_id` varchar(255) NOT NULL DEFAULT '',
   `ap_private_key` varchar(255) NOT NULL DEFAULT '',
+  `amarapay` int(9) NOT NULL DEFAULT '2',
+  `amarapay_id` varchar(9) NOT NULL,
+  `amarapay_public` varchar(128) NOT NULL,
+  `amarapay_secret` varchar(128) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `config__bank` (`id`, `rb`, `rb_login`, `rb_pass1`, `rb_pass2`, `rb_commission`, `wb`, `wb_login`, `wb_pass1`, `wb_num`, `up`, `up_login`, `up_pass1`, `up_pass2`, `ps`, `ps_num`, `ps_pass`, `ps_currency`, `ps_test`, `fk`, `fk_login`, `fk_pass1`, `fk_pass2`, `ik`, `ik_login`, `ik_pass1`, `wo`, `wo_login`, `wo_pass`, `ya`, `ya_num`, `ya_key`, `qw`, `qw_pass`) VALUES
-(1, 2, '', '', '', 1, 2, '', '', '', 2, '', '', '', 2, '', '', 'EUR', 0, 2, '', '', '', 2, '', '', 2, '', '', 2, '', '', 2, '');
+INSERT INTO `config__bank` (`id`, `rb`, `rb_login`, `rb_pass1`, `rb_pass2`, `rb_commission`, `wb`, `wb_login`, `wb_pass1`, `wb_num`, `up`, `up_login`, `up_pass1`, `up_pass2`, `ps`, `ps_num`, `ps_pass`, `ps_currency`, `ps_test`, `fk`, `fk_login`, `fk_pass1`, `fk_pass2`, `ik`, `ik_login`, `ik_pass1`, `wo`, `wo_login`, `wo_pass`, `ya`, `ya_num`, `ya_key`, `qw`, `qw_pass`, `amarapay`, `amarapay_id`, `amarapay_public`, `amarapay_secret`) VALUES
+(1, 2, '', '', '', 1, 2, '', '', '', 2, '', '', '', 2, '', '', 'EUR', 0, 2, '', '', '', 2, '', '', 2, '', '', 2, '', '', 2, '', 2, '', '', '');
 
 CREATE TABLE IF NOT EXISTS `config__email` (
   `username` varchar(255) NOT NULL DEFAULT '',
@@ -246,7 +247,7 @@ CREATE TABLE IF NOT EXISTS `config__secondary` (
   `stats_lim` int(9) NOT NULL DEFAULT '30',
   `stand_rights` int(9) NOT NULL DEFAULT '1',
   `stand_balance` float NOT NULL DEFAULT '0',
-  `version` varchar(10) NOT NULL DEFAULT '4.9.4',
+  `version` varchar(10) NOT NULL DEFAULT '4.9.5',
   `col_login` int(9) NOT NULL DEFAULT '30',
   `admins_ids` varchar(80) NOT NULL DEFAULT '1',
   `off_message` varchar(250) NOT NULL DEFAULT 'Сайт находится в стадии разработки',
@@ -259,7 +260,7 @@ CREATE TABLE IF NOT EXISTS `config__secondary` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `config__secondary` (`id`, `vk_api`, `vk_id`, `vk_key`, `vk_service_key`, `steam_api`, `steam_key`, `fb_api`, `fb_id`, `fb_key`, `mon_gap`, `mon_time`, `mon_api`, `mon_key`, `bans_lim`, `muts_lim`, `users_lim`, `bans_lim2`, `news_lim`, `stats_lim`, `stand_rights`, `stand_balance`, `version`, `col_login`, `admins_ids`, `off_message`, `update_link`, `return_services`, `bad_nicks_act`, `min_amount`, `bonuses`) VALUES
-(1, 2, NULL, NULL, NULL, 2, NULL, 2, NULL, NULL, 120, 1533242556, 2, '', 30, 30, 12, 30, 10, 30, 2, 0, '4.9.0', 30, '1', 'Ведутся технические работы', '', 2, 2, 10, 2);
+(1, 2, NULL, NULL, NULL, 2, NULL, 2, NULL, NULL, 120, 1533242556, 2, '', 30, 30, 12, 30, 10, 30, 2, 0, '4.9.5', 30, '1', 'Ведутся технические работы', '', 2, 2, 10, 2);
 
 CREATE TABLE IF NOT EXISTS `config__strings` (
   `id` int(9) NOT NULL AUTO_INCREMENT,
@@ -363,7 +364,7 @@ CREATE TABLE IF NOT EXISTS `levels__profile` (
   `name` varchar(512) NOT NULL,
   `experience` int(9) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT IGNORE INTO `levels__profile` (`id`, `level`, `name`, `experience`) VALUES(1, 0, 'Серебро - I', 0), (2, 1, 'Серебро - II', 200), (3, 2, 'Серебро - III', 500), (4, 3, 'Серебро - IV', 700), (5, 4, 'Серебро - Элита', 1000), (6, 5, 'Серебро - Великий Магистр', 1500), (7, 6, 'Золотая Звезда - I', 1800), (8, 7, 'Золотая Звезда - II', 2500), (9, 8, 'Золотая Звезда - III', 3200), (10, 9, 'Золотая Звезда - Магистр', 3900), (11, 10, 'Магистр-Хранитель - I', 5000), (12, 11, 'Магистр-Хранитель - II', 8000), (13, 12, 'Магистр-Хранитель - Элита', 10000), (14, 13, 'Заслуженный Магистр-Хранитель', 15000), (15, 14, 'Легендарный Беркут', 20000), (16, 15, 'Легендарный Беркут-Магистр', 30000), (17, 16, 'Великий Магистр Высшего Ранга', 50000), (18, 17, 'Всемирная Элита', 100000);
 
@@ -375,7 +376,7 @@ CREATE TABLE IF NOT EXISTS `menu` (
   `poz` int(9) NOT NULL,
   `for_all` int(9) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `menu` (`id`, `name`, `link`, `menu__sub`, `poz`, `for_all`) VALUES
 (1, 'Главная', '../', 0, 1, 1),
@@ -400,7 +401,7 @@ CREATE TABLE IF NOT EXISTS `menu__sub` (
   `poz` int(9) NOT NULL,
   `for_all` int(9) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `menu__sub` (`id`, `name`, `link`, `menu`, `poz`, `for_all`) VALUES
 (1, 'Уведомления', '../notifications', 5, 6, 1),
@@ -435,7 +436,7 @@ CREATE TABLE IF NOT EXISTS `money__actions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `money__actions_types` (
-  `id` int(9) NOT NULL,
+  `id` int(9) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `class` varchar(20) NOT NULL,
   UNIQUE KEY `id` (`id`)
@@ -600,8 +601,8 @@ INSERT INTO `pages` (`id`, `file`, `url`, `name`, `title`, `description`, `keywo
 (73, 'modules_extra/buy_key/base/admin/servers.php', 'admin/bk_servers', 'admin_bk_servers', 'Настройка услуг модуля buy_key', 'none', 'none', 1, 'files/miniatures/standart.jpg', 0, 0, 2, 1, 1, 0, 0),
 (74, 'modules_extra/buy_key/base/admin/services.php', 'admin/bk_services', 'admin_bk_services', 'Настройка серверов модуля buy_key', 'none', 'none', 1, 'files/miniatures/standart.jpg', 0, 0, 2, 1, 1, 0, 0),
 (75, 'modules/admin/verifications.php', 'admin/verifications', 'admin_page_verification', 'Верификация пользователей', 'none', 'none', 1, 'files/miniatures/standart.jpg', 0, 0, 2, 1, 0, 0, 0),
-(76, 'modules/playground/index.php', 'market', 'playground', 'Торговая площадка', 'Торговая площадка', 'Торговая, площадка', 1, 'files/miniatures/standart.jpg', 1, 2, 1, 1, 0, 0, 0),
-(77, 'modules/playground/inventory.php', 'inventory', 'inventory', 'Инвентарь', 'Инвентарь профиля', 'инвентарь,профиля', 1, 'files/miniatures/standart.jpg', 1, 2, 1, 1, 0, 0, 0),
+(76, 'modules/playground/index.php', 'market', 'playground', 'Торговая площадка', 'Торговая площадка', 'Торговая, площадка', 1, 'files/miniatures/standart.jpg', 1, 1, 1, 1, 0, 0, 0),
+(77, 'modules/playground/inventory.php', 'inventory', 'inventory', 'Инвентарь', 'Инвентарь профиля', 'инвентарь,профиля', 1, 'files/miniatures/standart.jpg', 1, 1, 1, 1, 0, 0, 0),
 (78, 'modules/admin/playground.php', 'admin/market', 'admin_market', 'Маркет', 'none', 'none', 1, 'files/miniatures/standart.jpg', 0, 0, 2, 1, 0, 0, 0);
 
 CREATE TABLE IF NOT EXISTS `pages__classes` (
@@ -866,55 +867,52 @@ CREATE TABLE IF NOT EXISTS `users__online` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `playground` (
-  `id` int(9) NOT NULL,
+CREATE TABLE IF NOT EXISTS `playground` (
+  `id` int(9) NOT NULL AUTO_INCREMENT,
   `currency` varchar(64) NOT NULL,
-  `course` float NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  `course` float NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `playground` (`id`, `currency`, `course`) VALUES (1, 'поинт', 0.1);
-ALTER TABLE `playground` MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
-CREATE TABLE `playground__category` (
-  `id` int(9) NOT NULL,
+CREATE TABLE IF NOT EXISTS `playground__category` (
+  `id` int(9) NOT NULL AUTO_INCREMENT,
   `name` varchar(64) NOT NULL,
-  `code_name` varchar(64) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  `code_name` varchar(64) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `playground__category` (`id`, `name`, `code_name`) VALUES (1, 'Фон профиля', 'background'), (2, 'Аватар', 'avatar'), (3, 'Рамка профиля', 'frame');
-ALTER TABLE `playground__category` MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
-CREATE TABLE `playground__product` (
-  `id` int(9) NOT NULL,
+CREATE TABLE IF NOT EXISTS `playground__product` (
+  `id` int(9) NOT NULL AUTO_INCREMENT,
   `name` varchar(128) NOT NULL,
   `price` float NOT NULL,
   `resource` text NOT NULL,
   `executor` text NOT NULL,
-  `id_category` int(9) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  `id_category` int(9) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `playground__product` MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
-
-CREATE TABLE `playground__purchases` (
-  `id` int(9) NOT NULL,
+CREATE TABLE IF NOT EXISTS `playground__purchases` (
+  `id` int(9) NOT NULL AUTO_INCREMENT,
   `id_product` int(9) NOT NULL,
   `id_category` int(9) NOT NULL,
   `id_user` int(9) NOT NULL,
   `price` float NOT NULL,
   `buy_time` int(15) NOT NULL,
-  `active` int(9) NOT NULL DEFAULT '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  `active` int(9) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-ALTER TABLE `playground__purchases` MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
-
-CREATE TABLE `playground__sale` (
-  `id` int(9) NOT NULL,
+CREATE TABLE IF NOT EXISTS `playground__sale` (
+  `id` int(9) NOT NULL AUTO_INCREMENT,
   `id_product` int(9) NOT NULL,
   `id_category` int(9) NOT NULL,
-  `id_seller` int(9) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-ALTER TABLE `playground__sale` MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+  `id_seller` int(9) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `vouchers` (
   `id` int(9) NOT NULL AUTO_INCREMENT,
