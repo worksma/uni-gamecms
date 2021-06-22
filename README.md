@@ -18,6 +18,7 @@
 9. Qiwi
 10. LiqPay
 11. AnyPay
+12. AmaraPay
 
 # Навигация по сайту (Site Navigation)
 1. Главная страница (Home page) ([адрес сайта]);
@@ -31,7 +32,9 @@
 9. Мутлист (Mutlist) ([адрес сайта]/muts);
 10. Статистика (Statistics) ([адрес сайта]/stats);
 11. Администрация (привилегии) (Administration/privileges) ([адрес сайта]/admins);
-12. Панель управления (Control panel) ([адрес сайта]/admin).
+12. Панель управления (Control panel) ([адрес сайта]/admin);
+13. Торговая площаддка (Trading Platform) ([адес сайта]/market);
+14. Инвентарь (Inventory) ([адрес сайта]/inventory).
 
 # Лицензии и благодарности (Licenses and commendations)
 1. Основа для дизайна сайта [Bootstrap](https://getbootstrap.com/docs/4.0/about/license/)
