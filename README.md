@@ -6,6 +6,12 @@
   Are you the owner of a game server and have always thought about how to monetize it? If so, then this engine is just for you! At the heart of the engine there are various additions to the type of forum, profile, chat, payment systems, game server management, etc.
 </details>
 
+# Системные требования
+1. Сервер Nginx или Apache;
+2. Установленная версия PHP (не ниже 7.0, не CGI);
+3. База данных MySQL или её аналог;
+4. Пару прямых рук <3
+
 # Платёжные системы (Payment systems)
 1. Free-Kassa
 2. UnitPay
