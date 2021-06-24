@@ -6,6 +6,12 @@
   Are you the owner of a game server and have always thought about how to monetize it? If so, then this engine is just for you! At the heart of the engine there are various additions to the type of forum, profile, chat, payment systems, game server management, etc.
 </details>
 
+# Системные требования
+1. Сервер Nginx или Apache;
+2. Установленная версия PHP (не ниже 7.0, не CGI);
+3. База данных MySQL или её аналог;
+4. Пару прямых рук <3
+
 # Платёжные системы (Payment systems)
 1. Free-Kassa
 2. UnitPay
@@ -18,6 +24,7 @@
 9. Qiwi
 10. LiqPay
 11. AnyPay
+12. AmaraPay
 
 # Навигация по сайту (Site Navigation)
 1. Главная страница (Home page) ([адрес сайта]);
@@ -31,7 +38,9 @@
 9. Мутлист (Mutlist) ([адрес сайта]/muts);
 10. Статистика (Statistics) ([адрес сайта]/stats);
 11. Администрация (привилегии) (Administration/privileges) ([адрес сайта]/admins);
-12. Панель управления (Control panel) ([адрес сайта]/admin).
+12. Панель управления (Control panel) ([адрес сайта]/admin);
+13. Торговая площаддка (Trading Platform) ([адес сайта]/market);
+14. Инвентарь (Inventory) ([адрес сайта]/inventory).
 
 # Лицензии и благодарности (Licenses and commendations)
 1. Основа для дизайна сайта [Bootstrap](https://getbootstrap.com/docs/4.0/about/license/)
