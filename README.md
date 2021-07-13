@@ -25,6 +25,7 @@
 10. LiqPay
 11. AnyPay
 12. AmaraPay
+13. FreeKassa
 
 # Навигация по сайту (Site Navigation)
 1. Главная страница (Home page) ([адрес сайта]);
