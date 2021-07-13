@@ -63,6 +63,11 @@ $apact = get_active($bank_conf->ap, 2);
 */
 $amarapay = get_active($bank_conf->amarapay, 2);
 
+/*
+	FreeKassa
+*/
+$freekassa = get_active($bank_conf->freekassa, 2);
+
 $psRUB = '';
 $psEUR = '';
 $psUSD = '';
@@ -112,6 +117,13 @@ $tpl->set("{amarapay_id}", $bank_conf->amarapay_id);
 $tpl->set("{amarapay_public}", $bank_conf->amarapay_public);
 $tpl->set("{amarapay_secret}", $bank_conf->amarapay_secret);
 
+/*
+	FreeKassa
+*/
+$tpl->set("{freekassa_id}", $bank_conf->freekassa_id);
+$tpl->set("{freekassa_secret1}", $bank_conf->freekassa_secret1);
+$tpl->set("{freekassa_secret2}", $bank_conf->freekassa_secret2);
+
 $tpl->set("{rbact}", $rbact[0]);
 $tpl->set("{rbact2}", $rbact[1]);
 $tpl->set("{wact}", $wact[0]);
@@ -145,6 +157,12 @@ $tpl->set("{apact2}", $apact[1]);
 */
 $tpl->set("{amarapay_act}", $amarapay[0]);
 $tpl->set("{amarapay_act2}", $amarapay[1]);
+
+/*
+	FreeKassa
+*/
+$tpl->set("{freekassa_act}", $freekassa[0]);
+$tpl->set("{freekassa_act2}", $freekassa[1]);
 
 $tpl->compile( 'content' );
 $tpl->clear();

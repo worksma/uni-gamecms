@@ -181,14 +181,18 @@ CREATE TABLE IF NOT EXISTS `config__bank` (
   `ap_project_id` varchar(255) NOT NULL DEFAULT '',
   `ap_private_key` varchar(255) NOT NULL DEFAULT '',
   `amarapay` int(9) NOT NULL DEFAULT '2',
-  `amarapay_id` varchar(9) NOT NULL,
-  `amarapay_public` varchar(128) NOT NULL,
-  `amarapay_secret` varchar(128) NOT NULL,
+  `amarapay_id` varchar(9) NOT NULL DEFAULT '',
+  `amarapay_public` varchar(128) NOT NULL DEFAULT '',
+  `amarapay_secret` varchar(128) NOT NULL DEFAULT '',
+  `freekassa` int(9) NOT NULL DEFAULT '2',
+  `freekassa_id` varchar(15) NOT NULL DEFAULT '',
+  `freekassa_secret1` varchar(128) NOT NULL DEFAULT '',
+  `freekassa_secret2` varchar(128) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `config__bank` (`id`, `rb`, `rb_login`, `rb_pass1`, `rb_pass2`, `rb_commission`, `wb`, `wb_login`, `wb_pass1`, `wb_num`, `up`, `up_login`, `up_pass1`, `up_pass2`, `ps`, `ps_num`, `ps_pass`, `ps_currency`, `ps_test`, `fk`, `fk_login`, `fk_pass1`, `fk_pass2`, `ik`, `ik_login`, `ik_pass1`, `wo`, `wo_login`, `wo_pass`, `ya`, `ya_num`, `ya_key`, `qw`, `qw_pass`, `amarapay`, `amarapay_id`, `amarapay_public`, `amarapay_secret`) VALUES
-(1, 2, '', '', '', 1, 2, '', '', '', 2, '', '', '', 2, '', '', 'EUR', 0, 2, '', '', '', 2, '', '', 2, '', '', 2, '', '', 2, '', 2, '', '', '');
+INSERT INTO `config__bank` (`id`, `rb`, `rb_login`, `rb_pass1`, `rb_pass2`, `rb_commission`, `wb`, `wb_login`, `wb_pass1`, `wb_num`, `up`, `up_login`, `up_pass1`, `up_pass2`, `ps`, `ps_num`, `ps_pass`, `ps_currency`, `ps_test`, `fk`, `fk_login`, `fk_pass1`, `fk_pass2`, `ik`, `ik_login`, `ik_pass1`, `wo`, `wo_login`, `wo_pass`, `ya`, `ya_num`, `ya_key`, `qw`, `qw_pass`, `amarapay`, `amarapay_id`, `amarapay_public`, `amarapay_secret`, `freekassa`, `freekassa_id`, `freekassa_secret1`, `freekassa_secret2`) VALUES
+(1, 2, '', '', '', 1, 2, '', '', '', 2, '', '', '', 2, '', '', 'EUR', 0, 2, '', '', '', 2, '', '', 2, '', '', 2, '', '', 2, '', 2, '', '', '', 2, '', '', '');
 
 CREATE TABLE IF NOT EXISTS `config__email` (
   `username` varchar(255) NOT NULL DEFAULT '',
@@ -247,7 +251,7 @@ CREATE TABLE IF NOT EXISTS `config__secondary` (
   `stats_lim` int(9) NOT NULL DEFAULT '30',
   `stand_rights` int(9) NOT NULL DEFAULT '1',
   `stand_balance` float NOT NULL DEFAULT '0',
-  `version` varchar(10) NOT NULL DEFAULT '4.9.5',
+  `version` varchar(10) NOT NULL DEFAULT '4.9.6',
   `col_login` int(9) NOT NULL DEFAULT '30',
   `admins_ids` varchar(80) NOT NULL DEFAULT '1',
   `off_message` varchar(250) NOT NULL DEFAULT 'Сайт находится в стадии разработки',
@@ -260,7 +264,7 @@ CREATE TABLE IF NOT EXISTS `config__secondary` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `config__secondary` (`id`, `vk_api`, `vk_id`, `vk_key`, `vk_service_key`, `steam_api`, `steam_key`, `fb_api`, `fb_id`, `fb_key`, `mon_gap`, `mon_time`, `mon_api`, `mon_key`, `bans_lim`, `muts_lim`, `users_lim`, `bans_lim2`, `news_lim`, `stats_lim`, `stand_rights`, `stand_balance`, `version`, `col_login`, `admins_ids`, `off_message`, `update_link`, `return_services`, `bad_nicks_act`, `min_amount`, `bonuses`) VALUES
-(1, 2, NULL, NULL, NULL, 2, NULL, 2, NULL, NULL, 120, 1533242556, 2, '', 30, 30, 12, 30, 10, 30, 2, 0, '4.9.5', 30, '1', 'Ведутся технические работы', '', 2, 2, 10, 2);
+(1, 2, NULL, NULL, NULL, 2, NULL, 2, NULL, NULL, 120, 1533242556, 2, '', 30, 30, 12, 30, 10, 30, 2, 0, '4.9.6', 30, '1', 'Ведутся технические работы', '', 2, 2, 10, 2);
 
 CREATE TABLE IF NOT EXISTS `config__strings` (
   `id` int(9) NOT NULL AUTO_INCREMENT,

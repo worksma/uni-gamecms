@@ -50,6 +50,10 @@ class Payments
 		[
 			'slug' => 'amarapay',
 			'name' => 'AmaraPay'
+		],
+		[
+			'slug' => 'freekassa',
+			'name' => 'FreeKassa'
 		]
 	];
 

@@ -1152,6 +1152,35 @@ if(isset($_POST['edit_amarapay'])):
 	]));
 endif;
 
+/*
+	FreeKassa
+*/
+if(isset($_POST['edit_freekassa_new'])):
+	$shop_id = check($_POST['freekassa_id'], null);
+	$key_secret1 = check($_POST['freekassa_secret1'], null);
+	$key_secret2 = check($_POST['freekassa_secret2'], null);
+	
+	if(empty($shop_id) || empty($key_secret1) || empty($key_secret2)):
+		exit(json_encode([
+			'alert' => 'danger',
+			'message' => 'Заполните все поля!'
+		]));
+	endif;
+	
+	$sth = $pdo->prepare("UPDATE `config__bank` SET `freekassa_id`=:freekassa_id, `freekassa_secret1`=:freekassa_secret1, `freekassa_secret2`=:freekassa_secret2 LIMIT 1");
+	$sth->execute([
+		':freekassa_id' => $shop_id,
+		':freekassa_secret1' => $key_secret1,
+		':freekassa_secret2' => $key_secret2
+	]);
+	
+	write_log("Отредактирована FreeKassa (NEW)");
+	exit(json_encode([
+		'alert' => 'success',
+		'message' => 'Настройки изменены!'
+	]));
+endif;
+
 if(isset($_POST['edit_freekassa'])) {
 	$fk_login = check($_POST['fk_login'], null);
 	$fk_pass1 = check($_POST['fk_pass1'], null);
@@ -1167,6 +1196,7 @@ if(isset($_POST['edit_freekassa'])) {
 	write_log("Отредактирована freekassa");
 	exit('<p class="text-success">Настройки изменены!</p>');
 }
+
 if(isset($_POST['edit_interkassa'])) {
 	$ik_login = check($_POST['ik_login'], null);
 	$ik_pass1 = check($_POST['ik_pass1'], null);

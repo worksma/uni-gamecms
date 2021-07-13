@@ -327,3 +327,15 @@ function edit_amarapay() {
 		$("#result_amarapay").html("<p class=\"text-" + result.alert + "\">" + result.message + "</p>");
 	});
 }
+
+function edit_freekassa_new() {
+	var form_data = new FormData;
+	form_data.append("edit_freekassa_new", "1");
+	form_data.append("freekassa_id", $("#freekassa_id").val());
+	form_data.append("freekassa_secret1", $("#freekassa_secret1").val());
+	form_data.append("freekassa_secret2", $("#freekassa_secret2").val());
+	
+	send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {
+		$("#result_freekassa").html("<p class=\"text-" + result.alert + "\">" + result.message + "</p>");
+	});
+}

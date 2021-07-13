@@ -47,6 +47,22 @@
 	</div>
 
 	<div class="row pay_area">
+		{if('{freekassa}' == '1')}
+			<div class="col-md-6">
+				<div class="block">
+					<div class="block_head">
+						FreeKassa - MasterCard/Visa, Qiwi, ЮMoney, СберБанк и т.д.
+					</div>
+					<label for="number_up">
+						<img src="../templates/{template}/img/freekassa.jpg" alt="FreeKassa">
+					</label>
+					<input class="form-control" id="number_freekassa" placeholder="Укажите сумму" value="{price}">
+					<div id="balance_result_freekassa" class="mt-3"></div>
+					<button class="btn btn-outline-primary btn-xl" onclick="refill_balance('freekassa');">Пополнить баланс</button>
+				</div>
+			</div>
+		{/if}
+	
 		{if('{amarapay}' == '1')}
 			<div class="col-md-6">
 				<div class="block">

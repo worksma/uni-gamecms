@@ -275,6 +275,30 @@ if(isset($_GET['amarapay']) && $_GET['amarapay'] == 'get'):
 	endif;
 endif;
 
+if(isset($_GET['result_fk2']) && $_GET['result_fk2'] == 'get'):
+	$sth = $pdo->query("SELECT `freekassa_id`, `freekassa_secret2` FROM config__bank LIMIT 1");
+	$sth->setFetchMode(PDO::FETCH_OBJ);
+	$bankConf = $sth->fetch();
+	$payMethod = 'freekassa';
+	
+	$amount    = clean($_POST['AMOUNT'], 'float');
+	if($_POST['SIGN'] != md5("{$bankConf->freekassa_id}:{$_POST['AMOUNT']}:".htmlspecialchars_decode($bankConf->freekassa_secret2).":{$_POST['MERCHANT_ORDER_ID']}")):
+		die('no hash');
+	endif;
+	
+	$userInfo = $Pm->getUser($pdo, $_POST['MERCHANT_ORDER_ID']);
+	if(empty($userInfo->id)):
+		$Pm->paymentLog($payMethod, "unknown user", $pdo, $_POST['MERCHANT_ORDER_ID'], 2);
+		exit('Error: [User does not exist]');
+	else:
+		if($Pm->issetPay($pdo, $payMethod, $bankConf->freekassa_id)):
+			exit("YES");
+		endif;
+
+		$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $bankConf->freekassa_id, $messages['RUB']);
+		exit("YES");
+	endif;
+endif;
 
 if(isset($_GET['result_wb']) && $_GET['result_wb'] == 'get') {
 	$STH = $pdo->query("SELECT wb_pass1, wb_num FROM config__bank LIMIT 1");
@@ -675,7 +699,7 @@ if(isset($_GET['pirce'])) {
 	$price = '';
 }
 
-$STH = $pdo->query("SELECT rb, wb, up, ps, fk, ik, wo, ya, qw, lp, ap, amarapay FROM config__bank LIMIT 1");
+$STH = $pdo->query("SELECT rb, wb, up, ps, fk, ik, wo, ya, qw, lp, ap, amarapay, freekassa FROM config__bank LIMIT 1");
 $STH->setFetchMode(PDO::FETCH_OBJ);
 $bankConf = $STH->fetch();
 
@@ -701,6 +725,7 @@ $tpl->set("{qw}", $bankConf->qw);
 $tpl->set("{lp}", $bankConf->lp);
 $tpl->set("{ap}", $bankConf->ap);
 $tpl->set("{amarapay}", $bankConf->amarapay);
+$tpl->set("{freekassa}", $bankConf->freekassa);
 $tpl->compile('content');
 $tpl->clear();
 ?>

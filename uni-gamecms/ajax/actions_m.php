@@ -160,6 +160,19 @@ if(isset($_POST['refill_balance'])) {
 				$url = "http://amarapay.com/merchant?shop_id={$cashierSettings->amarapay_id}&amount={$amount}&label={$_SESSION['id']}&hash={$hash}";
 				Payments::showLink($url);
 			break;
+			case 'freekassa':
+				$sth = $pdo->query("SELECT `freekassa_id`, `freekassa_secret1`, `freekassa_secret2` FROM `config__bank` LIMIT 1");
+				$sth->setFetchMode(PDO::FETCH_OBJ);
+				$cashierSettings = $sth->fetch();
+				
+				if(empty($cashierSettings->freekassa_id) || empty($cashierSettings->freekassa_secret1)  || empty($cashierSettings->freekassa_secret2)):
+					throw new Exception('Способ оплаты не настроен');
+				endif;
+				
+				$hash = md5("{$cashierSettings->freekassa_id}:{$amount}:".htmlspecialchars_decode($cashierSettings->freekassa_secret1).":RUB:{$_SESSION['id']}");
+				$url = "https://pay.freekassa.ru?m={$cashierSettings->freekassa_id}&oa={$amount}&currency=RUB&o={$_SESSION['id']}&s=" . $hash;
+				Payments::showLink($url);
+			break;
 			case 'rb':
 				$STH = $pdo->query("SELECT rb_login, rb_pass1 FROM config__bank LIMIT 1");
 				$STH->setFetchMode(PDO::FETCH_OBJ);
