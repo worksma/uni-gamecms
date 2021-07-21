@@ -228,7 +228,7 @@ function add_product() {
 				toast.success("Товар успешно загружен!");
 			}
 			else {
-				toast.danger(result.message);
+				toast.error(result.message);
 			}
 		}
 	});
