@@ -1,50 +1,48 @@
-<!--[ Система уровней ]-->
 <?
-	$lvl = new Levels($pdo);
-?>
-<!--[ Система Торговой площадки ]-->
-<?
-	$playground = new Playground($pdo, $conf);
+	/*
+		Подключение элементных значений
+		///////////////////////////////
+	*/
+	$levels = new Levels($pdo);												// Система уровней профиля
+	$playground = new Playground($pdo, $conf);								// Система торговой площадки
+	$very = new Verification($pdo);											// Система верификации
+	
+	if(isset($playground)):
+		$fmimage = $playground->get_resource_active(3, '{profile_id}');		// Получение рамки
+		$avaimage = $playground->get_resource_active(2, '{profile_id}');	// Получение аватара
+	endif;
 ?>
 <div class="col-lg-9 order-is-first">
 	<div class="row profile-page">
 		<div class="col-lg-4">
 			<div class="block profile">
-				<?
-					$fmimage = $playground->get_resource_active(3, ($_GET['id'] ? $_GET['id'] : $_SESSION['id']));
-					$avaimage = $playground->get_resource_active(2, ($_GET['id'] ? $_GET['id'] : $_SESSION['id']));
-					
-					if(isset($fmimage)) {
-						?>
-						<div class="profile-frame mb-4">
-							<div class="profile-avatar-frame">
-								<img src="../files/playground/<?echo $fmimage;?>">
-							</div>
-							{if(($avaimage))}
-								<img src="../files/playground/<?echo $avaimage;?>">
-							{else}
-								<img src="../{avatar}">
-							{/if}
+				{if(isset($fmimage))}
+					<div class="profile-frame mb-4">
+						<div class="profile-avatar-frame">
+							<img src="../files/playground/{{$fmimage}}">
 						</div>
-						<?
-					}
-					else {
-						?>
+						
 						{if(($avaimage))}
-							<img src="../files/playground/<?echo $avaimage;?>">
+							<img src="../files/playground/{{$avaimage}}">
 						{else}
 							<img src="../{avatar}">
 						{/if}
-						<?
-					}
-				?>
+					</div>
+				{else}
+					{if(($avaimage))}
+						<img src="../files/playground/{{$avaimage}}">
+					{else}
+						<img src="../{avatar}">
+					{/if}
+				{/if}
+				
 				<div class="vertical-navigation">
 					<ul>
                         {if((is_auth() && $_SESSION['id'] == '{profile_id}') || is_worthy("m"))}
 							<li>
 								<a>
 									<span class="m-icon icon-bank"></span> Баланс:
-									<span id="money">{shilings}</span> {{$messages['Rub']}}
+									<span id="money">{shilings}</span> {{$messages['RUB']}}
 								</a>
 							</li>
 							<li>
@@ -125,9 +123,8 @@
 								</a>
 							</li>
                         {/if}
-						
-						<!--[ Система уровней ]-->
-						{if(isset($lvl) and is_worthy("m"))}
+
+						{if(isset($levels) and is_worthy("m"))}
 							<li onclick="give_exp({profile_id});">
 								<a>
 									<span class="m-icon icon-plus"></span> Дать опыт
@@ -156,7 +153,6 @@
 								}
 							</script>
 						{/if}
-						<!--[ Система уровней ]-->
 
                         {if(is_worthy("c"))}
 							<li onclick="take_proc({profile_id});">
@@ -192,10 +188,10 @@
 		</div>
 
 		<div class="col-lg-8">
-			{if($very = new Verification($pdo) and empty($_COOKIE['very_info_1']) and {profile_id} == $_SESSION['id'] and $very->is_very('{profile_id}', 0))}
+			{if(empty($_COOKIE['very_info_1']) and {profile_id} == $_SESSION['id'] and $very->is_very('{profile_id}', 0))}
 			<div class="alert alert-success" role="alert" id="very_info_1">
 				<button type="button" class="close" OnClick="close_event(1);">
-					<span aria-hidden="true">&times;</span>
+					<span aria-hidden="true">&times;</span> 
 				</button>
 				<h4 class="alert-heading">Для чего нужна Верификация?</h4>
 				<img src="/templates/{template}/img/verification/preview.png" width="40%" align="left">
@@ -205,38 +201,25 @@
 				<hr>
 				<button class="btn btn-success btn-block btn-sm" OnClick="get_very();">Подать заявку</button>
 			</div>
-			
-			<script src="/ajax/addons/verification/ajax-very.js?v={cache}"></script>
 			{/if}
-			{if(empty($_COOKIE['very_info_2']) and {profile_id} == $_SESSION['id'] and $very->is_very('{profile_id}', 2))}
-			<div class="alert alert-info" role="alert" id="very_info_2">
-				<button type="button" class="close" OnClick="close_event(2);">
-					<span aria-hidden="true">&times;</span>
-				</button>
-				<h4 class="alert-heading">Статус заявки на Верификацию.</h4>
-				<p>Вы подали заявку на получение Верификации профиля.<br>Обычно рассмотрение заявки занимает 24 часа, пожалуйста ожидайте!</p>
-			</div>
-			
-			<script src="/ajax/addons/verification/ajax-very.js?v={cache}"></script>
-			{/if}
+		
 			<div class="block profile">
 				<div class="block_head">
-					{if($very->is_very('{profile_id}'))}
-						{login} <?echo $very->get_very_style('standart');?>
-						
-					{else}
-						{login}
-					{/if}
-                    
-					<!--[ Система уровней ]-->
-					{if(isset($lvl))}
-						<img width="10%" src="{site_host}files/addons/levels/csgo/<?echo $lvl->get_user_level({profile_id});?>.png" alt="Уровень профиля <?echo $lvl->get_user_level({profile_id});?>" data-placement="bottom" tooltip="yes" data-original-title="<?echo $lvl->get_info_level($lvl->get_user_level({profile_id}))->name;?>">
-					{/if}
-					<!--[ Система уровней ]-->
+                    {login}
 					
-					<small style="position: unset; float:right;"> {last_activity} </small>
+					{if(isset($very) and $very->is_very('{profile_id}'))}
+						{{$very->get_very_style('standart')}}
+					{/if}
+					
+					{if(isset($levels))}
+						<img width="10%" src="{site_host}files/addons/levels/csgo/<?=$levels->get_user_level('{profile_id}');?>.png" alt="Уровень профиля <?=$levels->get_user_level('{profile_id}');?>" data-placement="bottom" tooltip="yes" data-original-title="<?=$levels->get_info_level($levels->get_user_level('{profile_id}'))->name;?>">
+					{/if}
+					
+					<small style="position: unset; float:right;">
+						{last_activity}
+					</small>
 				</div>
-				
+
 				<table class="table mb-0">
 					<tbody>
                     {if('{dell}' != '1')}
@@ -261,8 +244,6 @@
 							<td>Ник на сервере</td>
 							<td>{nick}</td>
 						</tr>
-						<!--[ Система уровней ]-->
-						{if(isset($lvl))}
 						<tr>
 							<td colspan="2">
 								<h4>Уровень профиля</h4>
@@ -270,18 +251,18 @@
 						</tr>
 						<tr>
 							<td>Уровень</td>
-							<td><?echo $lvl->get_info_level($lvl->get_user_level({profile_id}))->name;?></td>
+							<td><?=$levels->get_info_level($levels->get_user_level('{profile_id}'))->name;?></td>
 						</tr>
 						<tr>
 							<td>Опыт</td>
-							{if($lvl->is_maximum($lvl->get_user_level({profile_id})))}
-								<td>Максимальный уровень!</td>
-							{else}
-								<td><?echo $lvl->get_user_exp({profile_id});?> из <?echo $lvl->next_level_data($lvl->get_user_level({profile_id}))->exp;?></td>
-							{/if}
+							<td>
+								{if($levels->is_maximum($levels->get_user_level('{profile_id}')))}
+									Максимальный уровень!
+								{else}
+									<?=$levels->get_user_exp('{profile_id}');?> из <?=$levels->next_level_data($levels->get_user_level('{profile_id}'))->exp;?>
+								{/if}
+							</td>
 						</tr>
-						{/if}
-						<!--[ Система уровней ]-->
 						<tr>
 							<td colspan="2">
 								<h4>Личные данные</h4>
@@ -376,7 +357,7 @@
 						<tr>
 							<td>Последняя тема</td>
 							<td>{if('{topic_id}' == '0')}Пользователь не просматривал форум{else}
-									<a title="Перейти в тему" href="forum/topic?id={topic_id}">{topic_name}</a>{/if}
+									<a title="Перейти в тему" href="../forum/topic?id={topic_id}">{topic_name}</a>{/if}
 							</td>
 						</tr>
 						<tr>
@@ -407,7 +388,6 @@
 							<td>#</td>
 							<td>Сервер</td>
 							<td>Идентификатор</td>
-							<td>Тип</td>
 							<td>Услуги</td>
 						</tr>
 						</thead>
@@ -425,10 +405,10 @@
 					</div>
                     {if('{checker}' != '1')}
 						<div id="add_new_comments">
-							<textarea id="text" maxlenght="1000"></textarea>
+							<textarea id="text" maxlength="1000"></textarea>
 
 							<div class="smile_input_forum mt-3">
-								<input id="send_btn" class="btn btn-outline-primary" type="button" onclick="send_user_comment({profile_id});" value="Отправить"></input>
+								<input id="send_btn" class="btn btn-outline-primary" type="button" onclick="send_user_comment({profile_id});" value="Отправить">
 								<div id="smile_btn" class="smile_btn" data-container="body" data-toggle="popover" data-placement="top" data-content="empty"></div>
 							</div>
 						</div>
@@ -507,3 +487,4 @@
         {include file="/index/sidebar_secondary.tpl"}
     {/if}
 </div>
+<script src="/ajax/addons/verification/ajax-very.js?v={cache}"></script>

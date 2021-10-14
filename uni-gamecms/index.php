@@ -1,2 +1,6 @@
 <?PHP
-	@require("{$_SERVER['DOCUMENT_ROOT']}/inc/initiator.php");
+	/*
+		Торговая площадка https://worksma.ru
+		Разработано командой WORKSMA.
+	*/
+	require("inc/initiator.php");

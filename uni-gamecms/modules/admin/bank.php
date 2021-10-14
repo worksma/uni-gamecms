@@ -52,7 +52,7 @@ $STH->execute(array( ':type' => 1 ));
 while($row = $STH->fetch()) { 
 	$bank2 = $bank2 + $row->shilings;
 }
-$STH = $pdo->prepare("SELECT `shilings` FROM `money__actions` WHERE `type`=:type and MONTH(`date`) = MONTH(DATE_ADD(NOW(), INTERVAL -1 MONTH)) AND YEAR(`date`) = YEAR(NOW())"); $STH->setFetchMode(PDO::FETCH_OBJ);
+$STH = $pdo->prepare("SELECT `shilings` FROM `money__actions` WHERE `type`=:type and MONTH(`date`) = MONTH(DATE_ADD(NOW(), INTERVAL -1 MONTH)) and YEAR(`date`) = YEAR(DATE_ADD(NOW(), INTERVAL -1 MONTH))"); $STH->setFetchMode(PDO::FETCH_OBJ);
 $STH->execute(array( ':type' => 1 ));
 while($row = $STH->fetch()) { 
 	$bank3 = $bank3 + $row->shilings;

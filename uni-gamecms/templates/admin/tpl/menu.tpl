@@ -1,24 +1,124 @@
-<div class="left_block hidden-xs" role="navigation">
-	<ul class="navigation">
-		<a href="{site_host}admin/index"><li><span class="glyphicon glyphicon-cog"></span> Главные настройки движка</li></a>
-		<a href="{site_host}admin/market"><li><span class="glyphicon glyphicon-credit-card"></span> Торговая площадка <span class="badge" style="background-color:purple;">NEW</span></li></a>
-		<a href="{site_host}admin/verifications"><li><span class="glyphicon glyphicon-check"></span> Верификация пользователей</li></a>
-		<a href="{site_host}admin/payments"><li><span class="glyphicon glyphicon-info-sign"></span> Платежные системы</li></a>
-		<a href="{site_host}admin/bank"><li><span class="glyphicon glyphicon-piggy-bank"></span> Монетизация</li></a>
-		<a href="{site_host}admin/store"><li><span class="glyphicon glyphicon-barcode"></span> Настройка услуг</li></a>
-		<a href="{site_host}admin/users_groups"><li><span class="glyphicon glyphicon-fire"></span> Группы пользователей</li></a>
-		<a href="{site_host}admin/users"><li><span class="glyphicon glyphicon-user"></span> Настройка пользователей</li></a>
-		<a href="{site_host}admin/admins"><li><span class="glyphicon glyphicon-queen"></span> Администраторы</li></a>
-		<a href="{site_host}admin/servers"><li><span class="glyphicon glyphicon-hdd"></span> Настройка серверов</li></a>
-		<a href="{site_host}admin/news"><li><span class="glyphicon glyphicon-folder-close"></span> Настройка новостей</li></a>
-		<a href="{site_host}admin/forum_settings"><li><span class="glyphicon glyphicon-text-background"></span> Настройка форума</li></a>
-		<a href="{site_host}admin/template"><li><span class="glyphicon glyphicon-leaf"></span> Редактор шаблонов</li></a>
-		<a href="{site_host}admin/logs"><li><span class="glyphicon glyphicon-align-justify"></span> Логи | Блокировки</li></a>
-		<a href="{site_host}admin/email_settings"><li><span class="glyphicon glyphicon-envelope"></span> Настройка почты</li></a>
-		<a href="{site_host}admin/stat"><li><span class="glyphicon glyphicon-signal"></span> Статистика</li></a>
-		<a href="{site_host}admin/page_editor"><li><span class="glyphicon glyphicon-file"></span> Редактор страниц</li></a>
-		<a href="{site_host}admin/menu_editor"><li><span class="glyphicon glyphicon-list"></span> Редактор меню</li></a>
-		<a href="{site_host}admin/modules"><li><span class="glyphicon glyphicon-inbox"></span> Модули</li></a>
-		<a href="{site_host}exit"><li><span class="glyphicon glyphicon-off"></span> Выход</li></a>
-	</ul>
-</div>
+<aside class="hidden-xs">
+    <ul class="navigation">
+        <li>
+            <a href="{site_host}admin/index">
+                <span class="glyphicon glyphicon-cog"></span>
+                Главные настройки движка
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/market">
+				<span class="glyphicon glyphicon-credit-card"></span>
+				Торговая площадка
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/payments">
+                <span class="glyphicon glyphicon-info-sign"></span>
+                Платежные системы
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/bank">
+                <span class="glyphicon glyphicon-piggy-bank"></span>
+                Монетизация
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/store">
+                <span class="glyphicon glyphicon-barcode"></span>
+                Настройка услуг
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/users_groups">
+                <span class="glyphicon glyphicon-fire"></span>
+                Группы пользователей
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/users">
+                <span class="glyphicon glyphicon-user"></span>
+                Настройка пользователей
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/verifications">
+                <span class="glyphicon glyphicon-check"></span>
+                Верификация пользователей
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/admins">
+                <span class="glyphicon glyphicon-queen"></span>
+                Администраторы
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/servers">
+                <span class="glyphicon glyphicon-hdd"></span>
+                Настройка серверов
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/news">
+                <span class="glyphicon glyphicon-folder-close"></span>
+                Настройка новостей
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/forum_settings">
+                <span class="glyphicon glyphicon-text-background"></span>
+                Настройка форума
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/template">
+                <span class="glyphicon glyphicon-leaf"></span>
+                Редактор шаблонов
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/logs">
+                <span class="glyphicon glyphicon-align-justify"></span>
+                Логи | Блокировки
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/email_settings">
+                <span class="glyphicon glyphicon-envelope"></span>
+                Настройка почты
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/stat">
+                <span class="glyphicon glyphicon-signal"></span>
+                Статистика
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/page_editor">
+                <span class="glyphicon glyphicon-file"></span>
+                Редактор страниц
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/menu_editor">
+                <span class="glyphicon glyphicon-list"></span>
+                Редактор меню
+            </a>
+        </li>
+        <li>
+            <a href="{site_host}admin/modules">
+                <span class="glyphicon glyphicon-inbox"></span>
+                Модули
+            </a>
+        </li>
+        <li onclick="admin_exit();">
+			<a href="#">
+				<span class="glyphicon glyphicon-off"></span>
+				Выход
+			</a>
+        </li>
+    </ul>
+</aside>

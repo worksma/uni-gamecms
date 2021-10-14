@@ -1,10 +1,9 @@
 <?php
 $Pm = new Payments;
 
+$bankConf = pdo()->query("SELECT * FROM config__bank LIMIT 1")->fetch(PDO::FETCH_OBJ);
+
 if(isset($_GET['result_qw']) && $_GET['result_qw'] == 'get') {
-	$STH = $pdo->query("SELECT qw_pass FROM config__bank LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$bankConf  = $STH->fetch();
 	$payMethod = 'qw';
 
 	$data = json_decode(file_get_contents('php://input'), true);
@@ -22,8 +21,14 @@ if(isset($_GET['result_qw']) && $_GET['result_qw'] == 'get') {
 
 	$status    = $data['bill']['status']['value'];
 	$amount    = clean($data['bill']['amount']['value'], 'float');
+	$currency  = clean($data['bill']['amount']['currency']);
 	$payNumber = clean($data['bill']['billId'], 'int');
 	$userId    = clean($data['bill']['customer']['account'], 'int');
+
+	$currentCurrency = Payments::getCashierCurrency($payMethod);
+	if($currentCurrency != $currency) {
+		throw new Exception('invalid request');
+	}
 
 	$Qiwi = new Qiwi($bankConf->qw_pass);
 
@@ -49,9 +54,6 @@ if(isset($_GET['result_qw']) && $_GET['result_qw'] == 'get') {
 }
 
 if(isset($_GET['result_ya']) && $_GET['result_ya'] == 'get') {
-	$STH = $pdo->query("SELECT ya_num, ya_key FROM config__bank LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$bankConf  = $STH->fetch();
 	$payMethod = 'ya';
 
 	if(empty($_POST["amount"]) || empty($_POST["operation_id"]) || empty($_POST["label"]) || empty($_POST["sha1_hash"]) || empty($_POST["unaccepted"])) {
@@ -95,9 +97,6 @@ if(isset($_GET['result_ya']) && $_GET['result_ya'] == 'get') {
 }
 
 if(isset($_GET['result_wo']) && $_GET['result_wo'] == 'get') {
-	$STH = $pdo->query("SELECT wo_pass, wo_login FROM config__bank LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$bankConf  = $STH->fetch();
 	$payMethod = 'wo';
 
 	$userId = clean($_POST['user_id'], 'int');
@@ -153,9 +152,6 @@ if(isset($_GET['result_wo']) && $_GET['result_wo'] == 'get') {
 }
 
 if(isset($_GET['result_ik']) && $_GET['result_ik'] == 'get') {
-	$STH = $pdo->query("SELECT ik_pass1, ik_login FROM config__bank LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$bankConf  = $STH->fetch();
 	$payMethod = 'ik';
 	$currentCurrency = Payments::getCashierCurrency($payMethod);
 
@@ -218,9 +214,6 @@ if(isset($_GET['result_ik']) && $_GET['result_ik'] == 'get') {
 }
 
 if(isset($_GET['result']) && $_GET['result'] == 'get') {
-	$STH = $pdo->query("SELECT fk_login, fk_pass2 FROM config__bank LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$bankConf  = $STH->fetch();
 	$payMethod = 'fk';
 
 	$amount    = clean($_POST['AMOUNT'], 'float');
@@ -240,70 +233,43 @@ if(isset($_GET['result']) && $_GET['result'] == 'get') {
 		exit('Error: [User does not exist]');
 	} else {
 		if($Pm->issetPay($pdo, $payMethod, $payNumber)) {
-			exit("YES");
+			exit('YES');
 		}
 
 		$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
-		exit("YES");
+		exit('YES');
 	}
 }
 
+if(isset($_GET['result_fk']) && $_GET['result_fk'] == 'get') {
+	$payMethod = 'fk_new';
 
-if(isset($_GET['amarapay']) && $_GET['amarapay'] == 'get'):
-	$sth = $pdo->query("SELECT `amarapay_id`, `amarapay_secret` FROM config__bank LIMIT 1");
-	$sth->setFetchMode(PDO::FETCH_OBJ);
-	$bankConf = $sth->fetch();
-	$payMethod = 'amarapay';
-	
-	$amount    = clean($_POST['amount'], 'float');
-	
-	if($_POST['hash'] != hash("sha256", $bankConf->amarapay_id . $_POST['amount'] . $bankConf->amarapay_secret . $_POST['id'])):
-		die('no hash');
-	endif;
-	
-	$userInfo = $Pm->getUser($pdo, $_POST['label']);
-	if(empty($userInfo->id)):
-		$Pm->paymentLog($payMethod, "unknown user", $pdo, $_POST['label'], 2);
-		exit('Error: [User does not exist]');
-	else:
-		if($Pm->issetPay($pdo, $payMethod, $bankConf->amarapay_id)):
-			exit("YES");
-		endif;
-
-		$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $bankConf->amarapay_id, $messages['RUB']);
-		exit("YES");
-	endif;
-endif;
-
-if(isset($_GET['result_fk2']) && $_GET['result_fk2'] == 'get'):
-	$sth = $pdo->query("SELECT `freekassa_id`, `freekassa_secret2` FROM config__bank LIMIT 1");
-	$sth->setFetchMode(PDO::FETCH_OBJ);
-	$bankConf = $sth->fetch();
-	$payMethod = 'freekassa';
-	
 	$amount    = clean($_POST['AMOUNT'], 'float');
-	if($_POST['SIGN'] != md5("{$bankConf->freekassa_id}:{$_POST['AMOUNT']}:".htmlspecialchars_decode($bankConf->freekassa_secret2).":{$_POST['MERCHANT_ORDER_ID']}")):
-		die('no hash');
-	endif;
-	
-	$userInfo = $Pm->getUser($pdo, $_POST['MERCHANT_ORDER_ID']);
-	if(empty($userInfo->id)):
-		$Pm->paymentLog($payMethod, "unknown user", $pdo, $_POST['MERCHANT_ORDER_ID'], 2);
-		exit('Error: [User does not exist]');
-	else:
-		if($Pm->issetPay($pdo, $payMethod, $bankConf->freekassa_id)):
-			exit("YES");
-		endif;
+	$payNumber = clean($_POST['MERCHANT_ORDER_ID'], 'int');
+	$userId    = clean($_POST['us_user'], 'int');
 
-		$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $bankConf->freekassa_id, $messages['RUB']);
-		exit("YES");
-	endif;
-endif;
+	$sign = md5($bankConf->fk_new_login . ':' . $_POST['AMOUNT'] . ':' . htmlspecialchars_decode($bankConf->fk_new_pass2) . ':' . $_POST['MERCHANT_ORDER_ID']);
+
+	if($sign != $_POST['SIGN']) {
+		$Pm->paymentLog($payMethod, "bad sign", $pdo, $userId, 2);
+		exit("bad sign");
+	}
+
+	$userInfo = $Pm->getUser($pdo, $userId);
+	if(empty($userInfo->id)) {
+		$Pm->paymentLog($payMethod, "unknown user", $pdo, $userId, 2);
+		exit('Error: [User does not exist]');
+	} else {
+		if($Pm->issetPay($pdo, $payMethod, $payNumber)) {
+			exit('YES');
+		}
+
+		$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
+		exit('YES');
+	}
+}
 
 if(isset($_GET['result_wb']) && $_GET['result_wb'] == 'get') {
-	$STH = $pdo->query("SELECT wb_pass1, wb_num FROM config__bank LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$bankConf  = $STH->fetch();
 	$payMethod = 'wm';
 
 	if(isset($_POST['LMI_PREREQUEST']) && $_POST['LMI_PREREQUEST'] == 1) {
@@ -319,7 +285,7 @@ if(isset($_GET['result_wb']) && $_GET['result_wb'] == 'get') {
 			exit("ERR: Invalid purse");
 		}
 
-		exit("YES");
+		exit('YES');
 	} else {
 		$secret_key    = $bankConf->wb_pass1;
 		$common_string = $_POST['LMI_PAYEE_PURSE'] . $_POST['LMI_PAYMENT_AMOUNT'] . $_POST['LMI_PAYMENT_NO'] . $_POST['LMI_MODE'] . $_POST['LMI_SYS_INVS_NO'] . $_POST['LMI_SYS_TRANS_NO'] . $_POST['LMI_SYS_TRANS_DATE'] . $secret_key . $_POST['LMI_PAYER_PURSE'] . $_POST['LMI_PAYER_WM'];
@@ -350,9 +316,6 @@ if(isset($_GET['result_wb']) && $_GET['result_wb'] == 'get') {
 }
 
 if(isset($_GET['result_rb']) && $_GET['result_rb'] == 'get') {
-	$STH = $pdo->query("SELECT rb_pass2 FROM config__bank LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$bankConf  = $STH->fetch();
 	$payMethod = 'rb';
 
 	$mrh_pass2 = $bankConf->rb_pass2;
@@ -386,14 +349,14 @@ if(isset($_GET['result_rb']) && $_GET['result_rb'] == 'get') {
 }
 
 if(isset($_GET) && array_key_exists('method', $_GET)) {
-	$STH = $pdo->query("SELECT up_pass2 FROM config__bank LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$upData = $STH->fetch();
 
 	$payMethod = 'up';
 	$currentCurrency = Payments::getCashierCurrency($payMethod);
 
-	$unitPay = new UnitPay('unitpay.money', $upData->up_pass2);
+	$unitPay = new UnitPay(
+		$bankConf->up_type == 1 ? 'unitpay.money' : 'unitpay.ru',
+		$bankConf->up_pass2
+	);
 
 	try {
 		$unitPay->checkHandlerRequest();
@@ -448,9 +411,6 @@ if(isset($_GET) && array_key_exists('method', $_GET)) {
 }
 
 if(isset($_GET['result_ps']) && $_GET['result_ps'] == 'get') {
-	$STH = $pdo->query("SELECT ps_pass, ps_num FROM config__bank LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$bankConf  = $STH->fetch();
 	$payMethod = 'ps';
 
 	require_once('inc/classes/class.paysera.php');
@@ -488,9 +448,6 @@ if(isset($_GET['result_ps']) && $_GET['result_ps'] == 'get') {
 }
 
 if(isset($_GET['result_lp']) && $_GET['result_lp'] == 'get') {
-	$STH = $pdo->query("SELECT lp_public_key, lp_private_key FROM config__bank LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$bankConf  = $STH->fetch();
 	$payMethod = 'lp';
 	$currentCurrency = Payments::getCashierCurrency($payMethod);
 
@@ -556,9 +513,6 @@ if(isset($_GET['result_lp']) && $_GET['result_lp'] == 'get') {
 }
 
 if(isset($_GET['result_ap']) && $_GET['result_ap'] == 'get') {
-	$STH = $pdo->query("SELECT ap_project_id, ap_private_key FROM config__bank LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$bankConf  = $STH->fetch();
 	$payMethod = 'ap';
 	$currentCurrency = Payments::getCashierCurrency($payMethod);
 
@@ -625,6 +579,60 @@ if(isset($_GET['result_ap']) && $_GET['result_ap'] == 'get') {
 	}
 }
 
+if(isset($_GET['enot']) && $_GET['enot'] == 'pay') {
+	$payMethod = 'enot';
+	$currentCurrency = Payments::getCashierCurrency($payMethod);
+
+	try {
+		if(
+			empty($_POST['amount'])
+			|| empty($_POST['merchant'])
+			|| empty($_POST['merchant_id'])
+			|| empty($_POST['currency'])
+			|| empty($_POST['custom_field'])
+			|| empty($_POST['sign_2'])
+		) {
+			throw new Exception('empty data');
+		}
+
+		$amount    = clean($_POST['amount'], 'float');
+		$payNumber = clean($_POST['merchant_id'], 'int');
+		$userId    = clean($_POST['custom_field'], 'int');
+
+		if($_POST['currency'] != $currentCurrency) {
+			throw new Exception('invalid request');
+		}
+
+		$sign = md5(
+			$_POST['merchant'] . ':' . $_POST['amount'] . ':' . $bankConf->enot_key2 . ':' . $_POST['merchant_id']
+		);
+
+		if($sign != $_POST['sign_2']) {
+			throw new Exception('bad sign');
+		}
+
+		$userInfo = $Pm->getUser($pdo, $userId);
+		if(empty($userInfo->id)) {
+			throw new Exception('unknown user');
+		} else {
+			if($Pm->issetPay($pdo, $payMethod, $payNumber)) {
+				exit('OK');
+			}
+
+			$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
+			exit('OK');
+		}
+	} catch(Exception $e) {
+		if(empty($userId)) {
+			$userId = 0;
+		}
+
+		$Pm->paymentLog($payMethod, $e->getMessage(), $pdo, $userId, 2);
+		http_response_code(500);
+		exit($e->getMessage());
+	}
+}
+
 $fail = '';
 if(
 	(isset($_GET['result_wo']) && $_GET['result_wo'] == 'fail')
@@ -634,7 +642,6 @@ if(
 	|| (isset($_GET['result_wb']) && $_GET['result_wb'] == 'fail')
 	|| (isset($_GET['result_ps']) && $_GET['result_ps'] == 'fail')
 	|| (isset($_GET['method']) && $_GET['method'] == 'ERROR')
-	|| (isset($_GET['amarapay']) && $_GET['amarapay'] == 'fail')
 ) {
 	$fail = 1;
 }
@@ -649,7 +656,6 @@ if(
 	|| (isset($_GET['result_qw']) && $_GET['result_qw'] == 'success')
 	|| (isset($_GET['result_ya']) && $_GET['result_ya'] == 'success')
 	|| (isset($_GET['result_wo']) && $_GET['result_wo'] == 'success')
-	|| (isset($_GET['amarapay']) && $_GET['amarapay'] == 'success')
 ) {
 	$success = 1;
 }
@@ -693,15 +699,21 @@ $nav = $tpl->get_nav($nav, 'elements/nav_li.tpl');
 
 include_once "inc/authorized.php";
 
-if(isset($_GET['pirce'])) {
-	$price = clean($_GET['pirce'], 'float');
+if(isset($_GET['price'])) {
+	$price = clean($_GET['price'], 'float');
 } else {
 	$price = '';
 }
 
-$STH = $pdo->query("SELECT rb, wb, up, ps, fk, ik, wo, ya, qw, lp, ap, amarapay, freekassa FROM config__bank LIMIT 1");
-$STH->setFetchMode(PDO::FETCH_OBJ);
-$bankConf = $STH->fetch();
+$bonusesActivity = pdo()->query("SELECT bonuses FROM config__secondary LIMIT 1")
+	->fetch(PDO::FETCH_OBJ)
+	->bonuses;
+
+$bonuses = unserialize(
+	pdo()->query("SELECT data FROM config__strings WHERE id = 3 LIMIT 1")
+		->fetch(PDO::FETCH_OBJ)
+		->data
+);
 
 $tpl->load_template('/home/purse.tpl');
 $tpl->set("{site_host}", $site_host);
@@ -713,19 +725,20 @@ $tpl->set("{price}", $price);
 $tpl->set("{fail}", $fail);
 $tpl->set("{success}", $success);
 $tpl->set("{login}", $_SESSION['login']);
+$tpl->set("{bonusesActivity}", $bonusesActivity);
 $tpl->set("{rb}", $bankConf->rb);
 $tpl->set("{wb}", $bankConf->wb);
 $tpl->set("{up}", $bankConf->up);
+$tpl->set("{enot}", $bankConf->enot);
 $tpl->set("{ps}", $bankConf->ps);
 $tpl->set("{fk}", $bankConf->fk);
+$tpl->set("{fk_new}", $bankConf->fk_new);
 $tpl->set("{ik}", $bankConf->ik);
 $tpl->set("{wo}", $bankConf->wo);
 $tpl->set("{ya}", $bankConf->ya);
 $tpl->set("{qw}", $bankConf->qw);
 $tpl->set("{lp}", $bankConf->lp);
 $tpl->set("{ap}", $bankConf->ap);
-$tpl->set("{amarapay}", $bankConf->amarapay);
-$tpl->set("{freekassa}", $bankConf->freekassa);
 $tpl->compile('content');
 $tpl->clear();
 ?>

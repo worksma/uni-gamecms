@@ -105,23 +105,28 @@
 				<input type="hidden" class="form-control" id="host" value="{host}">
 
 				<hr>
-				<b>Капча</b>
-				<div class="input-group">
-					<div class="input-group-btn" data-toggle="buttons">
-						<label class="btn btn-default {captcha_active}" onclick="edit_captcha('1')">
-							<input type="radio">
-							Включить
-						</label>
+				<b>Капча</b><br>
+				<div class="btn-group" data-toggle="buttons">
+					<label class="btn btn-default {captcha_inactive}" onclick="onCaptcha();">
+						<input type="radio">
+						Включить
+					</label>
 
-						<label class="btn btn-default {captcha_active2}" onclick="edit_captcha('2')">
-							<input type="radio">
-							Выключить
-						</label>
-					</div>
-					<input type="text" class="form-control" id="captcha" maxlength="50" value="{captcha}" placeholder="Ключ капчи">
+					<label class="btn btn-default {captcha_active}" onclick="offCaptcha();">
+						<input type="radio">
+						Выключить
+					</label>
 				</div>
+				<div class="input-group mt-10">
+					<span class="input-group-btn">
+						<button class="btn btn-default pd-23-12" type="button" onclick="editCaptcha();">Изменить</button>
+					</span>
+					<input value="{captcha_client_key}" type="text" class="form-control" id="captcha_client_key" maxlength="256" autocomplete="off" placeholder="Клиентский ключ">
+					<input value="{captcha_secret}" type="text" class="form-control" id="captcha_secret" maxlength="256" autocomplete="off" placeholder="Секретный ключ">
+				</div>
+
 				<div class="bs-callout bs-callout-info mt-10">
-					<p><a target="_blank" href="https://github.com/worksma/uni-gamecms/wiki/6.-%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-reCAPTCHA"><span class="glyphicon glyphicon-link"></span> Инструкция по настройке</a></p>
+					<p><a target="_blank" href="https://worksma.ru/wiki/captcha"><span class="glyphicon glyphicon-link"></span> Инструкция по настройке</a></p>
 				</div>
 				<div class="clearfix"></div>
 			</div>
@@ -188,18 +193,49 @@
 					<p><a target="_blank" href="https://github.com/worksma/uni-gamecms/wiki/2.-%D0%90%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F-%D1%87%D0%B5%D1%80%D0%B5%D0%B7-%D0%92%D0%9A%D0%BE%D0%BD%D1%82%D0%B0%D0%BA%D1%82%D0%B5"><span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции</a></p>
 				</div>
 				<hr>
-				<b>Регистрация через steam</b><br>
-				<div class="btn-group" data-toggle="buttons">
-					<label class="btn btn-default {sact}" onclick="change_value('config__secondary','steam_api','1','1','steam_key');">
-						<input type="radio">
-						Включить
-					</label>
 
-					<label class="btn btn-default {sact2}" onclick="change_value('config__secondary','steam_api','2','1');">
-						<input type="radio">
-						Выключить
-					</label>
+				<div class="row">
+					<div class="col-md-4">
+						<b>Регистрация через Steam</b><br>
+						<div class="btn-group" data-toggle="buttons">
+							<label class="btn btn-default {sact}" onclick="change_value('config__secondary','steam_api','1','1','steam_key');">
+								<input type="radio">
+								Включить
+							</label>
+
+							<label class="btn btn-default {sact2}" onclick="change_value('config__secondary','steam_api','2','1');">
+								<input type="radio">
+								Выключить
+							</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<b>Автозаполнение STEAM ID</b><br>
+						<div class="btn-group" data-toggle="buttons">
+							<label class="btn btn-default {if('{auto_steam_id_fill}' == '1')} active {/if}" onclick="change_value('config__secondary','auto_steam_id_fill','1','1');">
+								<input type="radio">
+								Включить
+							</label>
+
+							<label class="btn btn-default {if('{auto_steam_id_fill}' == '2')} active {/if}" onclick="change_value('config__secondary','auto_steam_id_fill','2','1');">
+								<input type="radio">
+								Выключить
+							</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<b>Формат STEAM ID</b><br>
+						<select class="form-control" onchange="change_value('config__secondary','steam_id_format',$(this).val(),'1');">
+							<option value="0" {if('{steam_id_format}' == '0')} selected {/if}>
+								STEAM_0:X:XXXXXX (cs1.6)
+							</option>
+							<option value="1" {if('{steam_id_format}' == '1')} selected {/if}>
+								STEAM_1:X:XXXXXX (cs:go)
+							</option>
+						</select>
+					</div>
 				</div>
+
 				<div class="input-group mt-10">
 					<span class="input-group-btn">
 						<button class="btn btn-default" type="button" onclick="edit_steam_api();">Изменить</button>
@@ -232,10 +268,6 @@
 					<input value="{fb_key}" type="text" class="form-control" id="fb_key" maxlength="100" autocomplete="off" placeholder="Секрет приложения">
 				</div>
 				<div id="edit_fb_result"></div>
-				<div class="bs-callout bs-callout-info mt-10">
-					<h5>Инструкция</h5>
-					<p><a target="_blank" href="#"><span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции</a></p>
-				</div>
 			</div>
 		</div>
 
@@ -266,6 +298,10 @@
 				<div class="input-group w-100">
 					<input type="number" class="form-control" id="stats_lim" maxlength="3" autocomplete="off" placeholder="Элементов на странице статистики" value="{stats_lim}">
 				</div>
+				<small class="c-868686">Элементов на странице жалоб</small>
+				<div class="input-group w-100">
+					<input type="number" class="form-control" id="complaints_lim" maxlength="3" autocomplete="off" placeholder="Элементов на странице жалоб" value="{complaints_lim}">
+				</div>
 				<button class="btn btn-default mt-10" type="button" onclick="edit_paginator();">Изменить</button>
 				<div id="edit_paginator_result"></div>
 			</div>
@@ -289,13 +325,13 @@
 				</div>
 			</div>
 		</div>
-		
+	
 		<div class="panel panel-default">
-			<div class="panel-heading">Внешний вид</div>
+			<div class="panel-heading">Виджеты</div>
 			<div class="panel-body">
 				<div class="row">
 					<div class="col-xs-4">
-						<b>Кот</b>
+						<b>«Кот»</b>
 						<div class="form-group">
 							<div class="btn-group" data-toggle="buttons">
 								<label class="btn btn-default {cote_act}" onclick="change_value('config','cote','1','1');">
@@ -311,7 +347,7 @@
 						</div>
 					</div>
 					<div class="col-xs-4">
-						<b>Новый год</b>
+						<b>«Новогодняя мишура»</b>
 						<div class="form-group">
 							<div class="btn-group" data-toggle="buttons">
 								<label class="btn btn-default {new_year_act}" onclick="change_value('config','new_year','1','1');">
@@ -327,7 +363,7 @@
 						</div>
 					</div>
 					<div class="col-xs-4">
-						<b>День победы</b>
+						<b>«Георгиевская лента»</b>
 						<div class="form-group">
 							<div class="btn-group" data-toggle="buttons">
 								<label class="btn btn-default {win_day_act}" onclick="change_value('config','win_day','1','1');">
@@ -344,7 +380,7 @@
 					</div>
 				</div>
 				<hr>
-				<b>Вывод блока "сегодня нас посетили" на главной</b>
+				<b>Виджет «Сегодня нас посетили»</b>
 				<div class="form-group">
 					<div class="btn-group" data-toggle="buttons">
 						<label class="btn btn-default {last_online_act}" onclick="change_value('config','disp_last_online','1','1');">
@@ -358,7 +394,7 @@
 					</div>
 				</div>
 				<hr>
-				<b>Отображение последних новостей на главной</b>
+				<b>Виджет «Последние новости»</b>
 				<div class="input-group">
 					<div class="input-group-btn" data-toggle="buttons">
 						<label class="btn btn-default {nact}" onclick="change_value('config','show_news','3','1'); $('#show_news').val('3');">
@@ -378,7 +414,7 @@
 				<small class="f-r c-868686">Количество выводимых новостей</small>
 				<br>
 				<hr>
-				<b>Отображение последних событий на главной</b>
+				<b>Виджет «Последние события»</b>
 				<div class="input-group">
 					<div class="input-group-btn" data-toggle="buttons">
 						<label class="btn btn-default {eact}" onclick="change_value('config','show_events','3','1'); $('#show_events').val('3');">
@@ -396,11 +432,37 @@
 					<input type="number" class="form-control" id="show_events" maxlength="1" autocomplete="off" value="{show_events}">
 				</div>
 				<small class="f-r c-868686">Количество выводимых событий</small>
+				<br>
+				<hr>
+				<b>Виджет «Топ донатеров»</b>
+				<div class="input-group">
+					<div class="input-group-btn" data-toggle="buttons">
+						<label class="btn btn-default {topDonatorsWidgetIsOn}" onclick="change_value('config','top_donators','1','1');">
+							<input type="radio">
+							Включить
+						</label>
+						<label class="btn btn-default {topDonatorsWidgetIsOff}" onclick="change_value('config','top_donators','2','1');">
+							<input type="radio">
+							Выключить
+						</label>
+					</div>
+				</div>
+
+				<div class="input-group mt-10">
+					<span class="input-group-btn">
+						<button class="btn btn-default pd-23-12" type="button" onclick="editTopDonatorsWidget();">Изменить</button>
+					</span>
+					<select id="top_donators_show_sum" class="form-control">
+						<option value="1" {if('{top_donators_show_sum}' == '1')} selected {/if}>Отображать сумму доната</option>
+						<option value="2" {if('{top_donators_show_sum}' == '2')} selected {/if}>Не отображать сумму доната</option>
+					</select>
+					<input value="{top_donators_count}" type="text" class="form-control" id="top_donators_count" maxlength="2" placeholder="Количество выводимых донатеров">
+				</div>
 			</div>
 		</div>
 
 		<div class="panel panel-default">
-			<div class="panel-heading">Виджеты</div>
+			<div class="panel-heading">Виджеты Вконтакте/Facebook</div>
 			<div class="panel-body mb-0">
 				<p><b>Тип виджетов</b></p>
 				<div class="btn-group" data-toggle="buttons">
@@ -619,6 +681,27 @@
 			<div class="panel-heading">Запрещенные слова</div>
 			<div class="panel-body">
 				<button class="btn btn-default" data-target="#forbidden-words" data-toggle="modal" onclick="loadForbiddenWords();">Добавить | редактировать</button>
+			</div>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">Скрывать STEAM ID / IP игроков</div>
+			<div class="panel-body">
+				<div class="input-group">
+					<span class="input-group-btn">
+						<button class="btn btn-default" type="button" onclick="editHidingPlayersId();">Изменить</button>
+					</span>
+					<select id="hidePlayersIdType" class="form-control">
+						<option value="0" {if('{hidePlayersId}' == '0')} selected {/if}>Не скрывать</option>
+						<option value="1" {if('{hidePlayersId}' == '1')} selected {/if}>Скрывать у всех</option>
+						<option value="2" {if('{hidePlayersId}' == '2')} selected {/if}>Только у админов</option>
+						<option value="3" {if('{hidePlayersId}' == '3')} selected {/if}>Только у игроков</option>
+					</select>
+				</div>
+
+				<div class="bs-callout bs-callout-info mt-10">
+					<p class="mb-0">Пользователи с любым из флагов i, k, s, j имеют иммунитет к данной опции<p>
+				</div>
 			</div>
 		</div>
 	</div>

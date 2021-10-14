@@ -65,7 +65,7 @@ if(empty($row->id)){
 		}
 	} else {
 		if(!$pdo2 = db_connect($db_host, $db_db, $db_user, $db_pass)) {
-			$error = $messages['Unable_connect_to_db'];
+			$error = $messages['errorConnectingToDatabase'];
 		}
 
 		$table = set_prefix($db_prefix, 'servers');

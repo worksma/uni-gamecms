@@ -25,7 +25,7 @@ if(isset($_GET['data']) && isset($_GET['a'])) {
 
 		$STH = $pdo->prepare("UPDATE `users` SET `password`=:password WHERE `id`=:id LIMIT 1");
 		if ($STH->execute(array( ':password' => $password2, ':id' => $id )) == '1') {
-			include_once "inc/notifications.php";
+			incNotifications();
 			$letter = recovery_letter($conf->name, $row->login, $password);
 			sendmail($row->email, $letter['subject'], $letter['message'], $pdo);
 			$message = '<p class=\'text-success\'>'.$messages['Recovery_pass1'].$row->email.$messages['Recovery_pass2'].'</p>';

@@ -6,7 +6,7 @@
 				<td>
 					{if('{active}' == '2')}
 						<button id="on_{id}" onclick="start_srote({id});" class="btn btn-outline-primary" type="button">
-							Разблокировать - {pirce}{{$messages['RUB']}}
+							Разблокировать - {price}{{$messages['RUB']}}
 						</button>
 					{else}
 						{if('{pause}' != '0')}
@@ -23,7 +23,7 @@
 				<td>
 					<div class="input-group input-group-sm">
 						<div class="input-group-prepend">
-							<button {if('{active}' != '2')}onclick="edit_srote({id}, 'type');"{/if} class="btn btn-outline-primary" type="button" {disabled}>Изменить</button>
+							<button {if('{active}' != '2')}onclick="edit_store({id}, 'type');"{/if} class="btn btn-outline-primary" type="button" {disabled}>Изменить</button>
 						</div>
 						<select class="form-control" id="store_type_{id}" onchange="local_change_admin_type({id});" {disabled}>
 							{if('{peg_1}' != '2')}<option {if('{type}' == 'a')} selected {/if} value="1">Ник + пароль</option>{/if}
@@ -39,7 +39,7 @@
 				<td>
 					<div class="input-group input-group-sm">
 						<div class="input-group-prepend">
-							<button {if('{active}' != '2')}onclick="edit_srote({id}, 'name');"{/if} class="btn btn-outline-primary" type="button" {disabled}>Изменить</button>
+							<button {if('{active}' != '2')}onclick="edit_store({id}, 'name');"{/if} class="btn btn-outline-primary" type="button" {disabled}>Изменить</button>
 						</div>
 						<input id="player_name_{id}" type="text" maxlength="32" value="{name}" class="form-control" {disabled}>
 					</div>
@@ -51,7 +51,7 @@
 				<td>
 					<div class="input-group input-group-sm">
 						<div class="input-group-prepend">
-							<button {if('{active}' != '2')}onclick="edit_srote({id}, 'pass');"{/if} class="btn btn-outline-primary" type="button" {disabled}>Изменить</button>
+							<button {if('{active}' != '2')}onclick="edit_store({id}, 'pass');"{/if} class="btn btn-outline-primary" type="button" {disabled}>Изменить</button>
 						</div>
 						<input id="player_pass_{id}" type="text" maxlength="32" value="{pass}" class="form-control" {disabled}>
 					</div>

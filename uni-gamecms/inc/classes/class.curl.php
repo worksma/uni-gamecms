@@ -166,12 +166,20 @@ class Curl
 	private function init()
 	{
 		$this->curl = curl_init();
+		// $this->disableSslValidation();
 		$this->setUserAgent(self::USER_AGENT);
 		$this->setOpt(CURLINFO_HEADER_OUT, true);
 		$this->setOpt(CURLOPT_HEADER, false);
 		$this->setOpt(CURLOPT_RETURNTRANSFER, true);
 		$this->setOpt(CURLOPT_HEADERFUNCTION, array($this, 'addResponseHeaderLine'));
+
 		return $this;
+	}
+
+	private function disableSslValidation()
+	{
+		$this->setOpt(CURLOPT_SSL_VERIFYPEER, false);
+		$this->setOpt(CURLOPT_SSL_VERIFYHOST, false);
 	}
 
 	/**

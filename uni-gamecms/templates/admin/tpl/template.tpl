@@ -129,17 +129,6 @@
 			scrollbarStyle: 'simple',
 			mode: 'text/html',
 			theme: 'monokai',
-			extraKeys: {
-				"F11": function(cm) {
-					cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-				},
-				"Esc": function(cm) {
-					if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
-				}
-			}
-		});
-		editor.on("change", function(){
-			on_save_editor_button();
 		});
 	</script>
 	<br>
@@ -228,7 +217,21 @@
 									Загрузить свое изображение
 								</a>
 							</li>
-							{engine_news_imgs}
+                            {engine_news_imgs}
+						</ol>
+					</li>
+				</ol>
+				<ol class="tree">
+					<li class="toggle">
+						ranks_imgs
+						<input type="checkbox">
+						<ol class="tree">
+							<li class="file" id="data7">
+								<a onclick="upload_template_img('files/ranks_imgs/', 'data8');" alt="Загрузить свое изображение" class="c-p">
+									Загрузить свое изображение
+								</a>
+							</li>
+                            {engine_ranks_imgs}
 						</ol>
 					</li>
 				</ol>

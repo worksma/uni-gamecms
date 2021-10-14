@@ -18,25 +18,21 @@ if(empty($_COOKIE['template'])) {
 $tpl->load_template('head.tpl');
 $tpl->set("{title}", $tpl->result['title']);
 $tpl->set("{image}", $page->image);
-$tpl->set("{other}", '<link rel="stylesheet" href="{site_host}modules/editors/editor/codemirror.css">
-<link rel="stylesheet" href="{site_host}modules/editors/editor/show-hint.css">
-<link rel="stylesheet" href="{site_host}modules/editors/editor/fullscreen.css">
-<link rel="stylesheet" href="{site_host}modules/editors/editor/simplescrollbars.css">
-<link rel="stylesheet" href="{site_host}modules/editors/editor/monokai.css">
-<link rel="stylesheet" href="{site_host}modules/editors/editor/dialog.css">
-<script src="{site_host}modules/editors/editor/codemirror.js"></script>
-<script src="{site_host}modules/editors/editor/show-hint.js"></script>
-<script src="{site_host}modules/editors/editor/xml-hint.js"></script>
-<script src="{site_host}modules/editors/editor/html-hint.js"></script>
-<script src="{site_host}modules/editors/editor/xml.js"></script>
-<script src="{site_host}modules/editors/editor/javascript.js"></script>
-<script src="{site_host}modules/editors/editor/css.js"></script>
-<script src="{site_host}modules/editors/editor/htmlmixed.js"></script>
-<script src="{site_host}modules/editors/editor/simplescrollbars.js"></script>
-<script src="{site_host}modules/editors/editor/fullscreen.js"></script>
-<script src="{site_host}modules/editors/editor/searchcursor.js"></script>
-<script src="{site_host}modules/editors/editor/search.js"></script>
-<script src="{site_host}modules/editors/editor/dialog.js"></script>
+$tpl->set("{other}", '<link rel="stylesheet" href="{site_host}modules/editors/editor/codemirror.css?v={cache}">
+<link rel="stylesheet" href="{site_host}modules/editors/editor/fullscreen.css?v={cache}">
+<link rel="stylesheet" href="{site_host}modules/editors/editor/simplescrollbars.css?v={cache}">
+<link rel="stylesheet" href="{site_host}modules/editors/editor/monokai.css?v={cache}">
+<link rel="stylesheet" href="{site_host}modules/editors/editor/dialog.css?v={cache}">
+<script src="{site_host}modules/editors/editor/codemirror.js?v={cache}"></script>
+<script src="{site_host}modules/editors/editor/xml.js?v={cache}"></script>
+<script src="{site_host}modules/editors/editor/javascript.js?v={cache}"></script>
+<script src="{site_host}modules/editors/editor/css.js?v={cache}"></script>
+<script src="{site_host}modules/editors/editor/htmlmixed.js?v={cache}"></script>
+<script src="{site_host}modules/editors/editor/simplescrollbars.js?v={cache}"></script>
+<script src="{site_host}modules/editors/editor/fullscreen.js?v={cache}"></script>
+<script src="{site_host}modules/editors/editor/searchcursor.js?v={cache}"></script>
+<script src="{site_host}modules/editors/editor/search.js?v={cache}"></script>
+<script src="{site_host}modules/editors/editor/dialog.js?v={cache}"></script>
 <style>body {min-width: 1200px !important;} .wapper{min-width: 1200px !important;}</style>');
 $tpl->set("{token}", $token);
 $tpl->set("{cache}", $conf->cache);
@@ -124,6 +120,7 @@ $tpl->set("{engine_avatars}", createDir("files/avatars/", "img", 1));
 $tpl->set("{engine_forums_imgs}", createDir("files/forums_imgs/", "img", 1));
 $tpl->set("{engine_maps_imgs}", createDir("files/maps_imgs/", "img", 1));
 $tpl->set("{engine_news_imgs}", createDir("files/news_imgs/", "img", 1));
+$tpl->set("{engine_ranks_imgs}", createDir("files/ranks_imgs/", "img", 1));
 $act = get_active($conf->caching, 2);
 $tpl->set("{caching_act}", $act[0]);
 $tpl->set("{caching_act2}", $act[1]);

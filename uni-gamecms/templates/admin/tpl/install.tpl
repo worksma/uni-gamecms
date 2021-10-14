@@ -1,51 +1,48 @@
-<div class="header container-fluid" id="vFoxHead">
-	<div class="container">
-		<a alt="Игровой движок UNI GameCMS" class="logo full_logo" href="https://worksma.ru" target="_blank">
-			<img class="full_logo" src="../templates/admin/img/logo.png">
+<div class="central-block install-block">
+	<div class="central-block-header">
+		<a href="../">
+			<img src="../templates/admin/img/logo.png" alt="UNI GameCMS">
 		</a>
-		
-        <div id="navbar" class="navbar-collapse collapse">
-			<ul class="nav navbar-nav">
-				<li>
-					<a href="https://worksma.ru" style="color:#eee;background:#4B0082;">
-						UNI GameCMS
-					</a>
-				</li>
-			</ul>
-        </div>
+		<h3>Установка UNI GameCMS</h3>
 	</div>
-</div>
+	
+	<div class="central-block-body">
+		<div class="bs-callout bs-callout-info">
+			<h4>Необходимое окружение для работы движка</h4>
 
-<div class="container">
-	<div class="install_block">
-		<h3>
-			<center>Установка UNI GameCMS</center>
-		</h3>
-		<hr>
-		<h4>Подключение к базе данных</h4>
-		<div>
-			<input type="text" class="form-control mt-10" placeholder="127.0.0.1" id="host">
-			<input type="text" class="form-control mt-10" placeholder="overcs_gamecms" id="base">
-			<input type="text" class="form-control mt-10" placeholder="root" id="user">
-			<input type="text" class="form-control mt-10" placeholder="****" id="pass">
-			
-			<button class="btn2 btn-access mt-10 btn-block" onclick="try_connect();">Проверить соединение</button>
-			
-			<div class="mt-10" id="result1"></div>
+			<ul class="mt-10">
+				<li>• PHP 5.4 - 7.4</li>
+				<li>• MySQL 5.6 - 5.7</li>
+				<li>• Права записи на файлы движка для PHP</li>
+				<li>• Включенный AllowOverride для Apache</li>
+				<li>• Наличие модулей GD, Ioncube Loader, mbstring для PHP</li>
+			</ul>
 		</div>
 		<br>
+
+		<h4>Подключение к базе данных</h4>
+		<input type="hidden" id="key" value="{key}">
+		<input type="text" class="form-control mt-10" placeholder="Хост" id="host">
+		<input type="text" class="form-control mt-10" placeholder="База" id="base">
+		<input type="text" class="form-control mt-10" placeholder="Пользователь" id="user">
+		<input type="text" class="form-control mt-10" placeholder="Пароль" id="pass">
+		<div class="mt-10" id="result1"></div>
+		<button class="btn2 btn-cancel" onclick="try_connect();">Проверить соединение</button>
+		<br>
+		<br>
+
 		<h4>Основные настройки</h4>
 		<div>
 			<input type="text" class="form-control mt-10" placeholder="Название проекта" id="name" maxlength="255">
 			<br>
-			<input id="checbox" title="dont_agree" type="checkbox" onclick="on_install();"> Я ознакомлен и согласен с <a target="_blank" href="https://vk.com/@overcsru-licenzionnoe-soglashenie-gamecms">лицензионным соглашением</a><br>
-			
-			<button id="install" class="btn2 btn-big mt-10 btn-block disabled " onclick="">Установить</button>
+			<input id="checbox" title="dont_agree" type="checkbox" onclick="on_install();"> Я ознакомлен и согласен с <a target="_blank" href="https://worksma.ru/uni-gamecms/license">пользовательским соглашением</a><br>
+			<button id="install" class="btn2 btn-big mt-10 disabled" onclick="">Установить</button>
 			<div class="mt-10" id="result2"></div>
 		</div>
-		<div id="copyright">
-			<center>Copyright © 2021 <a href="https://worksma.ru" target="_blank">@WORKSMA</a>. All rights reserved.</center>
+		<br>
+
+		<div class="copyright t-c">
+			Разработано при поддержке <a href="https://worsma.ru" target="_blank">Торговой площадки WORKSMA</a>
 		</div>
 	</div>
 </div>
-<input type="hidden" id="key" value="{key}">

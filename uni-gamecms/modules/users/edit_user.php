@@ -119,6 +119,7 @@ $tpl->set("{regdate}", expand_date($profile->regdate,2));
 $tpl->set("{name}", $profile->name);
 $tpl->set("{login}", $profile->login);
 $tpl->set("{nick}", $profile->nick);
+$tpl->set("{route}", $profile->route);
 $tpl->set("{skype}", $profile->skype);
 $tpl->set("{vk}", $profile->vk);
 $tpl->set("{fb}", $profile->fb);
@@ -149,7 +150,7 @@ for ($x = 12; $x > 0; $x--){
 }
 
 $birth_year = "";
-for ($x = (date('Y')); $x > 1899; $x--){
+for ($x = (date('Y')); $x > 1959; $x--){
 	$birth_year = $birth_year.'<option value="'.$x.'" ';
 	if($birth[0]==$x) $birth_year = $birth_year.' selected';
 	$birth_year = $birth_year.'>'.$x.'</option>';

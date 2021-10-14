@@ -1,5 +1,11 @@
 {configuration}
 
+// Оформление шаблона сайта
+// 0 - стандартный (белый)
+// 1 - дарк (тёмный)
+// 2 - дарк 2 (в синих тонах)
+{var:theme}1{/var}
+
 // Слайдер (850x360)
 // -----------------
 // 1й слайд
@@ -99,13 +105,13 @@
 // ------------------------
 //banner 1
 {var:footer_banners[0]['link']} https://worksma.ru/ {/var}
-{var:footer_banners[0]['img']} ../templates/standart/img/88x31.jpg{/var}
+{var:footer_banners[0]['img']} ../templates/standart/img/88x31.png{/var}
 //banner 2
 {var:footer_banners[1]['link']} https://worksma.ru/ {/var}
-{var:footer_banners[1]['img']} ../templates/standart/img/88x31.jpg{/var}
+{var:footer_banners[1]['img']} ../templates/standart/img/88x31.png{/var}
 //banner 3
 {var:footer_banners[2]['link']} https://worksma.ru/ {/var}
-{var:footer_banners[2]['img']} ../templates/standart/img/88x31.jpg{/var}
+{var:footer_banners[2]['img']} ../templates/standart/img/88x31.png{/var}
 
 
 // Описание проекта в футере

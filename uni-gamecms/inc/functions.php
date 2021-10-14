@@ -65,24 +65,27 @@ function set_prefix($prefix, $table) {
 	return $table;
 }
 
-function get_ai($pdo, $table) {
-	$STH = $pdo->query("SHOW TABLE STATUS LIKE '$table'");
+function get_ai($pdo, $table, $column = 'id') {
+	$STH = $pdo->query("SELECT $column FROM $table ORDER BY $column DESC LIMIT 1");
 	$STH->setFetchMode(PDO::FETCH_OBJ);
 	$row = $STH->fetch();
-	
-	return $row->Auto_increment;
+
+	return $row->$column + 1;
 }
 
 function set_names($pdo, $code = 0) {
-	if(empty($code)) {
-		$code = 0;
-	}
-	if($code == 1) {
-		$pdo->exec("set names utf8");
-	}
-	if($code == 2) {
-		$pdo->exec("set names latin1");
-	}
+	switch($code):
+		case "1":
+			$pdo->exec("set names utf8");
+		break;
+		case "2":
+			$pdo->exec("set names latin1");
+		break;
+		case "3":
+			$pdo->exec("set names utf8mb4");
+		break;
+	endswitch;
+	
 	return true;
 }
 
@@ -228,7 +231,7 @@ function ValidateNameForUrl($variable) {
 	}
 }
 
-function ValidteLetterAndNum($variable) {
+function ValidateLetterAndNum($variable) {
 	if(preg_match("/^[a-z\d]{1}[a-z\d\s]*[a-z\d]{1}$/i", $variable)) {
 		return true;
 	} else {
@@ -658,6 +661,28 @@ function get_groups($pdo) {
 	return $users_groups;
 }
 
+function users_groups() {
+	global $users_groups;
+	
+	if(empty($users_groups)) {
+		$users_groups = get_groups(pdo());
+	}
+
+	return $users_groups;
+}
+
+function user() {
+	if(!is_auth()) {
+		$user = null;
+	}
+	else {
+		global $user;
+	}
+	
+	return $user;
+}
+
+
 function dell_old_users($pdo, $site_name) {
 	$toRemove = [];
 
@@ -679,7 +704,7 @@ function dell_old_users($pdo, $site_name) {
 		$pdo->exec("DELETE FROM events WHERE data_id='$userToRemove' AND type='3' LIMIT 1");
 
 		write_log("Удален пользователь c ID:".$row->id." Login:".$row->login." из-за неактивации аккаунта");
-		include_once "notifications.php";
+		incNotifications();
 		$letter = dell_user_letter($site_name, $row->login);
 		sendmail($row->email, $letter['subject'], $letter['message'], $pdo);
 	}
@@ -916,11 +941,11 @@ function update_monitoring($pdo) {
 
 			for($i = 0; $i < $count; $i++) {
 				try {
-					$SQ = new SourceQuery;
-					$SQ->Connect($row[$i]['ip'], $row[$i]['port']);
-					$temp = $SQ->GetInfo();
-					$SQ->Disconnect();
-					unset($SQ);
+					$SourceQuery = new SourceQuery;
+					$SourceQuery->Connect($row[$i]['ip'], $row[$i]['port']);
+					$temp = $SourceQuery->GetInfo();
+					$SourceQuery->Disconnect();
+					unset($SourceQuery);
 
 					if(empty($temp['HostName'])) {
 						$server['name'] = 0;
@@ -1107,6 +1132,8 @@ function show_error_page($error_type = '404') {
 	} elseif($error_type == 'wrong_url') {
 		$_SESSION['error_msg'] = $messages['Wrong_url'];
 	}
+	
+	http_response_code(403);
 	header('Location: ../error_page');
 	exit();
 }
@@ -1121,12 +1148,12 @@ function check_img($matches) {
 
 function find_img_mp3($text, $id, $not_img = 0) {
 	$ok = 0;
-	$lenght = mb_strlen($text, 'UTF-8');
-	if($lenght > 17) {
+	$length = mb_strlen($text, 'UTF-8');
+	if($length > 17) {
 		$col = substr_count($text, ' ');
 		if($col == 0) {
 			$http = substr($text, 0, 7);
-			//$ras = substr($text, $lenght - 4, $lenght);
+			//$ras = substr($text, $length - 4, $length);
 			if($http == 'sticker') {
 				if(substr(substr($text, 7), 0, 18) != '../files/stickers/') {
 					$text = check($text, null);
@@ -1208,16 +1235,18 @@ function check_for_php($data) {
 }
 
 function magic_quotes($data) {
-	$v = PHP_VERSION;
-	
-	if($v[0] >= '7' && $v[2] >= '4') {
-		if((function_exists("get_magic_quotes_gpc") && get_magic_quotes_gpc())) { 
-			return stripslashes($data);
+	$phpVersion = getPhpVersion();
+	$phpVersion = $phpVersion[0] + $phpVersion[1] * 0.1;
+
+	if($phpVersion > 5 && $phpVersion < 7.4) {
+		if(
+			function_exists('get_magic_quotes_gpc')
+			&& get_magic_quotes_gpc()
+		) {
+			$data = stripslashes($data);
 		}
-		
-		return $data;
 	}
-	
+
 	return $data;
 }
 
@@ -1475,18 +1504,18 @@ function calculate_discount($server, $global, $user, $service = 0, $tarif = 0) {
 	}
 }
 
-function calculate_pirce($pirce, $discount) {
-	$temp = $pirce - $pirce * $discount / 100;
-	if($temp == $pirce) {
-		return $pirce;
+function calculate_price($price, $discount) {
+	$temp = $price - $price * $discount / 100;
+	if($temp == $price) {
+		return $price;
 	} else {
 		return round($temp, 2);
 	}
 }
 
-function calculate_return($pirce, $time) {
+function calculate_return($price, $time) {
 	if($time != 0) {
-		$temp = $pirce / $time;
+		$temp = $price / $time;
 		return round($temp, 2);
 	} else {
 		return 0;
@@ -1775,14 +1804,25 @@ function is_admin() {
 	return false;
 }
 
-function is_admin_id($main_admins = null) {
-	if($main_admins == null) {
-		global $main_admins;
-	}
-	if(in_array($_SESSION['id'], $main_admins)) {
-		return true;
+function is_admin_id($id = 0) {
+	global $main_admins;
+
+	if($id === 0) {
+		if(!is_auth()) {
+			return false;
+		}
+
+		if(in_array($_SESSION['id'], $main_admins)) {
+			return true;
+		} else {
+			return false;
+		}
 	} else {
-		return false;
+		if(in_array($id, $main_admins)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
 
@@ -1843,21 +1883,19 @@ function get_specifically_worthy($access, $group = 0) {
 	return false;
 }
 
-function validate_captcha($captcha, $captcha_key) {
-	if($captcha != '2') {
-		$response = null;
-		$reCaptcha = new ReCaptcha($captcha);
-		$captcha_key = checkJs($captcha_key, null);
+function validateCaptcha($gRecaptchaResponse) {
+	require_once __DIR__ . '/classes/ReCaptcha/loader.php';
 
-		if(empty($captcha_key) || $captcha_key == 'null') {
-			return false;
-		}
+	if(configs()->captcha == 1) {
+		global $host;
 
-		if($captcha_key) {
-			$response = $reCaptcha->verifyResponse($_SERVER["REMOTE_ADDR"], $captcha_key);
-		}
+		$recaptcha = new \ReCaptcha\ReCaptcha(configs()->captcha_secret);
 
-		if($response == null || $response->success) {
+		$resp = $recaptcha->setExpectedHostname($host)
+			->verify($gRecaptchaResponse);
+		if ($resp->isSuccess()) {
+			return true;
+		} else {
 			return false;
 		}
 	}
@@ -1865,8 +1903,11 @@ function validate_captcha($captcha, $captcha_key) {
 	return true;
 }
 
-function isOnBlackList($pdo, $who, $whom) {
-	$STH = $pdo->prepare("SELECT id FROM users__black_list WHERE whom=:whom AND who=:who LIMIT 1");
+function isOnBlackList($pdo, $who, $whom)
+{
+	$STH = $pdo->prepare(
+		"SELECT id FROM users__black_list WHERE whom=:whom AND who=:who LIMIT 1"
+	);
 	$STH->setFetchMode(PDO::FETCH_OBJ);
 	$STH->execute([':who' => $who, ':whom' => $whom]);
 	$row = $STH->fetch();
@@ -1895,6 +1936,7 @@ function isOnHisBlacklist($pdo, $userId)
 
 	return $result;
 }
+
 
 function isSomeKeyInArrayExists($keys, $array) {
 	if(!is_array($keys)) {
@@ -1968,7 +2010,28 @@ function check_update_server($pdo, $server_id) {
 	$sth->setFetchMode(PDO::FETCH_OBJ);
 	$row = $sth->fetch();
 	
-	return check_remote_file("https://" . $row->url);
+	return is_valid_site("https://" . $row->url);
+}
+
+function is_valid_site($domain = "google.com") {
+	if(!filter_var($domain, FILTER_VALIDATE_URL)):
+		return false;
+	endif;
+	
+	$curlInit = curl_init($domain);
+	curl_setopt($curlInit, CURLOPT_CONNECTTIMEOUT, 10);
+	curl_setopt($curlInit, CURLOPT_HEADER, true);
+	curl_setopt($curlInit, CURLOPT_NOBODY, true);
+	curl_setopt($curlInit, CURLOPT_RETURNTRANSFER, true);
+	
+	$response = curl_exec($curlInit);
+	curl_close($curlInit);
+	
+	if($response):
+		return true;
+	endif;
+	
+	return false;
 }
 
 function get_update_url($pdo) {
@@ -2076,4 +2139,195 @@ function importSqlFile($pdo, $sqlFile, $data = []) {
     }
     
     return true;
+}
+
+function isNeedHidePlayerId()
+{
+	global $conf;
+
+	if($conf->hide_players_id == 1 || $conf->hide_players_id == 3) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function isNeedHideAdminId()
+{
+	global $conf;
+
+	if($conf->hide_players_id == 1 || $conf->hide_players_id == 2) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function hidePlayerId($id)
+{
+	global $messages;
+
+	if(
+		(
+			is_worthy('i')
+			|| is_worthy('k')
+			|| is_worthy('s')
+			|| is_worthy('j')
+		) || !SteamIDOperations::ValidateSteamID($id)
+	) {
+		return $id;
+	} else {
+		return $messages['isHidden'];
+	}
+}
+
+if(
+	!function_exists('random_bytes')
+	|| !function_exists('random_int')
+) {
+	include_once __DIR__ . '/classes/Random/random.php';
+}
+
+function isStringLengthLess($string, $length)
+{
+	if(mb_strlen($string, 'UTF-8') < $length) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function isStringLengthMore($string, $length)
+{
+	return !isStringLengthLess($string, $length);
+}
+
+function getPhpVersion()
+{
+	if(phpversion()) {
+		$phpVersion = explode('.', phpversion());
+	} else {
+		$phpVersion = explode('.', PHP_VERSION);
+	}
+
+	return $phpVersion;
+}
+
+function pdo()
+{
+	global $pdo;
+
+	return empty($pdo) ? new stdClass() : $pdo;
+}
+
+function configs()
+{
+	global $conf;
+
+	return empty($conf) ? new stdClass() : $conf;
+}
+
+function page()
+{
+	global $page;
+
+	return empty($page) ? new stdClass() : $page;
+}
+
+function tpl()
+{
+	global $tpl;
+
+	if(empty($tpl)) {
+		$tpl = new Template;
+	}
+
+	return $tpl;
+}
+
+function isRightToken()
+{
+
+	if(configs()->token == 1 && $_SESSION['token'] != $_POST['token']) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+function isPostRequest()
+{
+	if(empty($_POST) || !array_key_exists('phpaction', $_POST)) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+function token()
+{
+	global $token;
+
+	return empty($token) ? '' : $token;
+}
+
+function HTMLPurifier()
+{
+	require_once __DIR__ . '/classes/HTMLPurifier/HTMLPurifier/Bootstrap.php';
+	require_once __DIR__ . '/classes/HTMLPurifier/HTMLPurifier.autoload.php';
+
+	$config = HTMLPurifier_Config::createDefault();
+	$config->set('HTML.SafeIframe', true);
+	$config->set('URI.SafeIframeRegexp', '%^(https?:)?//(www\.youtube(?:-nocookie)?\.com/embed/|player\.vimeo\.com/video/)%');
+
+	$HTMLDefinition = $config->getHTMLDefinition(true);
+	$HTMLDefinition->addAttribute('a', 'target', 'Enum#_blank,_self,_target,_top');
+	$HTMLDefinition->addAttribute('iframe', 'allowfullscreen', 'Enum#allowfullscreen');
+
+	foreach(['audio', 'video'] as $item) {
+		$$item = $HTMLDefinition->addElement(
+			$item,
+			'Block',
+			'Flow',
+			'Common',
+			['src*' => 'URI', 'controls' => 'CDATA']
+		);
+
+		$$item->excludes = [$item => true];
+	}
+
+	return new HTMLPurifier($config);
+}
+
+function incNotifications()
+{
+	include_once __DIR__ . '/notifications.php';
+}
+
+function dd($data)
+{
+	echo '<style>html, body { background: rgb(30, 30, 30); color: rgb(240, 240, 240); }</style>'
+		. '<pre>'
+		. var_export($data, true)
+		. '</pre>';
+
+	die;
+}
+
+function getNameLike($name)
+{
+	if(mb_strlen($name, 'UTF-8') < 3) {
+		return $name;
+	} else {
+		return "%" . strip_data($name) . "%";
+	}
+}
+
+function isMobile()
+{
+	if((new MobileDetect())->isMobile()) {
+		return true;
+	} else {
+		return false;
+	}
 }

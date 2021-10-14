@@ -23,7 +23,7 @@ include_once "../inc/protect.php";
 /* Проверка на бота
 =========================================*/
 if(isset($_POST['bot_check'])) {
-	if(!validate_captcha($conf->captcha, $_POST["captcha"])) {
+	if(!validateCaptcha($_POST["captcha"])) {
 		exit('<p class="text-danger">Неверно введена капча!</p>');
 	}
 
@@ -191,7 +191,7 @@ if (isset($_POST['edit_user_login'])) {
 
 	$U = new Users($pdo);
 
-	if(!$U->check_login_lenght($user_login)) {
+	if(!$U->check_login_length($user_login)) {
 		exit('<span class="m-icon icon-remove"></span> Логин должен состоять не менее чем из 3 символов и не более чем из 30.');
 	}
 	if(!$U->check_login_composition($user_login)) {
@@ -231,6 +231,35 @@ if (isset($_POST['edit_user_login'])) {
 	write_log("Логин изменен на ".$user_login); 
 	exit('<span class="m-icon icon-ok"></span> Ваш логин изменен!');
 }
+
+if(isset($_POST['editUserRoute'])) {
+	$route = check($_POST['route'], null);
+
+	if(empty($route)) {
+		$route = null;
+	} else {
+		$U = new Users($pdo);
+
+		if(!$U->check_route_length($route)) {
+			exit('<span class="m-icon icon-remove"></span> Адрес должен состоять не менее чем из 3 символов и не более чем из 32.');
+		}
+
+		if(!$U->check_route_composition($route)) {
+			exit('<span class="m-icon icon-remove"></span> В адресе разрешается использовать только буквы английского алфавита, цифры и символы: -_');
+		}
+
+		if(!$U->check_route_busyness($route, $_SESSION['id'])) {
+			exit('<span class="m-icon icon-remove"></span> Введеный Вами адрес уже зарегистрирован!');
+		}
+	}
+
+	$STH = $pdo->prepare("UPDATE users SET route=:route WHERE id=:id LIMIT 1");
+	$STH->execute([':route' => $route, ':id' => $_SESSION['id']]);
+
+	write_log('Адрес страницы изменен на ' . $route);
+	exit('<span class="m-icon icon-ok"></span> Адрес вашей страницы изменен!');
+}
+
 if (isset($_POST['edit_user_name'])) {
 	$user_name = check($_POST['user_name'],null);
 
@@ -357,7 +386,7 @@ if (isset($_POST['edit_first_user_password'])) {
 
 	$U = new Users($pdo);
 
-	if(!$U->check_password_lenght($user_password)) {
+	if(!$U->check_password_length($user_password)) {
 		exit('<span class="m-icon icon-remove"></span> Пароль должен состоять не менее чем из 6 символов и не более чем из 15.');
 	}
 	if($user_password != $user_password2) {
@@ -394,7 +423,7 @@ if (isset($_POST['edit_user_password'])) {
 		exit('<span class="m-icon icon-remove"></span> Неверно введен текущий пароль!');
 	}
 
-	if(!$U->check_password_lenght($user_password)) {
+	if(!$U->check_password_length($user_password)) {
 		exit('<span class="m-icon icon-remove"></span> Пароль должен состоять не менее чем из 6 символов и не более чем из 15.');
 	}
 
@@ -462,8 +491,7 @@ if (isset($_POST['edit_user_avatar'])) {
 	exit();
 }
 if (isset($_POST['edit_signature'])) {
-	include_once '../inc/classes/HTMLPurifier/HTMLPurifier.auto.php';
-	$signature = $Purifier->purify($_POST['signature']);
+	$signature = HTMLPurifier()->purify($_POST['signature']);
 	$signature = find_img_mp3($signature, $_SESSION['id'], 1);
 
 	if (mb_strlen($signature, 'UTF-8') > 1000) {
@@ -473,7 +501,7 @@ if (isset($_POST['edit_signature'])) {
 	$STH = $pdo->prepare("UPDATE users SET signature=:signature WHERE id='$_SESSION[id]' LIMIT 1");
 	$STH->execute(array(':signature' => $signature));
 
-	write_log("Подпись изменена"); 
+	write_log("Подпись изменена");
 	exit('<span class="m-icon icon-ok"></span> Подпись изменена!');
 }
 /* Друзья
@@ -696,8 +724,7 @@ if (isset($_POST['load_col_infriends'])) {
 if (isset($_POST['send_new_comment'])) {
 	$id = checkJs($_POST['id'],"int");
 
-	include_once '../inc/classes/HTMLPurifier/HTMLPurifier.auto.php';
-	$text = $Purifier->purify($_POST['text']);
+	$text = HTMLPurifier()->purify($_POST['text']);
 	$text = find_img_mp3($text, $id, 1);
 
 	if (empty($id)) {
@@ -731,52 +758,9 @@ if (isset($_POST['send_new_comment'])) {
 		exit (json_encode(array('status' => '1')));
 	}
 }
+
 /* Добавление бана
 =========================================*/
-if (isset($_POST['add_ban_img'])) {
-	if(empty($_POST['counter'])) {
-		$counter = 0;
-	} else {
-		$counter = check($_POST['counter'],"int");
-	}
-
-	if (empty($counter) and $counter != 0){
-		exit('<script>setTimeout(show_error, 500);</script>');
-	}
-
-	if ($counter >= 5){
-		exit('<p class="text-danger">Загружено максимальное количество изображений</p><script>setTimeout(show_error, 500);</script>');
-	}
-	if (empty($_FILES['ban_img']['name'])) {
-		exit('<script>show_input_error("ban_img", "", null);setTimeout(show_error, 500);</script>');
-	} else {
-		$path = 'files/bans_imgs/';
-		$date = time();
-
-		if (if_img($_FILES['ban_img']['name'])) {
-			$source = $_FILES['ban_img']['tmp_name'];
-			$ban_img = $path . $date . ".jpg";
-			$target = '../'. $ban_img;
-			if (!move_uploaded_file($source, $target)) {
-				exit('<p class="text-danger">Ошибка загрузки файла!</p>');
-			}
-		} else {
-			exit('<p class="text-danger">Изображение должено быть в формате JPG,GIF,BMP или PNG</p><script>show_input_error("ban_img", "", null);setTimeout(show_error, 500);</script>');
-		}
-		?>
-			<script>
-				$("#imgs").append('<a class="thumbnail" data-lightbox="1" href="../<?php echo $ban_img; ?>"><img class="thumbnail-img" src="../<?php echo $ban_img; ?>"></img></a>');
-				var screens = $('#screens').val();
-				$('#screens').val(screens+'<?php echo $ban_img; ?>;');
-				var counter = $('#counter').val();
-				counter++;
-				$('#counter').val(counter);
-				setTimeout(show_ok, 500);
-			</script>
-		<?php
-	}
-	exit();
-}
 if (isset($_POST['add_ban'])) {
 	$server = check($_POST['server'],"int");
 	$nick = check($_POST['nick'],null);
@@ -787,8 +771,7 @@ if (isset($_POST['add_ban'])) {
 	$nick_db = checkJs($_POST['nick_db'],null);
 	$reason_db = checkJs($_POST['reason_db'],null);
 
-	include_once '../inc/classes/HTMLPurifier/HTMLPurifier.auto.php';
-	$text = $Purifier->purify($_POST['text']);
+	$text = HTMLPurifier()->purify($_POST['text']);
 	$text = find_img_mp3($text, $_SESSION['id'], 1);
 
 	if (empty($screens)){
@@ -796,6 +779,10 @@ if (isset($_POST['add_ban'])) {
 	}
 	if (empty($demo)){
 		$demo = 0;
+	} else {
+		if(!filter_var($demo, FILTER_VALIDATE_URL)) {
+			exit (json_encode(['status' => '2', 'input' => 'demo', 'reply' => 'Введите корректную ссылку!']));
+		}
 	}
 	if (empty($bid_db)){
 		$bid_db = 0;
@@ -904,7 +891,7 @@ if (isset($_POST['add_ban'])) {
 		$STH = $pdo->query("SELECT id FROM bans WHERE date='$date' LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
 		$row = $STH->fetch();
 
-		include_once "../inc/notifications.php";
+		incNotifications();
 		$letter = letter_of_new_ban($conf->name);
 		sendmail('none', $letter['subject'], $letter['message'], $pdo, 1);
 		exit (json_encode(array('status' => '1', 'id' => $row->id)));
@@ -917,8 +904,7 @@ if (isset($_POST['send_ban_comment'])) {
 		exit(json_encode(array('status' => '2')));
 	}
 
-	include_once '../inc/classes/HTMLPurifier/HTMLPurifier.auto.php';
-	$text = $Purifier->purify($_POST['text']);
+	$text = HTMLPurifier()->purify($_POST['text']);
 	$text = find_img_mp3($text, $id, 1);
 
 	if (empty($text)) {
@@ -937,11 +923,11 @@ if (isset($_POST['send_ban_comment'])) {
 	$STH = $pdo->prepare("INSERT INTO `bans__comments` (`user_id`, `ban_id`, `text`, `date`) values (:user_id, :ban_id, :text, :date)");
 	$STH->execute(array( 'user_id' => $_SESSION['id'], 'ban_id' => $id, 'text' => $text, 'date' => $date ));
 	if ($row->author != $_SESSION['id']){
-		
+
 		$STH = $pdo->prepare("UPDATE `bans` SET `have_answer`=:have_answer WHERE `id`='$id' LIMIT 1");
 		$STH->execute(array( 'have_answer' => '1' ));
 
-		include_once "../inc/notifications.php";
+		incNotifications();
 
 		$noty = noty_of_ban_answer($id);
 		send_noty($pdo, $noty, $row->author, 1);
@@ -969,8 +955,7 @@ if (isset($_POST['add_topic']) and is_worthy("w")) {
 		exit(json_encode(array('status' => '2')));
 	}
 
-	include_once '../inc/classes/HTMLPurifier/HTMLPurifier.auto.php';
-	$text = $Purifier->purify($_POST['text']);
+	$text = HTMLPurifier()->purify($_POST['text']);
 	$text = find_img_mp3($text, $forum_id, 1);
 
 	if (empty($name)) {
@@ -1035,7 +1020,7 @@ if (isset($_POST['add_topic_img']) and is_worthy("w")) {
 
 		if(!empty($id)) {
 			$STH = $pdo->query("SELECT `img` FROM `forums__topics` WHERE id='$id'"); $STH->setFetchMode(PDO::FETCH_OBJ);
-			$tmp = $STH->fetch(); 
+			$tmp = $STH->fetch();
 			if ($tmp->img != 'files/forums_imgs/none.jpg') {
 				unlink('../'.$tmp->img);
 			}
@@ -1051,8 +1036,7 @@ if (isset($_POST['send_answer'])) {
 		exit(json_encode(array('status' => '2')));
 	}
 
-	include_once '../inc/classes/HTMLPurifier/HTMLPurifier.auto.php';
-	$text = $Purifier->purify($_POST['text']);
+	$text = HTMLPurifier()->purify($_POST['text']);
 	$text = find_img_mp3($text, $topic_id, 1);
 
 	if (empty($text)) {
@@ -1140,8 +1124,7 @@ if (isset($_POST['add_ticket'])) {
 	$file = checkJs($_POST['file'],null);
 	$name = check($_POST['name'],null);
 
-	include_once '../inc/classes/HTMLPurifier/HTMLPurifier.auto.php';
-	$text = $Purifier->purify($_POST['text']);
+	$text = HTMLPurifier()->purify($_POST['text']);
 	$text = find_img_mp3($text, $_SESSION['id'], 1);
 
 	if (empty($file)) {
@@ -1184,7 +1167,7 @@ if (isset($_POST['add_ticket'])) {
 		$STH = $pdo->query("SELECT id FROM tickets WHERE date='$date' LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
 		$row = $STH->fetch();
 
-		include_once "../inc/notifications.php";
+		incNotifications();
 		$letter = letter_of_new_ticket($conf->name);
 		sendmail('none', $letter['subject'], $letter['message'], $pdo, 1);
 		exit (json_encode(array('status' => '1', 'id' => $row->id)));
@@ -1202,7 +1185,7 @@ if (isset($_POST['close_ticket'])) {
 			$STH = $pdo->prepare("UPDATE `tickets` SET `status`=:status, `closed`=:closed, `have_answer`=:have_answer WHERE `id`='$id' LIMIT 1");
 			if ($STH->execute(array( 'status' => '2', 'closed' => $_SESSION['id'], 'have_answer' => '1' )) == '1') {
 				if ($row->author != $_SESSION['id']) {
-					include_once "../inc/notifications.php";
+					incNotifications();
 
 					$noty = close_ticket_noty($id);
 					send_noty($pdo, $noty, $row->author, 1);
@@ -1226,8 +1209,7 @@ if (isset($_POST['send_ticket_answer'])) {
 		exit (json_encode(array('status' => '2')));
 	}
 
-	include_once '../inc/classes/HTMLPurifier/HTMLPurifier.auto.php';
-	$text = $Purifier->purify($_POST['text']);
+	$text = HTMLPurifier()->purify($_POST['text']);
 	$text = find_img_mp3($text, $id, 1);
 
 	if (empty($text)) {
@@ -1261,7 +1243,7 @@ if (isset($_POST['send_ticket_answer'])) {
 			$STH = $pdo->prepare("UPDATE `tickets` SET `have_answer`=:have_answer WHERE `id`='$id' LIMIT 1");
 			$STH->execute(array( 'have_answer' => '1' ));
 
-			include_once "../inc/notifications.php";
+			incNotifications();
 
 			$noty = noty_of_ticket_answer($id);
 			send_noty($pdo, $noty, $row->author, 1);
@@ -1322,9 +1304,9 @@ if (isset($_POST['send_user_comment'])) {
 		exit ();
 	}
 
-	include_once '../inc/classes/HTMLPurifier/HTMLPurifier.auto.php';
-	$text = $Purifier->purify($_POST['text']);
+	$text = HTMLPurifier()->purify($_POST['text']);
 	$text = find_img_mp3($text, $id, 1);
+	$text = str_replace('="files/', '="../files/', $text);
 
 	if (empty($text)) {
 		$result = array('status' => '2', 'input' => 'text', 'reply' => 'Заполните!');
@@ -1482,8 +1464,8 @@ if (isset($_POST['search_ban2'])) {
 
 	$tpl->load_template('elements/search_ban2.tpl');
 	$tpl->set("{bid}", $result['0']['bid']);
-	$tpl->set("{player_ip}", $result['0']['player_ip']);
-	$tpl->set("{player_id}", $result['0']['player_id']);
+	$tpl->set("{player_ip}", isNeedHidePlayerId() ? hidePlayerId($result['0']['player_ip']) : $result['0']['player_ip']);
+	$tpl->set("{player_id}", isNeedHidePlayerId() ? hidePlayerId($result['0']['player_id']) : $result['0']['player_id']);
 	$tpl->set("{player_nick}", $player_nick);
 	$tpl->set("{ban_reason}", $ban_reason);
 	$tpl->set("{time}", $time);
@@ -1497,7 +1479,7 @@ if (isset($_POST['search_ban2'])) {
 }
 if (isset($_POST['find_bans'])) {
 	$server = checkJs($_POST['server'], "int");
-	$name = $_POST['ban'];
+	$name = check($_POST['ban'], null);
 
 	if (empty($server)){
 		exit(json_encode(array('status' => '2', 'data' => '<tr><td colspan="10">Ошибка: [Неизвестные переменные]</td></tr>')));
@@ -1505,10 +1487,6 @@ if (isset($_POST['find_bans'])) {
 
 	if (empty($name)){
 		exit(json_encode(array('status' => '2', 'data' => '<tr><td colspan="10">Бан не найден</td></tr>')));
-	}
-
-	if (mb_strlen($name, 'UTF-8') < 3) {
-		exit(json_encode(array('status' => '2', 'data' => '<tr><td colspan="10">Слишком короткий идентификатор</td></tr>')));
 	}
 
 	$STH = $pdo->query("SELECT id,ip,port,name,db_host,db_user,db_pass,db_db,db_prefix,type,db_code FROM servers WHERE type!=0 and type!=1 and id='$server'"); $STH->setFetchMode(PDO::FETCH_OBJ);
@@ -1534,7 +1512,7 @@ if (isset($_POST['find_bans'])) {
 	if ($type == '2' || $type == '3' || $type == '5') {
 		$table = set_prefix($db_prefix, 'bans');
 		$STH = $pdo2->prepare("SELECT * FROM $table WHERE server_ip = '$address' and (player_ip LIKE :name or player_nick LIKE :name or player_id LIKE :name ) and (expired = '0' or expired IS NULL) ORDER BY bid DESC"); $STH->setFetchMode(PDO::FETCH_OBJ);
-		$STH->execute(array(":name" => "%".strip_data($name)."%"));
+		$STH->execute(array(":name" => getNameLike($name)));
 	} else {
 		$table = set_prefix($db_prefix, 'servers');
 		$STH = $pdo2->query("SELECT sid FROM $table WHERE ip='$ip' and port='$port' LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
@@ -1547,7 +1525,7 @@ if (isset($_POST['find_bans'])) {
 	}
 	$tpl = new Template;
 	$tpl->dir = '../templates/'.$conf->template.'/tpl/';
-	while($row = $STH->fetch()) { 
+	while($row = $STH->fetch()) {
 		if ($type == '2' || $type == '3' || $type == '5') {
 			$ban_length = $row->ban_length*60;
 		} else {
@@ -1584,8 +1562,8 @@ if (isset($_POST['find_bans'])) {
 			$tpl->set("{address}", $address);
 			$tpl->set("{admin_nick}", $admin_nick);
 			$tpl->set("{type}", $type);
-			$tpl->set("{player_ip}", $row->player_ip);
-			$tpl->set("{player_id}", $row->player_id);
+			$tpl->set("{player_ip}", isNeedHidePlayerId() ? hidePlayerId($row->player_ip) : $row->player_ip);
+			$tpl->set("{player_id}", isNeedHidePlayerId() ? hidePlayerId($row->player_id) : $row->player_id);
 			$tpl->set("{ban_length}", $ban_length2);
 			$tpl->set("{server_name}", $server_name);
 			$tpl->set("{color}", $color);
@@ -1680,7 +1658,7 @@ if (isset($_POST['get_referrals'])) {
 		$shilings = 0;
 		$STH2 = $pdo->prepare("SELECT `shilings` FROM `money__actions` WHERE `gave_out`=:gave_out"); $STH2->setFetchMode(PDO::FETCH_OBJ);
 		$STH2->execute(array( ':gave_out' => $row->id ));
-		while($row2 = $STH2->fetch()) { 
+		while($row2 = $STH2->fetch()) {
 			$shilings += $row2->shilings;
 		}
 		?>
@@ -1741,25 +1719,29 @@ if (isset($_POST['get_ref_profit'])) {
 
 if(isset($_POST['edit_user_prefix'])) {
 	$user_prefix = check($_POST['user_prefix'], null);
+
 	if(mb_strlen($user_prefix, 'UTF-8') > 16) {
 		exit('<span class="glyphicon glyphicon-remove"></span> Префикс должен состоять не более чем из 16 символов.');
 	}
-	$STH = $pdo->query("SELECT id,login FROM users WHERE prefix='$user_prefix' LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$row = $STH->fetch();
-	if(!empty($row->id) and !empty($row->prefix)) {
-		exit('<p class="text-danger">Введеный Вами префикс занят пользователем <a href="../profile?id=' . $row->id . '" target="_blank">' . $row->login . '</a></p>');
-	}
 
-	$date = time() - 24 * 60 * 60 * 1;
-	$pdo->exec("DELETE FROM last_actions WHERE date<'$date' and user_id='$_SESSION[id]' and action_type = '5' LIMIT 1");
-	$STH = $pdo->query("SELECT id,date FROM last_actions WHERE user_id = '$_SESSION[id]' and action_type = '5'");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$row = $STH->fetch();
-	if(!empty($row->id)) {
-		$delta = time() - $row->date;
-		if($delta < (24 * 60 * 60 * 1)) {
-			exit('<p class="text-danger">Префикс разрешено менять раз в сутки</p>');
+	if(!empty($user_prefix)) {
+		$STH = $pdo->query("SELECT id, login FROM users WHERE prefix='$user_prefix' LIMIT 1");
+		$STH->setFetchMode(PDO::FETCH_OBJ);
+		$row = $STH->fetch();
+		if(!empty($row->id) && $row->id != $_SESSION['id']) {
+			exit('<p class="text-danger">Введеный Вами префикс занят пользователем <a href="../profile?id=' . $row->id . '" target="_blank">' . $row->login . '</a></p>');
+		}
+
+		$date = time() - 24 * 60 * 60 * 1;
+		$pdo->exec("DELETE FROM last_actions WHERE date<'$date' and user_id='$_SESSION[id]' and action_type = '5' LIMIT 1");
+		$STH = $pdo->query("SELECT id,date FROM last_actions WHERE user_id = '$_SESSION[id]' and action_type = '5'");
+		$STH->setFetchMode(PDO::FETCH_OBJ);
+		$row = $STH->fetch();
+		if(!empty($row->id)) {
+			$delta = time() - $row->date;
+			if($delta < (24 * 60 * 60 * 1)) {
+				exit('<p class="text-danger">Префикс разрешено менять раз в сутки</p>');
+			}
 		}
 	}
 
@@ -1852,5 +1834,272 @@ if (isset($_POST['getBlackList'])) {
 	exit();
 }
 
-exit(json_encode(array('status' => '2')));
-?>
+/* Жалобы
+=========================================*/
+if (isset($_POST['findTheAccused'])) {
+	$serverId = checkJs($_POST['server_id'], 'int');
+	$accused = check($_POST['accused'], null);
+
+	if (empty($serverId)){
+		exit('<tr><td colspan="10">Пусто</td></tr>');
+	}
+
+	$tpl = new Template;
+	$tpl->dir = '../templates/'.$conf->template.'/tpl/';
+	$tpl->result['content'] = '';
+	$admins = (new Complaints($pdo, $tpl))->findAccused($serverId, $accused);
+
+	foreach($admins as $admin) {
+		$tpl->load_template('elements/complaint_find_result.tpl');
+		foreach($admin as $key => $value) {
+			$tpl->set('{' . $key . '}', $value);
+		}
+		$tpl->compile('content');
+		$tpl->clear();
+	}
+
+	if ($tpl->result['content'] == '') {
+		$tpl->result['content'] = '<tr><td colspan="10">Нет результатов</td></tr>';
+	}
+
+	$tpl->show($tpl->result['content']);
+	exit();
+}
+
+if(isset($_POST['setTheAccused'])) {
+	$adminId = check($_POST['adminId'], 'int');
+
+	if(empty($adminId)) {
+		exit('Ошибка');
+	}
+
+	$tpl                    = new Template;
+	$tpl->dir               = '../templates/' . $conf->template . '/tpl/';
+	$tpl->result['content'] = '';
+	$admin                  = (new Complaints($pdo, $tpl))->getAccusedById($adminId);
+
+	if(!empty($admin)) {
+		$tpl->load_template('elements/complaint_find_result_card.tpl');
+		$tpl->set('{id}', $admin['id']);
+		$tpl->set('{user_id}', $admin['user_id']);
+		$tpl->set('{avatar}', $admin['avatar']);
+		$tpl->set('{login}', $admin['login']);
+		$tpl->set('{gp_name}', $admin['gp_name']);
+		$tpl->set('{gp_color}', $admin['gp_color']);
+		$tpl->set('{name}', $admin['name']);
+		$tpl->set('{services}', $admin['services']);
+		$tpl->compile('content');
+		$tpl->clear();
+		$tpl->show($tpl->result['content']);
+		exit();
+	} else {
+		exit('Ошибка');
+	}
+}
+
+if (isset($_POST['addComplaint'])) {
+	$accusedId = check($_POST['accusedId'], 'int');
+	$screens   = check($_POST['screens'], null);
+	$demo      = check($_POST['demo'], null);
+
+	$description = HTMLPurifier()->purify($_POST['description']);
+	$description = find_img_mp3($description, $_SESSION['id'], 1);
+
+	if(empty($screens)) {
+		$screens = 0;
+	}
+
+	if(empty($demo)) {
+		$demo = 0;
+	} else {
+		if(!filter_var($demo, FILTER_VALIDATE_URL)) {
+			exit (json_encode(['status' => 2, 'input' => 'demo', 'reply' => 'Введите корректную ссылку!']));
+		}
+	}
+
+	$accused = empty($accusedId) ? [] : (new Complaints($pdo))->getAccusedById($accusedId);
+
+	if(empty($accused)) {
+		exit (json_encode(['status' => 2, 'input' => 'accused', 'reply' => 'Выберите!']));
+	}
+
+	if(empty($description)) {
+		exit (json_encode(['status' => 2, 'input' => 'description', 'reply' => 'Заполните!']));
+	}
+
+	if (mb_strlen($demo, 'UTF-8') > 250) {
+		exit (json_encode(array('status' => 2, 'input' => 'demo', 'reply' => 'Не более 250 символов!')));
+	}
+
+	$STH = $pdo->prepare("SELECT date FROM complaints WHERE author_id=:author_id ORDER BY date DESC LIMIT 1");
+	$STH->setFetchMode(PDO::FETCH_OBJ);
+	$STH->execute([':author_id' => $_SESSION['id']]);
+	$row = $STH->fetch();
+
+	if(isset($row->date)) {
+		if((time() - strtotime($row->date)) < (24 * 60 * 60)) {
+			exit (json_encode(['status' => 2, 'input' => 'none', 'reply' => 'Жалобу можно создавать раз в 24 часа']));
+		}
+	}
+
+	$STH  = $pdo->prepare(
+		"INSERT INTO complaints (author_id, accused_admin_server_id, accused_admin_id, accused_admin_nick, screens, date, description, demo, accused_profile_id) values (:author_id, :accused_admin_server_id, :accused_admin_id, :accused_admin_nick, :screens, :date, :description, :demo, :accused_profile_id)"
+	);
+	$STH->execute(
+		[
+			'author_id'               => $_SESSION['id'],
+			'accused_admin_server_id' => $accused['server_id'],
+			'accused_admin_id'        => $accused['id'],
+			'accused_admin_nick'      => $accused['name_original'],
+			'screens'                 => $screens,
+			'date'                    => date('Y-m-d H:i:s'),
+			'description'             => $description,
+			'demo'                    => $demo,
+			'accused_profile_id'      => $accused['user_id']
+		]
+	);
+
+	$id = get_ai($pdo, 'complaints') - 1;
+
+	incNotifications();
+
+	$letter = letter_of_new_complaint($conf->name);
+	sendmail('none', $letter['subject'], $letter['message'], $pdo, 1);
+
+	$STH = $pdo->prepare("SELECT email, email_notice FROM users WHERE id=:id LIMIT 1");
+	$STH->setFetchMode(PDO::FETCH_OBJ);
+	$STH->execute([':id' => $accused['user_id']]);
+	$row = $STH->fetch();
+
+	if(!empty($row->email)) {
+		$noty = noty_of_new_complaint_to_accused($id);
+		send_noty($pdo, $noty, $accused['user_id'], 1);
+
+		if($row->email_notice == 1) {
+			$letter = letter_of_new_complaint_to_accused($conf->name, $id);
+			sendmail($row->email, $letter['subject'], $letter['message'], $pdo);
+		}
+	}
+
+	exit (json_encode(['status' => 1, 'id' => $id]));
+}
+
+if(isset($_POST['sendComplaintComment'])) {
+	$id = checkJs($_POST['id'], "int");
+
+	if(empty($id)) {
+		exit(json_encode(['status' => 2]));
+	}
+
+	$text = HTMLPurifier()->purify($_POST['text']);
+	$text = find_img_mp3($text, $id, 1);
+
+	if(empty($text)) {
+		exit (json_encode(['status' => 2, 'input' => 'text', 'reply' => 'Заполните!']));
+	}
+
+	if(mb_strlen($text, 'UTF-8') > 10000) {
+		exit (json_encode(['status' => 2, 'input'  => 'text', 'reply'  => 'Слишком длинный контент.']));
+	}
+
+	$STH = $pdo->prepare(
+		"SELECT 
+    				complaints.sentence, 
+    				author.id as author_id, 
+				    author.email as author_email, 
+				    author.email_notice as author_email_notice,
+   					accused.id as accused_id, 
+      				accused.email as accused_email, 
+				    accused.email_notice as accused_email_notice
+				FROM 
+				    complaints 
+				        LEFT JOIN users author ON author.id=complaints.author_id
+						LEFT JOIN users accused ON accused.id=complaints.accused_profile_id
+				WHERE complaints.id = :id LIMIT 1"
+	);
+	$STH->setFetchMode(PDO::FETCH_OBJ);
+	$STH->execute([':id' => $id]);
+	$row = $STH->fetch();
+
+	if($row->sentence != 0) {
+		exit(json_encode(['status' => 2]));
+	}
+
+	$STH = $pdo->prepare(
+		"INSERT INTO complaints__comments (user_id, complaint_id, text, date) values (:user_id, :ban_id, :text, :date)"
+	);
+	$STH->execute(
+		[
+			'user_id' => $_SESSION['id'],
+			'ban_id'  => $id,
+			'text'    => $text,
+			'date'    => date("Y-m-d H:i:s")
+		]
+	);
+
+	incNotifications();
+
+	$noty = noty_of_complaint_answer($id);
+	$letter = letter_of_complaint_answer($id, $full_site_host);
+
+	if($row->author_id != $_SESSION['id']) {
+		send_noty($pdo, $noty, $row->author_id, 1);
+
+		if($row->author_email_notice == 1) {
+			sendmail($row->author_email, $letter['subject'], $letter['message'], $pdo);
+		}
+	}
+
+	if(!empty($row->accused_id)) {
+		if($row->accused_id != $_SESSION['id']) {
+			send_noty($pdo, $noty, $row->accused_id, 1);
+
+			if($row->accused_email_notice == 1) {
+				sendmail($row->accused_email, $letter['subject'], $letter['message'], $pdo);
+			}
+		}
+	}
+
+	$STH = $pdo->prepare("UPDATE complaints SET have_answer=:have_answer WHERE id = :id LIMIT 1");
+	$STH->execute(['have_answer' => 1, 'id' => $id]);
+
+	exit (json_encode(['status' => 1]));
+}
+
+if(isset($_POST['loadImages'])) {
+	$folder = check($_POST['folder'], null);
+	$counter = empty($_POST['counter']) ? 0 : check($_POST['counter'], 'int');
+
+	$folders = [
+		'complaints' => 'complaints_imgs',
+		'unbans' => 'bans_imgs',
+	];
+
+	if(!array_key_exists($folder, $folders)) {
+		exit(json_encode(['status' => 2, 'content' => 'Ошибка']));
+	}
+
+	if ($counter >= 5){
+		exit(json_encode(['status' => 2, 'content' => 'Загружено максимальное количество изображений']));
+	}
+
+	if (empty($_FILES['image']['name'])) {
+		exit(json_encode(['status' => 2, 'content' => 'Выберите изображение!']));
+	} else {
+		$path = 'files/' . $folders[$folder] . '/';
+		$name = time() . rand(0, 9);
+
+		if (if_img($_FILES['image']['name'])) {
+			$image = $path . $name . '.jpg';
+			if (!move_uploaded_file($_FILES['image']['tmp_name'], '../' . $image)) {
+				exit(json_encode(['status' => 2, 'content' => 'Ошибка загрузки файла!']));
+			}
+		} else {
+			exit(json_encode(['status' => 2, 'content' => 'Изображение должено быть в формате JPG,GIF,BMP или PNG']));
+		}
+
+		exit(json_encode(['status' => 1, 'image' => $image]));
+	}
+}
+
+exit(json_encode(['status' => 2]));

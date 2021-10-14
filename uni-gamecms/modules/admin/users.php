@@ -3,6 +3,40 @@ if(!is_admin()){
 	show_error_page('not_adm');
 }
 
+if(isset($_GET['exportUsersXlsx'])) {
+	$users = $pdo->query(
+		"SELECT 
+					    id, 
+					    login, 
+					    email, 
+					    regdate, 
+    	   				CASE
+					        WHEN name = '---' THEN ''
+					        ELSE name
+					    END AS name,
+					    CASE
+					        WHEN steam_api = '0' THEN ''
+					        ELSE concat('https://steamcommunity.com/profiles/', steam_api) 
+					    END AS steam_api,
+    					CASE
+					        WHEN vk_api = 0 THEN ''
+					        ELSE concat('https://vk.com/id', vk_api)
+					    END AS vk_api,
+    					CASE
+					        WHEN telegram = '' THEN ''
+					        ELSE concat('tg://resolve?domain=', telegram)
+					    END AS telegram
+					FROM 
+					    users"
+	)->fetchAll(PDO::FETCH_ASSOC);
+
+	array_unshift($users, ['ID', 'Логин', 'E-mail', 'Дата регистрации', 'Имя', 'Профиль STEAM', 'Профиль VK', 'Профиль Telegram']);
+
+	$xlsx = SimpleXLSXGen::fromArray($users);
+	$xlsx->downloadAs('users.xlsx');
+	die;
+}
+
 if(isset($_GET['page'])) {
 	$number = clean($_GET['page'], "int");
 }

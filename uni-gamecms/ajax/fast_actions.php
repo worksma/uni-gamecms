@@ -18,7 +18,7 @@ if(isset($_POST['get_vk_auth_link'])) {
 			'display'       => 'popup',
 			'response_type' => 'code',
 			'state'         => 'login',
-			'v'             => '5.73'
+			'v'             => configs()->vk_api_version
 		];
 
 		$url = str_replace(
@@ -43,7 +43,7 @@ if(isset($_POST['attach_user_vk']) && is_auth()) {
 			'display'       => 'popup',
 			'response_type' => 'code',
 			'state'         => md5($SC->set_token()),
-			'v'             => '5.73'
+			'v'             => configs()->vk_api_version
 		];
 
 		$url = str_replace(
@@ -173,7 +173,7 @@ if(isset($_POST['reg_by_api'])) {
 				'display'       => 'popup',
 				'response_type' => 'code',
 				'state'         => $email,
-				'v'             => '5.73'
+				'v'             => '5.131'
 			];
 			$url    = 'https://oauth.vk.com/authorize?' . urldecode(http_build_query($params));
 			$url    = str_replace("&amp;", "&", $url);
@@ -256,7 +256,7 @@ if(isset($_POST['get_vk_profile_info'])) {
 	} else {
 		$content = file_get_contents_curl(
 			"https://api.vk.com/method/users.get?user_id="
-			. $vk_api . "&v=5.73&lang=ru&fields=photo_50&access_token="
+			. $vk_api . "&v=5.131&lang=ru&fields=photo_50&access_token="
 			. $auth_api->vk_service_key . "&callback=?"
 		);
 		$content = json_decode($content, true);

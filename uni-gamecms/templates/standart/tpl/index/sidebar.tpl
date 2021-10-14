@@ -7,6 +7,17 @@
 	</div>
 </div>
 
+{if($conf->top_donators == '1')}
+	<div class="block">
+		<div class="block_head">
+			Топ донатеров
+		</div>
+		<div id="online_users">
+			{func Widgets:top_donators($conf->top_donators_count)}
+		</div>
+	</div>
+{/if}
+
 <div class="block">
 	<div class="block_head">
 		Топ пользователей

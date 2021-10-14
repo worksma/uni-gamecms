@@ -555,24 +555,4 @@ class SourceQuery {
 		
 		return $this->Rcon->Command( $Command );
 	}
-
-	public function log($command, $server){
-		$file = 'rcon_log_'.$server.'.txt';
-
-		if (file_exists($_SERVER['DOCUMENT_ROOT']."/logs/".$file)) {
-			$i="a";
-		} else {
-			$i="w";
-		}
-
-		if(isset($_SESSION['id']) and isset($_SESSION['login'])) {
-			$user = $_SESSION['login'].' - '.$_SESSION['id'];
-		} else {
-			$user = 'Админ Центр';
-		}
-
-		$file = fopen ($_SERVER['DOCUMENT_ROOT']."/logs/".$file, $i);
-		fwrite($file, "[".date("Y-m-d H:i:s")." | Пользователь: ".$user."] : [".$command."] \r\n");
-		fclose($file);
-	}
 }

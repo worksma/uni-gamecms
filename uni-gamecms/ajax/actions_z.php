@@ -182,7 +182,7 @@ if (isset($_POST['take_proc']) and is_worthy("c")) {
 		$STH = $pdo->prepare("UPDATE users SET proc=:proc WHERE id='$id' LIMIT 1");
 		$STH->execute(array( 'proc' => $proc ));
 
-		include_once "../inc/notifications.php";
+		incNotifications();
 		$noty = give_proc_noty($_SESSION['id'], $_SESSION['login'], $proc);
 		send_noty($pdo, $noty, $id, 1);
 
@@ -269,14 +269,35 @@ if (isset($_POST['dell_user']) and (is_worthy("g") or is_admin())) {
 			$pdo->exec("DELETE FROM pm__messages WHERE dialog_id='$dialog_id'");
 		}
 		$pdo->exec("DELETE FROM pm__dialogs WHERE user_id1='$id' or user_id2='$id'");
+
 		$STH = $pdo->query("SELECT id FROM bans WHERE author='$id'");
 		$STH->execute();
 		$row = $STH->fetchAll();
-		for ($i=0; $i < count($row); $i++) { 
+		for ($i=0; $i < count($row); $i++) {
 			$ban_id = $row[$i]['id'];
 			$pdo->exec("DELETE FROM bans__comments WHERE ban_id='$ban_id'");
 		}
 		$pdo->exec("DELETE FROM bans WHERE author='$id'");
+
+		$STH = $pdo->query("SELECT id FROM complaints WHERE author_id='$id'");
+		$STH->execute();
+		$row = $STH->fetchAll();
+		for ($i=0; $i < count($row); $i++) {
+			$ban_id = $row[$i]['id'];
+			$pdo->exec("DELETE FROM complaints__comments WHERE complaint_id='$ban_id'");
+		}
+		$pdo->exec("DELETE FROM complaints WHERE author_id='$id'");
+
+		$STH = $pdo->query("SELECT id FROM complaints WHERE author_id='$id' OR accused_profile_id='$id'");
+		$STH->execute();
+		$row = $STH->fetchAll();
+		for ($i=0; $i < count($row); $i++) {
+			$complaint_id = $row[$i]['id'];
+			$pdo->exec("DELETE FROM complaints__comments WHERE complaint_id='$complaint_id'");
+		}
+		$pdo->exec("DELETE FROM complaints WHERE author_id='$id'");
+		$pdo->exec("DELETE FROM complaints WHERE accused_profile_id='$id'");
+
 		$STH = $pdo->query("SELECT id FROM tickets WHERE author='$id'");
 		$STH->execute();
 		$row = $STH->fetchAll();
@@ -284,15 +305,27 @@ if (isset($_POST['dell_user']) and (is_worthy("g") or is_admin())) {
 			$ticket = $row[$i]['id'];
 			$pdo->exec("DELETE FROM tickets__answers WHERE ticket='$ticket'");
 		}
+
 		$pdo->exec("DELETE FROM tickets__answers WHERE author='$id'");
 		$pdo->exec("DELETE FROM tickets WHERE author='$id'");
 		$pdo->exec("DELETE FROM last_actions WHERE user_id='$id'");
 		$pdo->exec("DELETE FROM users__online WHERE user_id='$id'");
 		$pdo->exec("DELETE FROM notifications WHERE user_id='$id'");
-		$pdo->exec("DELETE FROM money__actions WHERE author='$id'");
+		// $pdo->exec("DELETE FROM money__actions WHERE author='$id'");
 		$pdo->exec("DELETE FROM thanks WHERE author='$id'");
+
+		if(check_table('sortition__participants', $pdo)) {
+			$pdo->exec("DELETE FROM sortition__participants WHERE user_id='$id'");
+		}
+		if(check_table('cases__wins', $pdo)) {
+			$pdo->exec("DELETE FROM cases__wins WHERE user_id='$id'");
+		}
+		if(check_table('activity_rewards__participants', $pdo)) {
+			$pdo->exec("DELETE FROM activity_rewards__participants WHERE user_id='$id'");
+		}
 	}
 	if($type == 1 || $type == 2 || $type == 5) {
+		$pdo->exec("DELETE FROM complaints__comments WHERE user_id='$id'");
 		$pdo->exec("DELETE FROM bans__comments WHERE user_id='$id'");
 		$pdo->exec("DELETE FROM users__comments WHERE author='$id'");
 		$pdo->exec("DELETE FROM news__comments WHERE user_id='$id'");
@@ -502,7 +535,7 @@ if (isset($_POST['admin_change_group']) and (is_worthy("f") or is_admin())) {
 		$STH->execute(array( ':previous_group' => 0, ':admin_id' => $row[$i]['id'] ));
 	}
 
-	include_once "../inc/notifications.php";
+	incNotifications();
 	$noty = change_group_noty($users_groups[$rights]['name'], $users_groups[$rights]['rights']);
 	send_noty($pdo, $noty, $id, 1);
 
@@ -520,7 +553,7 @@ if (isset($_POST['admin_change_login']) and (is_worthy("f") or is_admin())) {
 
 	$U = new Users($pdo);
 
-	if(!$U->check_login_lenght($login)) {
+	if(!$U->check_login_length($login)) {
 		exit(json_encode(array('status' => '2', 'data' => '<p class="text-danger">Логин должен состоять не менее чем из 3 символов и не более чем из 30.</p>')));
 	}
 	if(!$U->check_login_composition($login)) {
@@ -537,7 +570,7 @@ if (isset($_POST['admin_change_login']) and (is_worthy("f") or is_admin())) {
 	$STH->execute(array( ':id' => $id ));
 	$row = $STH->fetch();
 
-	include_once "../inc/notifications.php";
+	incNotifications();
 	$letter = letter_of_change_login($conf->name, $login);
 	sendmail($row->email, $letter['subject'], $letter['message'], $pdo);
 
@@ -545,7 +578,40 @@ if (isset($_POST['admin_change_login']) and (is_worthy("f") or is_admin())) {
 
 	exit(json_encode(array('status' => '1')));
 }
-if (isset($_POST['admin_change_password']) and (is_worthy("f") or is_admin())) {
+if(isset($_POST['editUserRouteByAdmin']) and (is_worthy("f") or is_admin())) {
+	$id    = check($_POST['id'], "int");
+	$route = check($_POST['route'], null);
+
+	if(empty($id)) {
+		exit(json_encode(['status' => 2]));
+	}
+
+	if(empty($route)) {
+		$route = null;
+	} else {
+		$U = new Users($pdo);
+
+		if(!$U->check_route_length($route)) {
+			exit(json_encode(['status' => 2, 'data' => '<p class="text-danger">Адрес должен состоять не менее чем из 3 символов и не более чем из 32.</p>']));
+		}
+
+		if(!$U->check_route_composition($route)) {
+			exit(json_encode(['status' => 2, 'data' => '<p class="text-danger">В адресе разрешается использовать только буквы английского алфавита, цифры и символы: -_</p>']));
+		}
+
+		if(!$U->check_route_busyness($route)) {
+			exit(json_encode(['status' => 2, 'data' => '<p class="text-danger">Введеный Вами адрес уже зарегистрирован!</p>']));
+		}
+	}
+
+	$STH = $pdo->prepare("UPDATE users SET route=:route WHERE id = :id LIMIT 1");
+	$STH->execute([':route' => $route, ':id' => $id]);
+
+	write_log("Смена адреса страницы пользователю с ID:" . $id . " на " . $route);
+
+	exit(json_encode(['status' => 1]));
+}
+if(isset($_POST['admin_change_password']) and (is_worthy("f") or is_admin())) {
 	$id = check($_POST['id'], "int");
 	$password = check($_POST['user_password'], null);
 
@@ -555,7 +621,7 @@ if (isset($_POST['admin_change_password']) and (is_worthy("f") or is_admin())) {
 
 	$U = new Users($pdo);
 
-	if(!$U->check_password_lenght($password)) {
+	if(!$U->check_password_length($password)) {
 		exit(json_encode(array('status' => '2', 'data' => '<p class="text-danger">Пароль должен состоять не менее чем из 6 символов и не более чем из 15</p>')));
 	}
 
@@ -567,7 +633,7 @@ if (isset($_POST['admin_change_password']) and (is_worthy("f") or is_admin())) {
 	$STH->execute(array( ':id' => $id ));
 	$row = $STH->fetch();
 
-	include_once "../inc/notifications.php";
+	incNotifications();
 	$letter = letter_of_change_password($conf->name, $password);
 	sendmail($row->email, $letter['subject'], $letter['message'], $pdo);
 	
@@ -606,8 +672,7 @@ if (isset($_POST['admin_change_nick']) and (is_worthy("f") or is_admin())) {
 if (isset($_POST['admin_change_signature']) and (is_worthy("f") or is_admin())) {
 	$id = check($_POST['id'], "int");
 
-	include_once '../inc/classes/HTMLPurifier/HTMLPurifier.auto.php';
-	$signature = $Purifier->purify($_POST['signature']);
+	$signature = HTMLPurifier()->purify($_POST['signature']);
 	$signature = find_img_mp3($signature, $id, 1);
 
 	if (mb_strlen($signature, 'UTF-8') > 5000) {
@@ -1033,16 +1098,16 @@ if (isset($_POST['pause_admin']) and (is_worthy("j") or is_admin())) {
 	}
 
 	if(isset($info->user_id)) {
-		include_once "../inc/notifications.php";
+		incNotifications();
 		$noty = pause_service_noty(clean($info->name, null), $info->server_name);
 		send_noty($pdo, $noty, $info->user_id, 1);
 	}
 
-	$SQ = new OurSourceQuery;
 	try {
-		$SQ->reolad_admins($pdo, $info->server_id, $id);
-	} catch( Exception $e ) { $err = 1; }
-	unset($SQ);
+		(new OurSourceQuery())->reloadAdmins($info->server_id);
+	} catch(Exception $e) {
+		log_error($e->getMessage());
+	}
 	
 	service_log("Управление админами: Приостановка прав", $id, $info->server_id, $pdo);
 	exit (json_encode(array('status' => '1')));
@@ -1143,16 +1208,16 @@ if (isset($_POST['resume_admin']) and (is_worthy("j") or is_admin())) {
 	}
 
 	if(isset($info->user_id)) {
-		include_once "../inc/notifications.php";
+		incNotifications();
 		$noty = resume_service_noty(clean($info->name, null), $info->server_name);
 		send_noty($pdo, $noty, $info->user_id, 2);
 	}
 
-	$SQ = new OurSourceQuery;
 	try {
-		$SQ->reolad_admins($pdo, $info->server_id, $id);
-	} catch( Exception $e ) { $err = 1; }
-	unset($SQ);
+		(new OurSourceQuery())->reloadAdmins($info->server_id);
+	} catch(Exception $e) {
+		log_error($e->getMessage());
+	}
 
 	service_log("Управление админами: Запуск прав", $id, $info->server_id, $pdo);
 	exit (json_encode(array('status' => '1')));
@@ -1331,10 +1396,12 @@ if (isset($_POST['stop_adm']) and (is_worthy("j") or is_admin())) {
 	$id = checkJs($_POST['id'],"int");
 	$cause = checkJs($_POST['cause'],null);
 	$link = checkJs($_POST['link'],null);
-	$pirce = checkJs($_POST['pirce'],"int");
-	if (empty($id) or empty($cause) or empty($pirce)) {
-		exit(json_encode(array('status' => '2')));
+	$price = checkJs($_POST['price'],"int");
+
+	if (empty($id) or empty($cause) or empty($price)) {
+		exit(json_encode(array('status' => 2)));
 	}
+
 	if (empty($link)) {
 		$link = '';
 	}
@@ -1345,40 +1412,40 @@ if (isset($_POST['stop_adm']) and (is_worthy("j") or is_admin())) {
 	$STH->execute(array( ':id' => $id ));
 	$info = $STH->fetch();
 	if (empty($info->id)){
-		exit(json_encode(array('status' => '2')));
+		exit(json_encode(array('status' => 2)));
 	}
 
 	if(!is_worthy_specifically("j", $info->server_id) && !is_admin()) {
-		exit(json_encode(array('status' => '2', 'data' => 'Недостаточно прав')));
+		exit(json_encode(array('status' => 2, 'data' => 'Недостаточно прав')));
 	}	
 
 	if ($info->active == 2) {
-		exit (json_encode(array('status' => '2', 'data' => 'Администратор уже выключен')));
+		exit (json_encode(array('status' => 2, 'data' => 'Администратор уже выключен')));
 	}
 	if ($info->pause != 0) {
-		exit (json_encode(array('status' => '2', 'data' => 'Администратор приостановлен, отключение невозможно')));
+		exit (json_encode(array('status' => 2, 'data' => 'Администратор приостановлен, отключение невозможно')));
 	}
 
 	if (empty($info->server_type)){
-		exit (json_encode(array('status' => '2', 'data' => 'Невозможно подключение к FTP и DB серверу')));
+		exit (json_encode(array('status' => 2, 'data' => 'Невозможно подключение к FTP и DB серверу')));
 	}
 
 	$AM = new AdminsManager;
 	if(!$AM->checking_server_status($pdo, $info->server_id)) {
-		exit (json_encode(array('status' => '2', 'data' => $messages['server_connect_error'])));
+		exit (json_encode(array('status' => 2, 'data' => $messages['server_connect_error'])));
 	}
 
-	$STH = $pdo->prepare("UPDATE admins SET active=:active,cause=:cause,link=:link,pirce=:pirce WHERE id='$id' LIMIT 1");
-	$STH->execute(array( 'active' => '2', 'cause' => $cause, 'link' => $link, 'pirce' => $pirce ));
+	$STH = $pdo->prepare("UPDATE admins SET active=:active,cause=:cause,link=:link,price=:price WHERE id='$id' LIMIT 1");
+	$STH->execute(array( 'active' => 2, 'cause' => $cause, 'link' => $link, 'price' => $price ));
 
 	if ($info->server_type == 1 || $info->server_type == 3){
 		if(!$AM->export_to_users_ini($pdo, $info->server_id, 'STOP_ADMIN')){
-			exit (json_encode(array('status' => '2', 'data' => 'Не удалось экспортировать администраторов в файл')));
+			exit (json_encode(array('status' => 2, 'data' => 'Не удалось экспортировать администраторов в файл')));
 		}
 	}
 	if($info->server_type == 2 || $info->server_type == 4) {
 		if(!$pdo2 = db_connect($info->db_host, $info->db_db, $info->db_user, $info->db_pass)) {
-			exit (json_encode(array('status' => '2', 'data' => 'Не удалось подключиться к DB серверу')));
+			exit (json_encode(array('status' => 2, 'data' => 'Не удалось подключиться к DB серверу')));
 		}
 		set_names($pdo2, $info->db_code);
 
@@ -1386,7 +1453,7 @@ if (isset($_POST['stop_adm']) and (is_worthy("j") or is_admin())) {
 
 		if ($info->server_type == 2) {
 			if(!$admin_id = $AM->get_admin_id($info->name, 1, $pdo2, $info->db_prefix, $info->ip, $info->port)) {
-				exit (json_encode(array('status' => '2', 'data' => 'Не найден ID админа')));
+				exit (json_encode(array('status' => 2, 'data' => 'Не найден ID админа')));
 			}
 
 			$table = set_prefix($info->db_prefix, "serverinfo");
@@ -1398,7 +1465,7 @@ if (isset($_POST['stop_adm']) and (is_worthy("j") or is_admin())) {
 			$pdo2->exec("DELETE FROM $table WHERE admin_id='$admin_id' and server_id='$row->id' LIMIT 1");
 		} else {
 			if(!$admin_id = $AM->get_admin_id($info->name, 2, $pdo2, $info->db_prefix, $info->ip, $info->port)) {
-				exit (json_encode(array('status' => '2', 'data' => 'Не найден ID админа')));
+				exit (json_encode(array('status' => 2, 'data' => 'Не найден ID админа')));
 			}
 
 			$table = set_prefix($info->db_prefix, "servers");
@@ -1412,19 +1479,19 @@ if (isset($_POST['stop_adm']) and (is_worthy("j") or is_admin())) {
 	}
 
 	if(isset($info->user_id)) {
-		include_once "../inc/notifications.php";
-		$noty = block_service_noty(clean($info->name, null), $info->server_name, $cause, $pirce, $link);
+		incNotifications();
+		$noty = block_service_noty(clean($info->name, null), $info->server_name, $cause, $price, $link);
 		send_noty($pdo, $noty, $info->user_id, 3);
 	}
-	
-	$SQ = new OurSourceQuery;
+
 	try {
-		$SQ->reolad_admins($pdo, $info->server_id, $id);
-	} catch( Exception $e ) { $err = 1; }
-	unset($SQ);
+		(new OurSourceQuery())->reloadAdmins($info->server_id);
+	} catch(Exception $e) {
+		log_error($e->getMessage());
+	}
 
 	service_log("Управление админами: Выключение прав", $id, $info->server_id, $pdo);
-	exit (json_encode(array('status' => '1')));
+	exit (json_encode(array('status' => 1)));
 }
 if (isset($_POST['start_adm']) and (is_worthy("j") or is_admin())) {
 	$id = checkJs($_POST['id'],"int");
@@ -1461,8 +1528,8 @@ if (isset($_POST['start_adm']) and (is_worthy("j") or is_admin())) {
 		exit (json_encode(array('status' => '2', 'data' => $messages['server_connect_error'])));
 	}
 
-	$STH = $pdo->prepare("UPDATE admins SET active=:active,cause=:cause,link=:link,pirce=:pirce WHERE id='$id' LIMIT 1");
-	$STH->execute(array( 'active' => '1', 'cause' => '', 'link' => '', 'pirce' => 0 ));
+	$STH = $pdo->prepare("UPDATE admins SET active=:active,cause=:cause,link=:link,price=:price WHERE id='$id' LIMIT 1");
+	$STH->execute(array( 'active' => '1', 'cause' => '', 'link' => '', 'price' => 0 ));
 
 	if ($info->server_type == 1 || $info->server_type == 3){
 		if(!$AM->export_to_users_ini($pdo, $info->server_id, 'START_ADMIN')){
@@ -1510,16 +1577,16 @@ if (isset($_POST['start_adm']) and (is_worthy("j") or is_admin())) {
 	}
 
 	if(isset($info->user_id)) {
-		include_once "../inc/notifications.php";
+		incNotifications();
 		$noty = unlock_service_noty(clean($info->name, null), $info->server_name);
 		send_noty($pdo, $noty, $info->user_id, 2);
 	}
 
-	$SQ = new OurSourceQuery;
 	try {
-		$SQ->reolad_admins($pdo, $info->server_id, $id);
-	} catch( Exception $e ) { $err = 1; }
-	unset($SQ);
+		(new OurSourceQuery())->reloadAdmins($info->server_id);
+	} catch(Exception $e) {
+		log_error($e->getMessage());
+	}
 	
 	service_log("Управление админами: Включение прав", $id, $info->server_id, $pdo);
 	exit (json_encode(array('status' => '1')));
@@ -1679,7 +1746,7 @@ if (isset($_POST['add_admin']) and (is_worthy("j") or is_admin())) {
 		}
 	}
 
-	$STH = $pdo->query("SELECT id,pirce,time,discount FROM services__tarifs WHERE id='$tarif' and service='$service->id' LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
+	$STH = $pdo->query("SELECT id,price,time,discount FROM services__tarifs WHERE id='$tarif' and service='$service->id' LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
 	$tarif = $STH->fetch();
 	if (empty($tarif->id)){
 		exit (json_encode(array('status' => '3', 'data' => 'Тариф не найден')));
@@ -1695,7 +1762,7 @@ if (isset($_POST['add_admin']) and (is_worthy("j") or is_admin())) {
 	$row = $STH->fetch();
 
 	$proc = calculate_discount($server->discount, $row->discount, $user->proc, $service->discount, $tarif->discount);
-	$pirce = calculate_pirce($tarif->pirce, $proc);
+	$price = calculate_price($tarif->price, $proc);
 	$admin['irretrievable'] = 0;
 
 	if ($server->type == 4) {
@@ -1796,7 +1863,7 @@ if (isset($_POST['add_admin']) and (is_worthy("j") or is_admin())) {
 		$STH->execute(array( ':rights' => $service->users_group, ':id' => $admin['user_id'] ));
 	}
 
-	include_once "../inc/notifications.php";
+	incNotifications();
 	$noty = give_service_noty($admin['name'], $admin['pass'], $tarif->time, $admin['ending_date'], $server->pass_prifix);
 	send_noty($pdo, $noty, $admin['user_id'], 2);
 
@@ -2006,7 +2073,7 @@ if (isset($_POST['change_admin_days']) and (is_worthy("j") or is_admin())) {
 	}
 
 	if(!empty($admin->user_id)) {
-		include_once "../inc/notifications.php";
+		incNotifications();
 		if($date == '0000-00-00 00:00:00') {
 			$date = 'Никогда';
 		} else {
@@ -2117,57 +2184,65 @@ if (isset($_POST['get_user_shilings_operations']) and (is_worthy("f") or is_admi
 	exit();
 }
 
-if (isset($_POST['abort_player']) and is_worthy("s")) {
-	$id = clean($_POST['id'], "int");
-	$type = clean($_POST['type'], "int");
-	$time = clean($_POST['time'], "int");
-	$reason = clean($_POST['reason'], null);
-	$name = $_POST['name'];
+if (isset($_POST['doRconCommand']) && (is_worthy("s") || is_worthy("v"))) {
+	$commandId = clean($_POST['commandId'], "int");
 
-	if(empty($id)) {
-		exit(json_encode(array('status' => '2', 'data' => 'Пустой идентификатор сервера')));
+	$ServerCommands = new ServerCommands();
+	$command = $ServerCommands->getCommandById($commandId);
+	$params = $ServerCommands->getCommandParams($commandId);
+
+	if(
+		(
+			$ServerCommands->isCategoryIsActionOnPlayer($command->category)
+			&& !is_worthy_specifically('s', $command->server_id)
+		)
+		|| (
+			$ServerCommands->isCategoryIsServerManagement($command->category)
+			&& !is_worthy_specifically('v', $command->server_id)
+		)
+	) {
+		exit(json_encode(['status' => 2]));
 	}
 
-	if(!is_worthy_specifically("s", $id)) {
-		exit(json_encode(array('status' => '2')));
+	$commandValue = $command->command . ' ';
+	
+	foreach($params as $param) {
+		if(
+			array_key_exists($param->name, $_POST)
+		) {
+			if(!ServerCommands::validateParam($_POST[$param->name])) {
+				exit (json_encode(['status' => 2, 'data' => 'Неверное значение для «' . $param->title . '»']));
+			} else {
+				if(is_numeric($_POST[$param->name])) {
+					$paramValue = $_POST[$param->name]. ' ';
+				} else {
+					$paramValue = '"' . $_POST[$param->name]. '" ';
+				}
+			}
+		} else {
+			$paramValue = '"" ';
+		}
+
+		$commandValue .= $paramValue;
 	}
 
-	if(empty($type) || ($type != 1 && $type != 2)) {
-		exit(json_encode(array('status' => '2', 'data' => 'Неверный тип')));
-	}
-	if(empty($time)) {
-		$time = 0;
-	}
+	$server = (new ServersManager())->getServer($command->server_id);
+	$SourceQuery = (new OurSourceQuery)->setServer($server);
 
-	$SQ = new OurSourceQuery;
-	if(!$server = $SQ->get_server($pdo, $id, 2)) {
-		exit(json_encode(array('status' => '2', 'data' => 'Отправка RCON команды невозможна')));
+	if(!$SourceQuery->isServerCanWorkWithRcon()) {
+		exit(json_encode(['status' => 2, 'data' => 'Отправка rcon команды невозможна']));
 	}
-
-	if($type == 1) {
-		$command = $server->kick;
-	} else {
-		$command = $server->ban;
-	}
-
-	$command = $SQ->replace('steam', $name, $command);
-	$command = $SQ->replace('nick', $name, $command);
-	$command = $SQ->replace('reason', $reason, $command);
-	$command = $SQ->replace('time', $time, $command);
 
 	try {
-		$SQ->check_connect($server->ip, $server->port, $server->type);
-		$SQ->SetRconPassword($server->rcon_password);
-		$answer = $SQ->Rcon($command);
-		$SQ->log($command, $id); 
-		$answer = "Команда отправлена, ответ: ".$answer;
+		$answer = "Команда отправлена, ответ: "
+			. $SourceQuery->checkConnect()->auth()->send($commandValue);
+	} catch( Exception $e ) {
+		$answer = "Ошибка: ". $e->getMessage();
 	}
-	catch( Exception $e ) {
-		$answer = "Ошибка: ".$e->getMessage();
-	}
-	$SQ->Disconnect();
-	unset($SQ);
 
-	exit(json_encode(array('status' => '1', 'data' => $answer)));
+	$SourceQuery->Disconnect();
+
+	exit(json_encode(['status' => 1, 'data' => clean($answer, null)]));
 }
-exit(json_encode(array('status' => '2')));
+
+exit(json_encode(['status' => 2]));

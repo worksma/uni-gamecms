@@ -21,7 +21,6 @@
 			<td>{admin_nick}</td>
 		</tr>
 		<tr>
-		<tr>
 			<td><b> Причина: </b></td>
 			<td>{ban_reason}</td>
 		</tr>

@@ -1132,7 +1132,7 @@ img {
 	max-width: 100%;
 	height: auto;
 	line-height: 1.42857143;
-	background-color: #45688E;
+	background-color: #191D20;
 	border: 1px solid #345378;
 	border-radius: 1px;
 	-webkit-transition: all .2s ease-in-out;
@@ -2574,7 +2574,7 @@ output {
 	transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
 .form-control:focus {
-	border-color: #45688E;
+	border-color: #191D20;
 	outline: 0;
  /* -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);*/
@@ -3938,7 +3938,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .nav-pills > li.active > a:hover,
 .nav-pills > li.active > a:focus {
 	color: #fff;
-	background-color: #45688E;
+	background-color: #191D20;
 }
 .nav-stacked > li {
 	float: none;
@@ -4561,7 +4561,7 @@ fieldset[disabled] .navbar-inverse .btn-link:focus {
 	padding: 6px 12px;
 	margin-left: -1px;
 	line-height: 1.42857143;
-	color: #45688E;
+	color: #191D20;
 	text-decoration: none;
 	background-color: #fff;
 	border: 1px solid #ddd;
@@ -4594,7 +4594,7 @@ fieldset[disabled] .navbar-inverse .btn-link:focus {
 	z-index: 2;
 	color: #fff;
 	cursor: default;
-	background-color: #45688E;
+	background-color: #191D20;
 	border-color: #335A85;
 }
 .pagination > .disabled > span,
@@ -4722,7 +4722,7 @@ a.label:focus {
 	background-color: #449d44;
 }
 .label-info {
-	background-color: #45688E;
+	background-color: #191D20;
 }
 .label-info[href]:hover,
 .label-info[href]:focus {
@@ -4961,7 +4961,7 @@ a.thumbnail.active {
 	line-height: 20px;
 	color: #fff;
 	text-align: center;
-	background-color: #45688E;
+	background-color: #191D20;
 	-webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
 	box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
 	-webkit-transition: width .6s ease;
@@ -5420,7 +5420,7 @@ a.list-group-item-danger.active:focus {
 }
 .panel-default > .panel-heading {
 	color: #fff;
-	background-color: #4B0082;
+	background-color: #191D20;
 }
 .panel-default > .panel-heading + .panel-collapse > .panel-body {
 	border-top-color: #ddd;

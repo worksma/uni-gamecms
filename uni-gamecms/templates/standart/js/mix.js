@@ -2,7 +2,12 @@
 
 $(document).ready(function(){
 	//monitoring scroll
-	$('.monitoring').mousewheel(function(e,delta){this.scrollLeft-=(delta*40);e.preventDefault();});
+	$('.monitoring').mousewheel(function(e,delta){
+		if(!$(this).find('.modal.fade.show').length > 0) {
+			this.scrollLeft-=(delta*40);
+			e.preventDefault();
+		}
+	});
 
 	//menu
 	$('.collapsible-menu > [class="collapsible"] > a').on("click", function(e){

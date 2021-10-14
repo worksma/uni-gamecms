@@ -86,20 +86,25 @@
 					<h4>
 						Скриншоты <small>(максимальное количество: 5)</small>
 					</h4>
-				</label><br>
-				<div id="imgs"></div>
+				</label>
+				<br>
+
+				<div id="imgs" class="my-2"></div>
+
 				<div class="input-group">
-					<form enctype="multipart/form-data" action="ajax/actions_a.php" method="POST" id="add_img_form">
-						<input type="hidden" id="token" name="token" value="{token}">
-						<input type="hidden" id="add_ban_img" name="add_ban_img" value="1">
-						<input type="hidden" id="phpaction" name="phpaction" value="1">
-						<input type="file" id="ban_img" accept="image/*" name="ban_img"/>
-						<input type="hidden" id="counter" name="counter" value="0">
-						<div id="img_result"></div>
-						<input class="btn btn-outline-primary btn-sm" type="submit" value="Загрузить">
-					</form>
+					<div class="row">
+						<div class="col-12">
+							<input type="file" id="image" accept="image/*" name="image" class="input-file"/>
+							<input type="hidden" id="counter" name="counter" value="0">
+						</div>
+						<div class="col-12">
+							<div id="load-image-result"></div>
+							<button class="btn btn-outline-primary" type="button" onclick="loadImages('unbans');">Загрузить</button>
+						</div>
+					</div>
 				</div>
-				<input value="" type="hidden" id="screens" autocomplete="off">
+
+				<input type="hidden" id="images-load-result-value" value="" autocomplete="off">
 			</div>
 			<div class="form-group">
 				<label for="demo">
@@ -110,39 +115,22 @@
 				<input type="text" class="form-control" id="demo" maxlength="250" autocomplete="off">
 			</div>
 
-			<div id="new_result" class="mt-10"></div>
+			<div id="result" class="mt-10"></div>
 			<button id="create_btn" onclick="add_ban();" type="button" class="btn btn-primary mt-3">Создать</button>
 		</div>
-		{script}
 	</div>
 </div>
 <script>
-	$(document).ready(function() {
-		init_tinymce("text", "lite", "{file_manager_theme}", "{file_manager}", "{{md5($conf->code)}}");
-	});
-	$("#add_img_form").submit(function (event){
-		NProgress.start();
-		event.preventDefault();
-		var data = new FormData($('#add_img_form')[0]);
-		$.ajax({
-			type: "POST",
-			url: "../ajax/actions_a.php",
-			data: data,
-			contentType: false,
-			processData: false,
-		}).done(function (html) {
-			NProgress.done();
-			$("#img_result").empty();
-			$("#img_result").append(html);
-			$('#add_img_form')[0].reset();
-		});
-	});
-	
-	function local_change_server() {
-		var server_type = $('#server option:selected').attr('data-server-type');
-		select_ban_type(server_type);
-	}
-	local_change_server();
+  $(document).ready(function() {
+    init_tinymce("text", "lite", "{file_manager_theme}", "{file_manager}", "{{md5($conf->code)}}");
+  });
+
+  function local_change_server() {
+    let server_type = $('#server option:selected').attr('data-server-type');
+    select_ban_type(server_type);
+  }
+
+  local_change_server();
 </script>
 
 <div class="col-lg-3 order-is-last">

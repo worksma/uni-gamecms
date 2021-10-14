@@ -6,11 +6,6 @@
 	<meta name="author" content="worksma.ru">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<meta name="dc.title" content="{title}">
-	<meta name="dc.rights" content="Copyright 2021, WORKSMA. Все права сохранены.">
-	<meta name="dc.creator" content="worksma.ru">
-	<meta name="dc.language" content="RU">
-
 	<link rel="stylesheet" href="{site_host}templates/admin/css/primary.css?v={cache}">
 	<link rel="shortcut icon" href="{site_host}templates/admin/img/favicon.ico?v={cache}">
 	<link rel="image_src" href="{image}">
@@ -19,6 +14,7 @@
 	<script src="{site_host}templates/admin/js/nprogress.js?v={cache}"></script>
 	<script src="{site_host}templates/admin/js/secondary.js?v={cache}"></script>
 	<script src="{site_host}templates/admin/js/bootstrap.js?v={cache}"></script>
+	<script src="{site_host}ajax/helpers.js?v={cache}"></script>
 	<script src="{site_host}ajax/ajax-admin.js?v={cache}"></script>
 
 	{other}

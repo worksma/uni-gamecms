@@ -74,13 +74,13 @@
 			<table class="table table-bordered">
 				<tbody>
 					<tr id="active{id}" class="{class}">
-						<td>Активность</td>
+						<td>Блокировка</td>
 						<td>
 							<button id="stop_{id}" {if('{active}' != '0')}onclick="stop_adm({id});"{/if} class="btn btn-default {disp}" type="button" {if('{pause}' != '0')} disabled {/if}>
-								Выключить администратора
+								Выключить
 							</button>
 							<button id="on_{id}" {if('{active}' != '0')}onclick="start_adm({id});"{/if} class="btn btn-default {disp_2}" type="button" {if('{pause}' != '0')} disabled {/if}>
-								Включить администратора
+								Включить
 							</button>
 						</td>
 					</tr>

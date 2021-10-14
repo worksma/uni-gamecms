@@ -42,8 +42,7 @@ $STH->execute();
 $row = $STH->fetchAll();
 $count = count($row);
 
-$servers = ''; 
-$script = '';
+$servers = '';
 for($i = 0; $i < $count; $i++){
 	$servers .= '<option data-server-type="'.$row[$i]['type'].'" value="'.$row[$i]['id'].'">'.$row[$i]['name'].'</option>';
 }
@@ -56,7 +55,6 @@ $tpl->set("{site_host}", $site_host);
 $tpl->set("{template}", $conf->template);
 $tpl->set("{token}", $token);
 $tpl->set("{servers}", $servers);
-$tpl->set("{script}", $script);
 $tpl->compile( 'content' );
 $tpl->clear();
 ?>

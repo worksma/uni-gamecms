@@ -6,7 +6,7 @@
 
 		<p><b>Ник: </b>{nick}</p>
 		<p><b>Причина: </b>{reason}</p>
-		<p><b>Статус: </b><span id="status" class="label label-{color}">{status}</span></p>
+		<p><b>Статус: </b><span id="status" class="text-{color}">{status}</span></p>
 		<p><b>Сервер: </b>{server}</p>
 		<p><b>Игрок: </b><a href="../profile?id={author_id}">{author_login}</a></p>
 		<p><b>Дата создания: </b>{date}</p>
@@ -81,12 +81,12 @@
 		<div class="block_head">
 			Комментарии
 		</div>
-		{if('{allow}' == '1')}
+		{if(is_auth())}
 			<div id="add_new_comments">
 				<textarea id="text" maxlength="500"></textarea>
 
 				<div class="smile_input_forum mt-3">
-					<input id="send_btn" class="btn btn-primary" type="button" onclick="send_ban_comment({id});" value="Отправить"></input>
+					<input id="send_btn" class="btn btn-primary" type="button" onclick="send_ban_comment({id});" value="Отправить">
 					<div id="smile_btn" class="smile_btn" data-container="body" data-toggle="popover" data-placement="top" data-content="empty"></div>
 				</div>
 			</div>

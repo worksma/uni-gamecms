@@ -1,15 +1,18 @@
-<!--[ Система Торговой площадки ]!-->
 <?
-	$playground = new Playground($pdo, $conf);
+	/*
+		Подключение различных элементов
+		///////////////////////////////
+	*/
+	
+	$playground = new Playground($pdo, $conf);									// Система торговой площадки
 	
 	if(strpos($_SERVER['REQUEST_URI'], "profile") !== false) {
-		$bgimage = $playground->get_resource_active(1, $_GET['id']);
+		global $profile;
+		$bgimage = $playground->get_resource_active(1, $profile->id);
 	}
 ?>
-<!--[ Система Торговой площадки ]!-->
 <div class="container-fluid wapper">
-	<div class="content"
-	<?
+	<div class="content" <?
 		if(isset($bgimage)) {
 			echo "style=\"background:url('../files/playground/{$bgimage}') no-repeat;
 			background-attachment: scroll;
@@ -39,23 +42,7 @@
 		</div>
 	
 		<div class="container">
-			<div class="row">
-				<div class="col-lg-3">
-					<div class="logo">
-						<a href="{site_host}" title="{site_name}">
-							<img src="{site_host}templates/{template}/img/logo.png" alt="{site_name}">
-						</a>
-					</div>
-				</div>
-				<div class="col-lg-9 px-0 px-lg-3">
-					<div class="monitoring">
-						<div id="servers">
-							<div class="loader"></div>
-							<script>get_servers2();</script>
-						</div>
-					</div>
-				</div>
-			</div>
+			{include file="parts/page_head.tpl"}
 
 			<div id="authorization" class="modal fade">
 				<div class="modal-dialog modal-sm">

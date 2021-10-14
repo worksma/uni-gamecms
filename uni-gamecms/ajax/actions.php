@@ -32,7 +32,7 @@ if(isset($_POST['admin_login'])) {
 
 	$invalid_auths = $U->check_to_invalid_auth($ip);
 	if($invalid_auths > 2) {
-		log_error("Блокировка за неправильный ввод паролей (Сайт)");
+		log_error("Блокировка за неправильный ввод паролей (Админ центр)");
 		exit('<p class="text-danger">Вы заблокированы на 15 минут. Попробуйте позже.</p>');
 	}
 
@@ -164,7 +164,7 @@ if(isset($_POST['registration'])) {
 		exit();
 	}
 
-	if(!validate_captcha($conf->captcha, $_POST["captcha"])) {
+	if(!validateCaptcha($_POST["captcha"])) {
 		exit('<p class="text-danger">Неверно введена капча!</p>');
 	}
 
@@ -182,7 +182,7 @@ if(isset($_POST['registration'])) {
 	if(!$U->check_to_flood($conf->captcha)) {
 		exit('<p class="text-danger">Вы слишком часто регистрируете аккаунты!</p>');
 	}
-	if(!$U->check_login_lenght($login)) {
+	if(!$U->check_login_length($login)) {
 		exit('<p class="text-danger">Логин должен состоять не менее чем из 3 символов и не более чем из 30.</p>');
 	}
 	if(!$U->check_login_composition($login)) {
@@ -192,7 +192,7 @@ if(isset($_POST['registration'])) {
 		exit('<p class="text-danger">Введеный Вами логин уже зарегистрирован!</p>');
 	}
 
-	if(!$U->check_password_lenght($password)) {
+	if(!$U->check_password_length($password)) {
 		exit('<p class="text-danger">Пароль должен состоять не менее чем из 6 символов и не более чем из 15.</p>');
 	}
 	if($password != $password2) {
@@ -207,8 +207,10 @@ if(isset($_POST['registration'])) {
 		exit('<p class="text-danger">Введеный Вами E-mail уже зарегистрирован!</p>');
 	}
 
-	if($U->entry_user($login, $password, $email, $conf->conf_us)) {
-		$answer = $U->after_registration_actions($SC, $conf->salt, $conf->name, $login, $full_site_host);
+	$user = $U->entry_user($login, $password, $email, $conf->conf_us);
+
+	if(!empty($user->id)) {
+		$answer = $U->after_registration_actions($SC, $conf->salt, $conf->name, $user->id, $full_site_host);
 
 		if($answer['message'] != 'error') {
 			echo '<p class="text-success">'.$answer['message'].'</p>';
@@ -224,7 +226,7 @@ if(isset($_POST['registration'])) {
 /* Восстановление пароля
 =========================================*/
 if(isset($_POST['send_new_pass'])) {
-	if(!validate_captcha($conf->captcha, $_POST["captcha"])) {
+	if(!validateCaptcha($_POST["captcha"])) {
 		exit('<p class="text-danger">Неверно введена капча!</p>');
 	}
 
@@ -252,7 +254,7 @@ if(isset($_POST['send_new_pass'])) {
 
 	$link = $full_site_host.$page_url->url.'?a='.$row->id.'&data='.md5($row->id.$conf->salt.$row->password.$row->email.date("Y-m-d"));
 
-	include_once "../inc/notifications.php";
+	incNotifications();
 	$letter = recovery_check_letter($conf->name, $row->login, $link);
 	sendmail($row->email, $letter['subject'], $letter['message'], $pdo);
 
@@ -262,21 +264,18 @@ if(isset($_POST['send_new_pass'])) {
 /* Сервера
 =========================================*/
 if(isset($_POST['get_servers'])) {
-	$type = check($_POST['type'], "int");
 	update_monitoring($pdo);
 	$i = 0;
 
-	$tpl      = new Template;
-	$tpl->dir = '../templates/'.$conf->template.'/tpl/';
-	if($type == 1) {
-		$STH = $pdo->query("SELECT `monitoring`.*, `servers`.`rcon` FROM `monitoring` LEFT JOIN `servers` ON `monitoring`.`sid`=`servers`.`id` ORDER BY `monitoring`.`id`");
-		$STH->setFetchMode(PDO::FETCH_OBJ);
-	} else {
-		$STH = $pdo->query("SELECT * FROM `monitoring` ORDER BY `id`");
-		$STH->setFetchMode(PDO::FETCH_OBJ);
-	}
+	$tpl                    = new Template;
+	$tpl->dir               = '../templates/' . $conf->template . '/tpl/';
+	$tpl->result['content'] = '';
 
-	while($row = $STH->fetch()) {
+	$STH = $pdo->query(
+		"SELECT monitoring.*, servers.rcon FROM monitoring LEFT JOIN servers ON monitoring.sid=servers.id ORDER BY monitoring.id"
+	);
+
+	while($row = $STH->fetch(PDO::FETCH_OBJ)) {
 		if($row->players_now > $row->players_max) {
 			$row->players_now = $row->players_max;
 		}
@@ -285,6 +284,7 @@ if(isset($_POST['get_servers'])) {
 		} else {
 			$percentage = 0;
 		}
+
 		if($percentage <= 25) {
 			$color = 'info';
 		} elseif($percentage <= 50) {
@@ -294,32 +294,40 @@ if(isset($_POST['get_servers'])) {
 		} elseif($percentage <= 100) {
 			$color = 'danger';
 		}
+
 		if(($row->map != '0') and file_exists('../files/maps_imgs/'.$row->map.'.jpg')) {
 			$map = '/files/maps_imgs/'.$row->map.'.jpg';
 		} else {
 			$map = '/files/maps_imgs/none.jpg';
 		}
+
 		if($row->map == '0') {
 			$row->map = "Не определено";
 		}
+
 		if($row->name == '0') {
 			$row->name = "Не определено";
 		}
 
-		if($row->type > 1) {
-			$disp1 = 'disp-b';
-			$disp2 = 'disp-n';
+		if(
+			$row->rcon == 1
+			&& is_auth()
+			&& is_worthy_specifically("v", $row->sid)
+		) {
+			$ServerCommands = new ServerCommands();
+			$commands = $ServerCommands->getServerManagementCommands($row->sid);
+
+			foreach($commands as $command) {
+				$command->params = json_encode($ServerCommands->getCommandParams($command->id));
+			}
 		} else {
-			$disp1 = 'disp-n';
-			$disp2 = 'disp-b';
+			$commands = [];
 		}
+
 		$i++;
-		if($type == 1) {
-			$tpl->load_template('elements/server.tpl');
-			$tpl->set("{rcon}", $row->rcon);
-		} else {
-			$tpl->load_template('elements/server_not_auth.tpl');
-		}
+
+		$tpl->load_template('elements/server.tpl');
+		$tpl->set("{rcon}", $row->rcon);
 		$tpl->set("{name}", $row->name);
 		$tpl->set("{map_img}", $map);
 		$tpl->set("{map_name}", $row->map);
@@ -331,27 +339,24 @@ if(isset($_POST['get_servers'])) {
 		$tpl->set("{ip}", $row->ip);
 		$tpl->set("{port}", $row->port);
 		$tpl->set("{id}", $row->sid);
-		$tpl->set("{disp1}", $disp1);
-		$tpl->set("{disp2}", $disp2);
 		$tpl->set("{site_host}", $site_host);
 		$tpl->set("{template}", $conf->template);
 		$tpl->set("{game}", $row->game);
 		$tpl->set("{i}", $i);
 		$tpl->compile('content');
 		$tpl->clear();
-	}
-	$tpl->show($tpl->result['content']);
-	$tpl->global_clear();
 
-	if($type == 1) {
-		if($i == 0) {
-			exit('<span class="empty-element">Серверов нет</span>');
-		}
-	} else {
-		if($i == 0) {
-			exit('<tr><td colspan="10">Серверов нет</td></tr>');
-		}
+		$tpl->show($tpl->result['content']);
+		$tpl->result['content'] = '';
 	}
+
+	if($i == 0) {
+		exit('<tr><td colspan="10">Серверов нет</td></tr>');
+	} else {
+
+		$tpl->global_clear();
+	}
+
 	exit();
 }
 if(isset($_POST['get_md5'])) {
@@ -384,51 +389,60 @@ if(isset($_POST['get_players'])) {
 		}
 	} else {
 		try {
-			$SQ = new SourceQuery;
-			$SQ->Connect($row->ip, $row->port);
-			$players = $SQ->GetPlayers();
-			$SQ->Disconnect();
+			$SourceQuery = new SourceQuery;
+			$SourceQuery->Connect($row->ip, $row->port);
+			$players = $SourceQuery->GetPlayers();
+			$SourceQuery->Disconnect();
 		} catch(Exception $e) {
 			$players = 0;
 		}
 	}
-	$i= 0;
-	if ($players){
+
+	$i = 0;
+	if ($players) {
 		$GD = new GetData($pdo);
+
+		$tpl      = new Template;
+		$tpl->dir = '../templates/'.$conf->template.'/tpl/';
+
+		$ServerCommands = new ServerCommands();
+		$commands = $ServerCommands->getActionOnPlayersCommands($row->id);
+
+		if(!empty($commands)) {
+			foreach($commands as $command) {
+				$command->params = json_encode($ServerCommands->getCommandParams($command->id));
+			}
+		} else {
+			$commands = [];
+		}
 
 		foreach($players as $player) {
 			$i++;
 
-			$name = htmlspecialchars($player['Name'], ENT_QUOTES);
-			$player_name = $name;
+			$playerName = clean($player['Name'], null);
 
-
-			if($player_profile = $GD->get_gamer_profile($player['Name'], '', 1)) {
-				$player_name = $player_profile;
+			if($playerProfile = $GD->get_gamer_profile($player['Name'], '', 1)) {
+				$playerName = $playerProfile;
 			}
 
-			if ($row->rcon == 1 && isset($_SESSION['id']) && is_worthy_specifically("s", $row->id)) {
-				$player_id = $row->id;
-				$operations = "
-				<td>
-					<button type='button' class='btn btn-default btn-sm' onclick='abort_player(1, \"$name\", $player_id);'>Кик</button>
-					<button type='button' class='btn btn-default btn-sm' onclick='abort_player(2, \"$name\", $player_id);'>Бан</button>
-				</td>";
-			} else {
-				$operations = '';
-			}
+			$tpl->load_template('elements/server_player.tpl');
+			$tpl->set("{i}", $i);
+			$tpl->set("{name}", $playerName);
+			$tpl->set("{frags}", intval($player['Frags']));
+			$tpl->set("{time}", ($player['Time'] == 0) ? $player['Time'] : expand_seconds2($player['Time']));
+			$tpl->set("{server_rcon}", $row->rcon);
+			$tpl->set("{server_id}", $row->id);
+			$tpl->set("{coded_nick}", json_encode($player['Name']));
+			$tpl->compile('content');
+			$tpl->clear();
 
-			echo "
-			<tr>
-				<td>".$i."</td>
-				<td>".$player_name."</td>
-				<td>".intval($player['Frags'])."</td>
-				<td>".expand_seconds2($player['Time'])."</td>
-				".$operations."
-			</tr>";
+			$tpl->show($tpl->result['content']);
+			$tpl->result['content'] = '';
 		}
+
+		$tpl->global_clear();
 	} else {
-		exit('<tr><td colspan="10">Игроков нет</td></tr>');
+		exit('<tr><td colspan="10">Нет игроков онлайн</td></tr>');
 	}
 	exit();
 }
@@ -443,6 +457,7 @@ if(isset($_POST['get_admin_info'])) {
 	$i        = 0;
 	$tpl      = new Template;
 	$tpl->dir = '../templates/'.$conf->template.'/tpl/';
+	$tpl->result['content'] = '';
 
 	$STH = $pdo->prepare("SELECT `admins__services`.`id`, `services`.`name`, `admins__services`.`service`, `admins__services`.`bought_date`, `admins__services`.`ending_date`
 		FROM `admins__services` LEFT JOIN `services` ON `admins__services`.`service` = `services`.`id` WHERE `admins__services`.`admin_id` = :admin_id");
@@ -657,7 +672,7 @@ if(isset($_POST['load_ban_comments'])) {
 	exit();
 }
 if(isset($_POST['search_ban'])) {
-	$bid    = $_POST['ban'];
+	$bid    = check($_POST['ban'], null);
 	$server = checkJs($_POST['server'], null);
 	if(empty($bid) or empty($server)) {
 		exit();
@@ -682,7 +697,7 @@ if(isset($_POST['search_ban'])) {
 	$type        = $row->type;
 	$server_name = $row->name;
 	if(!$pdo2 = db_connect($db_host, $db_db, $db_user, $db_pass)) {
-		exit('<p>'.$massages['Unable_connect_to_db'].'</p>');
+		exit('<p>'.$massages['errorConnectingToDatabase'].'</p>');
 	}
 	set_names($pdo2, $row->db_code);
 
@@ -753,11 +768,11 @@ if(isset($_POST['search_ban'])) {
 
 		$tpl->load_template('elements/search_ban.tpl');
 		$tpl->set("{bid}", $result['0']['bid']);
-		$tpl->set("{player_ip}", $result['0']['player_ip']);
-		$tpl->set("{player_id}", $result['0']['player_id']);
+		$tpl->set("{player_ip}", isNeedHidePlayerId() ? hidePlayerId($result['0']['player_ip']) : $result['0']['player_ip']);
+		$tpl->set("{player_id}", isNeedHidePlayerId() ? hidePlayerId($result['0']['player_id']) : $result['0']['player_id']);
 		$tpl->set("{player_nick}", $player_nick);
-		$tpl->set("{admin_ip}", $result['0']['admin_ip']);
-		$tpl->set("{admin_id}", $result['0']['admin_id']);
+		$tpl->set("{admin_ip}", isNeedHideAdminId() ? hidePlayerId($result['0']['admin_ip']) : $result['0']['admin_ip']);
+		$tpl->set("{admin_id}", isNeedHideAdminId() ? hidePlayerId($result['0']['admin_id']) : $result['0']['admin_id']);
 		$tpl->set("{admin_nick}", $admin_nick);
 		$tpl->set("{ban_reason}", $result['0']['ban_reason']);
 		$tpl->set("{color}", $color);
@@ -876,7 +891,7 @@ if(isset($_POST['get_tarifs'])) {
 	$discount = $disc->discount;
 
 	$data = '';
-	$STH  = $pdo->query("SELECT id,pirce,time,discount FROM services__tarifs WHERE service = '$id' ORDER BY pirce");
+	$STH  = $pdo->query("SELECT id,price,time,discount FROM services__tarifs WHERE service = '$id' ORDER BY price");
 	$STH->setFetchMode(PDO::FETCH_OBJ);
 	while($row = $STH->fetch()) {
 		if($row->time == 0) {
@@ -892,12 +907,12 @@ if(isset($_POST['get_tarifs'])) {
 		}
 
 		$proc  = calculate_discount($server_discount, $discount, $user_proc, $service_discount, $row->discount);
-		$pirce = calculate_pirce($row->pirce, $proc);
+		$price = calculate_price($row->price, $proc);
 
-		if($pirce != $row->pirce) {
-			$data .= '<option value="'.$row->id.'">'.$time.' - '.$pirce.' '.$messages['RUB'].' (с учетом скидки в '.$proc.'%)</option>';
+		if($price != $row->price) {
+			$data .= '<option value="'.$row->id.'">'.$time.' - '.$price.' '.$messages['RUB'].' (с учетом скидки в '.$proc.'%)</option>';
 		} else {
-			$data .= '<option value="'.$row->id.'">'.$time.' - '.$pirce.' '.$messages['RUB'].'</option>';
+			$data .= '<option value="'.$row->id.'">'.$time.' - '.$price.' '.$messages['RUB'].'</option>';
 		}
 	}
 	exit(json_encode(array('status' => '1', 'data' => $data, 'text' => $text)));
@@ -997,4 +1012,64 @@ if(isset($_POST['get_server_store'])) {
 
 	$tpl->show($tpl->result['content']);
 	$tpl->global_clear();
+}
+if(isset($_POST['loadComplaintComments'])) {
+	$id = checkJs($_POST['id'], "int");
+
+	$STH = $pdo->prepare(
+		"SELECT 
+    				complaints__comments.*, 
+    				complaints.accused_admin_server_id,
+					users.login, 
+					users.avatar, 
+					users.rights 
+				FROM 
+				    complaints__comments 
+						LEFT JOIN users ON complaints__comments.user_id = users.id 
+						LEFT JOIN complaints ON complaints__comments.complaint_id = complaints.id 
+				WHERE complaints__comments.complaint_id = :id 
+				ORDER BY complaints__comments.id DESC"
+	);
+	$STH->setFetchMode(PDO::FETCH_OBJ);
+	$STH->execute([':id' => $id]);
+
+	$i                      = 0;
+	$tpl                    = new Template;
+	$tpl->dir               = '../templates/' . $conf->template . '/tpl';
+	$tpl->result['content'] = '';
+
+	while($row = $STH->fetch()) {
+		$tpl->load_template('/elements/comment.tpl');
+
+		$gp   = $users_groups[$row->rights];
+		$date = expand_date($row->date, 8);
+		if(is_worthy_specifically("u", $row->accused_admin_server_id)) {
+			$dell = '<span onclick="removeComplaintComment('.$row->id.');" tooltip="yes" data-placement="left" title="Удалить" class="m-icon icon-trash dell_message"></span>';
+		} else {
+			$dell = '';
+		}
+		$i++;
+
+		$tpl->set("{id}", $row->id);
+		$tpl->set("{user_id}", $row->user_id);
+		$tpl->set("{login}", $row->login);
+		$tpl->set("{avatar}", $row->avatar);
+		$tpl->set("{text}", $row->text);
+		$tpl->set("{dell}", $dell);
+		$tpl->set("{date_full}", $date['full']);
+		$tpl->set("{date_short}", $date['short']);
+		$tpl->set("{gp_color}", $gp['color']);
+		$tpl->set("{gp_name}", $gp['name']);
+		$tpl->compile('content');
+		$tpl->clear();
+	}
+
+	if($i == 0) {
+		echo '<span class="empty-element">Комментариев нет</span>';
+	} else {
+		$tpl->show($tpl->result['content']);
+		$tpl->global_clear();
+	}
+
+	exit();
 }

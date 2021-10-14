@@ -44,6 +44,10 @@
 				$zipArchive->extractTo("{$_SERVER['DOCUMENT_ROOT']}/");
 				
 				if($zipArchive->close()) {
+					if(file_exists($_SERVER['DOCUMENT_ROOT'] . '/files/temp/installer.php')):
+						require($_SERVER['DOCUMENT_ROOT'] . '/files/temp/installer.php');
+					endif;
+					
 					$pdo->query("UPDATE `config__secondary` SET `version`='{$dataUpdate->version}', `update_link`='' WHERE 1");
 					
 					unlink($rD['file']);

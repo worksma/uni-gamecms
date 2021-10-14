@@ -230,7 +230,6 @@ if (isset($_POST['load_open_tickets']) and is_worthy("p")){
 		$i++;
 		?>
 			<tr>
-				<td><?php echo $i ?></td>
 				<td><a href="ticket?id=<?php echo $row->id ?>"><?php echo $row->name ?></a></td>
 				<td><a href="../profile?id=<?php echo $row->author ?>"><?php echo $row->login ?></a></td>
 				<td>
@@ -269,7 +268,6 @@ if (isset($_POST['load_close_tickets']) and is_worthy("p")){
 		$i2++;
 		?>
 			<tr>
-				<td><?php echo $i ?></td>
 				<td><a href="ticket?id=<?php echo $row->id ?>"><?php echo $row->name ?></a></td>
 				<td><a href="../profile?id=<?php echo $row->closed ?>"><?php echo $row->login ?></a></td>
 				<td><?php echo expand_date($row->last_answer,7) ?></td>
@@ -363,7 +361,7 @@ if (isset($_POST['close_ban']) and is_worthy("i")) {
 		}
 
 		$server = $row->server;
-		$STH = $pdo->query("SELECT id,db_host,db_user,db_pass,db_db,db_prefix,type FROM servers WHERE id='$server' LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
+		$STH = $pdo->query("SELECT id,db_host,db_user,db_pass,db_db,db_prefix,type,db_code FROM servers WHERE id='$server' LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
 		$serv_info = $STH->fetch();
 		if (empty($serv_info->id)){
 			exit(json_encode(array('status' => '2')));
@@ -381,7 +379,9 @@ if (isset($_POST['close_ban']) and is_worthy("i")) {
 		if(!$pdo2 = db_connect($db_host, $db_db, $db_user, $db_pass)) {
 			exit(json_encode(array('status' => '2')));
 		}
-
+		
+		set_names($pdo2, $serv_info->db_code);
+		
 		if ($action_type == '1'){
 			$table = set_prefix($db_prefix, 'bans');
 			if ($type == '2' || $type == '3' || $type == '5') {
@@ -400,7 +400,7 @@ if (isset($_POST['close_ban']) and is_worthy("i")) {
 		$STH = $pdo->query("SELECT `bans`.`author`, `users`.`email`, `users`.`email_notice` FROM `bans` LEFT JOIN `users` ON `users`.`id`=`bans`.`author` WHERE `bans`.`id`='$id' LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
 		$row = $STH->fetch();
 
-		include_once "../inc/notifications.php";
+		incNotifications();
 		$noty = close_ban_noty($id);
 		send_noty($pdo, $noty, $row->author, $action_type);
 
@@ -425,7 +425,7 @@ if (isset($_POST['close_ban2']) and is_worthy("s")) {
 		exit(json_encode(array('status' => '2')));
 	}
 
-	$STH = $pdo->query("SELECT id,db_host,db_user,db_pass,db_db,db_prefix,type FROM servers WHERE id='$server' LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
+	$STH = $pdo->query("SELECT id,db_host,db_user,db_pass,db_db,db_prefix,type,db_code FROM servers WHERE id='$server' LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
 	$serv_info = $STH->fetch();
 	if (empty($serv_info->id)){
 		exit(json_encode(array('status' => '2')));
@@ -443,7 +443,9 @@ if (isset($_POST['close_ban2']) and is_worthy("s")) {
 	if(!$pdo2 = db_connect($db_host, $db_db, $db_user, $db_pass)) {
 		exit(json_encode(array('status' => '2')));
 	}
-
+	
+	set_names($pdo2, $serv_info->db_code);
+	
 	$table = set_prefix($db_prefix, 'bans');
 	if ($type == '2' || $type == '3' || $type == '5') {
 		$STH = $pdo2->prepare("UPDATE `$table` SET `expired`=:expired, `unban_type`=:unban_type, `ban_closed`=:ban_closed WHERE `bid`=:id LIMIT 1");
@@ -466,11 +468,14 @@ if (isset($_POST['close_mute']) and is_worthy("s")) {
 		exit(json_encode(array('status' => '2')));
 	}
 
-	$STH = $pdo->query("SELECT id,db_host,db_user,db_pass,db_db,db_prefix,type FROM servers WHERE id='$server' and type!=0 LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
+	$STH = $pdo->query("SELECT id,db_host,db_user,db_pass,db_db,db_prefix,type,db_code FROM servers WHERE id='$server' and type!=0 LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
 	$serv_info = $STH->fetch();
 	if (empty($serv_info->id)){
 		exit(json_encode(array('status' => '2')));
 	}
+	
+	set_names($pdo2, $serv_info->db_code);
+	
 	$db_host = $serv_info->db_host;
 	$db_user = $serv_info->db_user;
 	$db_pass = $serv_info->db_pass;
@@ -511,7 +516,7 @@ if (isset($_POST['change_ban_end']) and is_worthy("s")) {
 		exit(json_encode(array('status' => '2')));
 	}
 
-	$STH = $pdo->prepare("SELECT `id`, `db_host`, `db_user`, `db_pass`, `db_db`, `db_prefix`, `type` FROM `servers` WHERE `id`=:server LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
+	$STH = $pdo->prepare("SELECT `id`, `db_host`, `db_user`, `db_pass`, `db_db`, `db_prefix`, `type`, `db_code` FROM `servers` WHERE `id`=:server LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
 	$STH->execute(array( ':server' => $server ));
 	$server = $STH->fetch();
 	if (empty($server->id)){
@@ -527,6 +532,8 @@ if (isset($_POST['change_ban_end']) and is_worthy("s")) {
 	if(!$pdo2 = db_connect($server->db_host, $server->db_db, $server->db_user, $server->db_pass)) {
 		exit(json_encode(array('status' => '2')));
 	}
+	
+	set_names($pdo2, $server->db_code);
 
 	if($_POST['date'] == '00.00.0000 00:00') {
 		$date = 0;
@@ -618,7 +625,7 @@ if (isset($_POST['change_mute_end']) and is_worthy("s")) {
 		exit(json_encode(array('status' => '2')));
 	}
 
-	$STH = $pdo->prepare("SELECT `id`, `db_host`, `db_user`, `db_pass`, `db_db`, `db_prefix`, `type` FROM `servers` WHERE `id`=:server LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
+	$STH = $pdo->prepare("SELECT `id`, `db_host`, `db_user`, `db_pass`, `db_db`, `db_prefix`, `type`, `db_code` FROM `servers` WHERE `id`=:server LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
 	$STH->execute(array( ':server' => $server ));
 	$server = $STH->fetch();
 	if (empty($server->id)){
@@ -682,7 +689,8 @@ if (isset($_POST['change_mute_end']) and is_worthy("s")) {
 		if(!$pdo2 = db_connect($server->db_host, $server->db_db, $server->db_user, $server->db_pass)) {
 			exit(json_encode(array('status' => '2')));
 		}
-
+		
+		set_names($pdo2, $server->db_code);
 		$table = set_prefix($db_prefix, 'comms');
 
 		$STH = $pdo2->prepare("SELECT `created` FROM `$table` WHERE `bid`=:bid LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
@@ -732,7 +740,7 @@ if (isset($_POST['dell_user_stats']) and is_worthy("h")) {
 		exit (json_encode(array('status' => '2')));
 	}	
 
-	$STH = $pdo->query("SELECT `id`, `st_db_host`, `st_db_user`, `st_db_pass`, `st_db_db`, `st_type`, `st_db_code`, `st_db_table` FROM `servers` WHERE `st_type`!=0 and `id`='$server' LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
+	$STH = $pdo->query("SELECT `id`, `st_db_host`, `st_db_user`, `st_db_pass`, `st_db_db`, `st_type`, `st_db_code`, `st_db_table`, `st_db_code` FROM `servers` WHERE `st_type`!=0 and `id`='$server' LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);
 	$row = $STH->fetch();
 
 	if(empty($row->id)) {
@@ -742,7 +750,9 @@ if (isset($_POST['dell_user_stats']) and is_worthy("h")) {
 	if(!$pdo2 = db_connect($row->st_db_host, $row->st_db_db, $row->st_db_user, $row->st_db_pass)) {
 		exit(json_encode(array('status' => '2')));
 	}
-
+	
+	set_names($pdo2, $row->st_db_code);
+	
 	$type = $row->st_type;
 	if($type == 1 or $type == 2) {
 		$table = 'csstats_players';
@@ -775,5 +785,110 @@ if (isset($_POST['ban_player']) and is_worthy("s")) {
 
 	exit(json_encode(array('status' => '1')));
 }
-exit(json_encode(array('status' => '2')));
-?>
+
+if(isset($_POST['removeComplaint']) && is_worthy("u")) {
+	$id = checkJs($_POST['id'], "int");
+
+	if(empty($id)) {
+		exit(json_encode(['status' => 2]));
+	}
+
+	$STH = $pdo->prepare(
+		"SELECT id, accused_admin_server_id, screens FROM complaints WHERE id = :id LIMIT 1"
+	);
+	$STH->setFetchMode(PDO::FETCH_OBJ);
+	$STH->execute([':id' => $id]);
+	$row = $STH->fetch();
+
+	if(empty($row->id)) {
+		exit(json_encode(['status' => 2]));
+	}
+
+	if(!is_worthy_specifically("o", $row->accused_admin_server_id)) {
+		exit(json_encode(['status' => 2]));
+	}
+
+	$screens = explode(";", $row->screens);
+	foreach($screens as $screen) {
+		if(!empty($screen)) {
+			unlink('../' . $screen);
+		}
+	}
+
+	$STH = $pdo->prepare("DELETE FROM complaints WHERE id=:id LIMIT 1");
+	$STH->execute([':id' => $id]);
+
+	$STH = $pdo->prepare("DELETE FROM complaints__comments WHERE complaint_id=:id LIMIT 1");
+	$STH->execute([':id' => $id]);
+
+	exit (json_encode(['status' => 1]));
+}
+
+if(isset($_POST['closeComplaint']) && is_worthy("k")) {
+	$id       = checkJs($_POST['id'], "int");
+	$sentence = checkJs($_POST['sentence'], "int");
+
+	if(!in_array($sentence, [1, 2, 3, 4])) {
+		exit(json_encode(['status' => 2]));
+	}
+
+	if(empty($id)) {
+		exit(json_encode(['status' => 2]));
+	}
+
+	$STH = $pdo->prepare(
+		"SELECT 
+    				complaints.sentence, 
+    				complaints.accused_admin_server_id, 
+    				author.id as author_id, 
+				    author.email as author_email, 
+				    author.email_notice as author_email_notice,
+   					accused.id as accused_id, 
+      				accused.email as accused_email, 
+				    accused.email_notice as accused_email_notice
+				FROM 
+				    complaints 
+				        LEFT JOIN users author ON author.id=complaints.author_id
+						LEFT JOIN users accused ON accused.id=complaints.accused_profile_id
+				WHERE complaints.id = :id LIMIT 1"
+	);
+	$STH->setFetchMode(PDO::FETCH_OBJ);
+	$STH->execute([':id' => $id]);
+	$row = $STH->fetch();
+
+	if($row->sentence != 0) {
+		exit(json_encode(['status' => 2]));
+	}
+
+	if(empty($row->accused_admin_server_id)) {
+		exit(json_encode(['status' => 2]));
+	}
+
+	if(!is_worthy_specifically("k", $row->accused_admin_server_id)) {
+		exit(json_encode(['status' => 2]));
+	}
+
+	$STH = $pdo->prepare("UPDATE complaints SET sentence=:sentence, judge_id=:judge_id, have_answer=:have_answer WHERE id = :id LIMIT 1");
+	$STH->execute(['sentence' => $sentence, 'judge_id' => $_SESSION['id'], 'have_answer' => 1, 'id' => $id]);
+
+	incNotifications();
+
+	$noty = close_complaint_noty($id);
+	$letter = close_complaint_letter($id, $full_site_host);
+
+	send_noty($pdo, $noty, $row->author_id, 1);
+	if($row->author_email_notice == 1) {
+		sendmail($row->author_email, $letter['subject'], $letter['message'], $pdo);
+	}
+
+	if(!empty($row->accused_id)) {
+		send_noty($pdo, $noty, $row->accused_id, 1);
+		if($row->accused_email_notice == 1) {
+			sendmail($row->accused_email, $letter['subject'], $letter['message'], $pdo);
+		}
+	}
+
+	exit (json_encode(['status' => 1, 'answer' => Complaints::getComplaintSentenceText($sentence)]));
+}
+
+exit(json_encode(['status' => 2]));

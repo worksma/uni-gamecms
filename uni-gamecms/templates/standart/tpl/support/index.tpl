@@ -14,7 +14,6 @@
 			<table class="table table-bordered">
 				<thead>
 					<tr>
-						<td width="10%">#</td>
 						<td>Тема</td>
 						<td>Статус</td>
 						<td>Дата</td>

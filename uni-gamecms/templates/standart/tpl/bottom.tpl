@@ -60,7 +60,7 @@
 
 						<div class="col-lg-8 copyright">
 							<p><a href="{site_host}" title="{site_name}">{site_name}</a> © Все права защищены</p>
-							{gamecms_copyright}
+							{unigamecms_copyright}
 						</div>
 						<div class="col-lg-4 banners">
 							{for($i=0;$i < count($footer_banners);$i++)}  

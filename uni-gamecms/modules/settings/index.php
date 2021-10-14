@@ -9,14 +9,13 @@ $conf_mess = '';
 if($auth_api->vk_api == 1 && isset($_GET['code']) && empty($_GET['fb_attach'])) {
 
 	$result = false;
-	$api_version = '5.73';
 
 	$params = [
 		'client_id'     => $auth_api->vk_id,
 		'client_secret' => $auth_api->vk_key,
 		'code'          => $_GET['code'],
 		'redirect_uri'  => $full_site_host . 'settings',
-		'v'             => $api_version
+		'v'             => configs()->vk_api_version
 	];
 
 	$vk_token = json_decode(
@@ -31,7 +30,7 @@ if($auth_api->vk_api == 1 && isset($_GET['code']) && empty($_GET['fb_attach'])) 
 		$params = [
 			'user_id' => $vk_token['user_id'],
 			'access_token' => $vk_token['access_token'],
-			'v' => $api_version
+			'v' => configs()->vk_api_version
 		];
 
 		$userInfo = json_decode(
@@ -245,9 +244,11 @@ $tpl->set("{token}", $token);
 $tpl->set("{site_host}", $site_host);
 $tpl->set("{template}", $conf->template);
 $tpl->set("{referral_link}", $full_site_host.'?ref='.$_SESSION['id']);
+$tpl->set("{profileLink}", $full_site_host . PagesInfo::PROFILE_PAGE_URL . '/');
 $tpl->set("{referral_program}", $ref->referral_program);
 $tpl->set("{referral_percent}", $ref->referral_percent);
 $tpl->set("{login}", $user->login);
+$tpl->set("{route}", $user->route);
 $tpl->set("{avatar}", $user->avatar);
 $tpl->set("{regdate}", expand_date($user->regdate,2));
 $tpl->set("{name}", $user->name);
@@ -278,7 +279,7 @@ for ($x = 12; $x > 0; $x--){
 }
 
 $birth_year = "";
-for ($x = (date('Y')); $x > 1899; $x--){
+for ($x = (date('Y')); $x > 1959; $x--){
 	$birth_year = $birth_year.'<option value="'.$x.'" ';
 	if($birth[0]==$x) $birth_year = $birth_year.' selected';
 	$birth_year = $birth_year.'>'.$x.'</option>';

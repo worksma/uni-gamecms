@@ -20,10 +20,7 @@ if(!is_auth()) {
 		$id   = clean($_GET['id'], "int");
 		$code = clean($_GET['key'], null);
 
-		$STH = $pdo->prepare("SELECT id, rights, password, login, protect, active, multi_account, invited FROM users WHERE id=:id LIMIT 1");
-		$STH->setFetchMode(PDO::FETCH_OBJ);
-		$STH->execute([':id' => $id]);
-		$user = $STH->fetch();
+		$user = Users::getUserData($pdo, $id);
 		if(empty($user->id)) {
 			$conf_mess = '<p class="text-danger">' . $messages['Account_does_not_exist'] . '</p>';
 		} else {
@@ -103,6 +100,18 @@ if(!is_auth()) {
 							$user_info['login']    = clean($content['response']['players'][0]['personaname'], null);
 							$user_info['password'] = 'none';
 
+							$user_info['steam_api'] = $matches[1];
+
+							$STH = $pdo->query("SELECT `auto_steam_id_fill`, `steam_id_format` FROM `config__secondary` LIMIT 1");
+							$STH->setFetchMode(PDO::FETCH_OBJ);
+							$conf2 = $STH->fetch();
+
+							if($conf2->auto_steam_id_fill) {
+								$user_info['steam_id'] = (new SteamIDOperations())
+									->setFirstNum($conf2->steam_id_format)
+									->GetSteamID32($user_info['steam_api']);
+							}
+
 							$reg = 1;
 						} else {
 							$conf_mess = '<p class="text-danger">' . $messages['Error'] . '</p>';
@@ -131,14 +140,13 @@ if(!is_auth()) {
 	if($auth_api->vk_api == 1) {
 		if(isset($_GET['code']) && empty($_GET['fb_reg']) && empty($_GET['fb_auth'])) {
 			$AA->redirect_fix('vk');
-			$api_version = '5.73';
 			$result      = false;
 			$params      = [
 				'client_id'     => $auth_api->vk_id,
 				'client_secret' => $auth_api->vk_key,
 				'code'          => $_GET['code'],
 				'redirect_uri'  => $full_site_host . $pages_urls['main'],
-				'v'             => $api_version
+				'v'             => configs()->vk_api_version
 			];
 
 			$vk_token = json_decode(
@@ -157,7 +165,7 @@ if(!is_auth()) {
 					'user_id'      => $vk_token['user_id'],
 					'fields'       => 'id,first_name,last_name,photo_max,has_photo,bdate',
 					'access_token' => $vk_token['access_token'],
-					'v'            => $api_version
+					'v'            => configs()->vk_api_version
 				];
 
 				$userInfo = json_decode(
@@ -345,7 +353,7 @@ if(!is_auth()) {
 					}
 					$user_info['birth'] = $birth[2] . '-' . $birth[1] . '-' . $birth[0];
 				} else {
-					$user_info['birth'] = '1900-01-01';
+					$user_info['birth'] = '1960-01-01';
 				}
 
 				if($user_info['avatar'] == 'http://vk.com/images/camera_b.gif') {
@@ -357,27 +365,27 @@ if(!is_auth()) {
 					$user_info['avatar'] = 'files/avatars/' . $date . '.jpg';
 				}
 
-				if(
-					$U->entry_user(
-						$user_info['login'],
-						$user_info['password'],
-						$user_info['email'],
-						$conf->conf_us,
-						$user_info['vk'],
-						$user_info['vk_api'],
-						$user_info['fb'],
-						$user_info['fb_api'],
-						$user_info['steam_id'],
-						$user_info['steam_api'],
-						$user_info['avatar'],
-						$user_info['birth']
-					)
-				) {
+				$user = $U->entry_user(
+					$user_info['login'],
+					$user_info['password'],
+					$user_info['email'],
+					$conf->conf_us,
+					$user_info['vk'],
+					$user_info['vk_api'],
+					$user_info['fb'],
+					$user_info['fb_api'],
+					$user_info['steam_id'],
+					$user_info['steam_api'],
+					$user_info['avatar'],
+					$user_info['birth']
+				);
+
+				if(!empty($user->id)) {
 					$answer = $U->after_registration_actions(
 						$SC,
 						$conf->salt,
 						$conf->name,
-						$user_info['login'],
+						$user->id,
 						$full_site_host . $pages_urls['main']
 					);
 
@@ -424,7 +432,7 @@ if(!is_auth()) {
 			if($row->active != 1) {
 				$conf_mess = '<p class="text-danger">' . $messages['please_act_account'] . '</p>';
 			} else {
-				$U->auth_user(
+				$result = $U->auth_user(
 					$SC,
 					$row->protect,
 					$row->password,
@@ -434,22 +442,11 @@ if(!is_auth()) {
 					$row->multi_account
 				);
 
-				if(is_worthy("z")) {
-					log_error($messages['Trying_to_auth_ban']);
-					$SC->unset_user_session();
-
-					$conf_mess = '<p class="text-danger">' . $messages['You_blocked_Try_later'] . '</p>';
-				} elseif(is_worthy("x")) {
-					log_error($messages['Trying_to_auth_ban']);
-					$SC->unset_user_session();
-
-					$STH = $pdo->prepare("INSERT INTO `users__blocked` (ip) values (:ip)");
-					$STH->execute(['ip' => $ip]);
-					$SC->set_cookie("point", "1");
-					$conf_mess = '<p class="text-danger">' . $messages['You_blocked_Try_later'] . '</p>';
-				} else {
+				if($result['status']) {
 					header('Location: ../' . $pages_urls['main']);
 					exit();
+				} else {
+					$conf_mess = '<p class="text-danger">' . $result['response'] . '</p>';
 				}
 			}
 		} else {

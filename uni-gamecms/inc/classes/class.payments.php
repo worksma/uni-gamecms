@@ -16,6 +16,10 @@ class Payments
 			'name' => 'Free-Kassa'
 		],
 		[
+			'slug' => 'fk_new',
+			'name' => 'FreeKassa'
+		],
+		[
 			'slug' => 'rb',
 			'name' => 'RoboKassa'
 		],
@@ -48,13 +52,9 @@ class Payments
 			'name' => 'AnyPay'
 		],
 		[
-			'slug' => 'amarapay',
-			'name' => 'AmaraPay'
+			'slug' => 'enot',
+			'name' => 'Enot'
 		],
-		[
-			'slug' => 'freekassa',
-			'name' => 'FreeKassa'
-		]
 	];
 
 	function selectPayment($payment)
@@ -238,7 +238,7 @@ class Payments
 					$STH->setFetchMode(PDO::FETCH_OBJ);
 					$STH->execute([':id' => $user->invited]);
 					$inviter = $STH->fetch();
-					$amount  = round($amount - calculate_pirce($amount, $ref->referral_percent), 2);
+					$amount  = round($amount - calculate_price($amount, $ref->referral_percent), 2);
 					$STH     = $pdo->prepare(
 						"INSERT INTO money__actions (date,shilings,author,type,gave_out) VALUES (:date, :shilings, :author, :type, :gave_out)"
 					);
@@ -255,7 +255,7 @@ class Payments
 					$STH = $pdo->prepare("UPDATE `users` SET `shilings`=:shilings WHERE `id`='$inviter->id' LIMIT 1");
 					$STH->execute(['shilings' => $inviter->shilings + $amount]);
 
-					include_once $_SERVER['DOCUMENT_ROOT'] . "/inc/notifications.php";
+					incNotifications();
 
 					$noty = referal_money($amount . $currency, $user->id, $user->login);
 					send_noty($pdo, $noty, $inviter->id, 2);

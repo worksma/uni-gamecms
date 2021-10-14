@@ -9,7 +9,6 @@
 					<table class="table table-bordered">
 						<thead>
 							<tr>
-								<td>#</td>
 								<td>Тема</td>
 								<td>Открыл</td>
 								<td>Последний ответ</td>
@@ -32,7 +31,6 @@
 					<table class="table table-bordered">
 						<thead>
 							<tr>
-								<td>#</td>
 								<td>Тема</td>
 								<td>Закрыл</td>
 								<td>Последний ответ</td>

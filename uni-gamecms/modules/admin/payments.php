@@ -1,12 +1,12 @@
 <?php
-if(!is_admin()){
+if(!is_admin()) {
 	show_error_page('not_adm');
 }
 
 $tpl->load_template('elements/title.tpl');
 $tpl->set("{title}", $page->title);
 $tpl->set("{name}", $conf->name);
-$tpl->compile( 'title' );
+$tpl->compile('title');
 $tpl->clear();
 
 $tpl->load_template('head.tpl');
@@ -17,67 +17,59 @@ $tpl->set("{token}", $token);
 $tpl->set("{cache}", $conf->cache);
 $tpl->set("{template}", $conf->template);
 $tpl->set("{site_host}", $site_host);
-$tpl->compile( 'content' );
+$tpl->compile('content');
 $tpl->clear();
 
 $tpl->load_template('top.tpl');
 $tpl->set("{site_host}", $site_host);
 $tpl->set("{site_name}", $conf->name);
-$tpl->compile( 'content' );
+$tpl->compile('content');
 $tpl->clear();
 
 $tpl->load_template('menu.tpl');
 $tpl->set("{site_host}", $site_host);
-$tpl->compile( 'content' );
+$tpl->compile('content');
 $tpl->clear();
 
-$nav = array(
+$nav = [
 	$PI->to_nav('admin', 0, 0),
 	$PI->to_nav('admin_payments', 1, 0)
-);
+];
 $nav = $tpl->get_nav($nav, 'elements/nav_li.tpl', 1);
 
 $tpl->load_template('page_top.tpl');
 $tpl->set("{nav}", $nav);
-$tpl->compile( 'content' );
+$tpl->compile('content');
 $tpl->clear();
 
-$STH = $pdo->query("SELECT * FROM config__bank LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);  
+$STH = $pdo->query("SELECT * FROM config__bank LIMIT 1");
+$STH->setFetchMode(PDO::FETCH_OBJ);
 $bank_conf = $STH->fetch();
 
-$rbact = get_active($bank_conf->rb, 2);
-$fkact = get_active($bank_conf->fk, 2);
-$wact = get_active($bank_conf->wb, 2);
-$upact = get_active($bank_conf->up, 2);
-$psact = get_active($bank_conf->ps, 2);
+$rbact  = get_active($bank_conf->rb, 2);
+$fkact  = get_active($bank_conf->fk, 2);
+$fknewact  = get_active($bank_conf->fk_new, 2);
+$wact   = get_active($bank_conf->wb, 2);
+$upact  = get_active($bank_conf->up, 2);
+$psact  = get_active($bank_conf->ps, 2);
 $pstest = get_active($bank_conf->ps_test, 1);
-$ikact = get_active($bank_conf->ik, 2);
-$woact = get_active($bank_conf->wo, 2);
-$yaact = get_active($bank_conf->ya, 2);
-$qwact = get_active($bank_conf->qw, 2);
-$lpact = get_active($bank_conf->lp, 2);
-$apact = get_active($bank_conf->ap, 2);
-
-/*
-	AmaraPay
-*/
-$amarapay = get_active($bank_conf->amarapay, 2);
-
-/*
-	FreeKassa
-*/
-$freekassa = get_active($bank_conf->freekassa, 2);
-
-$psRUB = '';
-$psEUR = '';
-$psUSD = '';
-if($bank_conf->ps_currency == 'RUB'){
+$ikact  = get_active($bank_conf->ik, 2);
+$woact  = get_active($bank_conf->wo, 2);
+$yaact  = get_active($bank_conf->ya, 2);
+$qwact  = get_active($bank_conf->qw, 2);
+$lpact  = get_active($bank_conf->lp, 2);
+$apact  = get_active($bank_conf->ap, 2);
+$enotact  = get_active($bank_conf->enot, 2);
+$psRUB  = '';
+$psEUR  = '';
+$psUSD  = '';
+if($bank_conf->ps_currency == 'RUB') {
 	$psRUB = 'active';
 }
-if($bank_conf->ps_currency == 'USD'){
+if($bank_conf->ps_currency == 'USD') {
 	$psUSD = 'active';
 }
-if($bank_conf->ps_currency == 'EUR'){
+if($bank_conf->ps_currency == 'EUR') {
 	$psEUR = 'active';
 }
 
@@ -87,10 +79,13 @@ $tpl->set("{full_site_host}", $full_site_host);
 $tpl->set("{fk_login}", $bank_conf->fk_login);
 $tpl->set("{fk_pass1}", $bank_conf->fk_pass1);
 $tpl->set("{fk_pass2}", $bank_conf->fk_pass2);
+$tpl->set("{fk_new_login}", $bank_conf->fk_new_login);
+$tpl->set("{fk_new_pass1}", $bank_conf->fk_new_pass1);
+$tpl->set("{fk_new_pass2}", $bank_conf->fk_new_pass2);
 $tpl->set("{rb_login}", $bank_conf->rb_login);
 $tpl->set("{rb_pass1}", $bank_conf->rb_pass1);
 $tpl->set("{rb_pass2}", $bank_conf->rb_pass2);
-$tpl->set("{up_login}", $bank_conf->up_login);
+$tpl->set("{up_type}", $bank_conf->up_type);
 $tpl->set("{up_pass1}", $bank_conf->up_pass1);
 $tpl->set("{up_pass2}", $bank_conf->up_pass2);
 $tpl->set("{wb_login}", $bank_conf->wb_login);
@@ -109,21 +104,9 @@ $tpl->set("{lp_public_key}", $bank_conf->lp_public_key);
 $tpl->set("{lp_private_key}", $bank_conf->lp_private_key);
 $tpl->set("{ap_project_id}", $bank_conf->ap_project_id);
 $tpl->set("{ap_private_key}", $bank_conf->ap_private_key);
-
-/*
-	AmaraPay
-*/
-$tpl->set("{amarapay_id}", $bank_conf->amarapay_id);
-$tpl->set("{amarapay_public}", $bank_conf->amarapay_public);
-$tpl->set("{amarapay_secret}", $bank_conf->amarapay_secret);
-
-/*
-	FreeKassa
-*/
-$tpl->set("{freekassa_id}", $bank_conf->freekassa_id);
-$tpl->set("{freekassa_secret1}", $bank_conf->freekassa_secret1);
-$tpl->set("{freekassa_secret2}", $bank_conf->freekassa_secret2);
-
+$tpl->set("{enot_id}", $bank_conf->enot_id);
+$tpl->set("{enot_key}", $bank_conf->enot_key);
+$tpl->set("{enot_key2}", $bank_conf->enot_key2);
 $tpl->set("{rbact}", $rbact[0]);
 $tpl->set("{rbact2}", $rbact[1]);
 $tpl->set("{wact}", $wact[0]);
@@ -134,6 +117,8 @@ $tpl->set("{psact}", $psact[0]);
 $tpl->set("{psact2}", $psact[1]);
 $tpl->set("{fkact}", $fkact[0]);
 $tpl->set("{fkact2}", $fkact[1]);
+$tpl->set("{fknewact}", $fknewact[0]);
+$tpl->set("{fknewact2}", $fknewact[1]);
 $tpl->set("{pstest}", $pstest[0]);
 $tpl->set("{pstest2}", $pstest[1]);
 $tpl->set("{ikact}", $ikact[0]);
@@ -151,24 +136,13 @@ $tpl->set("{lpact}", $lpact[0]);
 $tpl->set("{lpact2}", $lpact[1]);
 $tpl->set("{apact}", $apact[0]);
 $tpl->set("{apact2}", $apact[1]);
-
-/*
-	AmaraPay
-*/
-$tpl->set("{amarapay_act}", $amarapay[0]);
-$tpl->set("{amarapay_act2}", $amarapay[1]);
-
-/*
-	FreeKassa
-*/
-$tpl->set("{freekassa_act}", $freekassa[0]);
-$tpl->set("{freekassa_act2}", $freekassa[1]);
-
-$tpl->compile( 'content' );
+$tpl->set("{enotact}", $enotact[0]);
+$tpl->set("{enotact2}", $enotact[1]);
+$tpl->compile('content');
 $tpl->clear();
 
 $tpl->load_template('bottom.tpl');
 $tpl->set("{site_host}", $site_host);
-$tpl->compile( 'content' );
+$tpl->compile('content');
 $tpl->clear();
 ?>

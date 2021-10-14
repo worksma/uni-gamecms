@@ -43,24 +43,28 @@
 			<b>r</b> - удаление / редактирование сообщений на форуме <br>
 			<hr class="ma-0 mt-10 mb-10">
 			<b>i</b> - рассмотрение заявок на разбан <br>
-			<b>o</b> - удаление заявок на разбан <br>
-			<b>u</b> - удаление комментариев к банам <br>
+			<b>o</b> - удаление заявок на разбан и комментариев к ним <br>
 			<hr class="ma-0 mt-10 mb-10">
-			<b>s</b> - бан/кик игроков на сервере, разбан через банлист <br>
+			<b>k</b> - рассмотрение жалоб <br>
+			<b>u</b> - удаление жалоб и комментариев к ним <br>
+			<hr class="ma-0 mt-10 mb-10">
+			<b>s</b> - отправка ркон команд категории «Действие над игроками» , разбан через банлист <br>
+			<b>v</b> - отправка ркон команд категории «Управление сервером»<br>
+			<hr class="ma-0 mt-10 mb-10">
 			<b>j</b> - управление администраторами сервера <br>
 			<b>h</b> - удаление игровой статистики пользователя<br>
 			<hr class="ma-0 mt-10 mb-10">
 			<p class="text-danger m-0"><b>z</b> - временный бан. Снимается путем изменения группы.</p>
 			<p class="text-danger m-0"><b>x</b> - вечный бан. Не использовать в качестве теста! Банит навсегда,
 			                                    бан не снимается, сайт больше не будет доступен пользователям,
-			                                    в группе которых будет этот флаг. Должен быть включен глобальный бан
+			                                    в группе которых будет этот флаг. Должен быть включен
 			</p>
 		</div>
 		<div class="col-md-12">
 			<hr>
 			<div class="bs-callout bs-callout-info">
 				<p>
-					Флаги <b>i, o, u, s, j, h</b> имеют способность ограничивать доступ до конкретных серверов, к примеру, если в правах группы задать: 
+					Флаги <b>i, o, s, v, j, h, k, u</b> имеют способность ограничивать доступ до конкретных серверов, к примеру, если в правах группы задать:
 					<br><b>j</b> - пользователи группы будут иметь доступ к управлению администраторами <b>всех серверов</b>,
 					<br><b>j1</b> - пользователи группы будут иметь доступ к управлению администраторами сервера с <b>ID 1</b>,
 					<br><b>j1:2:3</b> - пользователи группы будут иметь доступ к управлению администраторами серверов с <b>ID 1, ID 2, ID 3</b>.
@@ -68,42 +72,14 @@
 				</p>
 			</div>
 		</div>
-		<!-- kv -->
 	</div>
 
 	<div class="block">
 		<div class="block_head">
 			Добавление группы
 		</div>
-		<div class="col-md-6">
-			Название группы
-			<input type="text" class="form-control mb-10" id="name" maxlength="30" autocomplete="off" placeholder="Введите название">
-			Права группы
-			<input type="text" class="form-control mb-10" id="rights" maxlength="512" autocomplete="off" placeholder="Введите флаги">
-			
-			<div class="row">
-				<div class="col-md-3">
-					Цвет
-					<input type="text" class="form-control mb-10" id="color" value="#FFFFFF">
-				</div>
-				<div class="col-md-9">
-					Дополнительный стиль
-					<input type="text" class="form-control mb-10" id="style" maxlength="240" placeholder="Код CSS">
-				</div>
-			</div>
-		</div>
-		<div class="col-md-6">
-			<div id="colorpicker"></div>
-			<script>
-				$(document).ready(function() {
-					$('#colorpicker').farbtastic('#color');
-				});
-			</script>
-		</div>
-		<div class="col-md-12">
-			<div id="result"></div>
-			<button class="btn2" onclick="add_group();">Добавить</button>
-		</div>
+
+		{add_group_form}
 	</div>
 
 	<div class="block">

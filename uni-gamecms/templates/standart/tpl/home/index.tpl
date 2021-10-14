@@ -77,4 +77,5 @@
 <div class="col-lg-3 order-is-last">
 	{include file="/home/navigation.tpl"}
 	{include file="/home/sidebar.tpl"}
+	{include file="/elements/vk_widgets.tpl"}
 </div>

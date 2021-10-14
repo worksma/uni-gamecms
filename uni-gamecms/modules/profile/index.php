@@ -3,15 +3,35 @@ if($page->privacy == 1 && !is_auth()) {
 	show_error_page('not_auth');
 }
 
-if(array_key_exists('id', $_GET)) {
-	$id = clean($_GET['id'], "int");
-} elseif(is_auth()) {
-	$id = $_SESSION['id'];
-	header("Location: ../profile?id=$id");
-	exit();
+$urlParts = explode('/', $page->originalUrl);
+
+if(count($urlParts) > 1) {
+	$row = Users::getIdByRoute($pdo, $urlParts[1]);
+	$id = empty($row->id) ? null : $row->id;
 } else {
-	show_error_page('not_settings');
+	if(array_key_exists('id', $_GET) || is_auth()) {
+		if(array_key_exists('id', $_GET)) {
+			$id = clean($_GET['id'], "int");
+		} else {
+			$id = $_SESSION['id'];
+		}
+
+		$row = Users::getRouteById($pdo, $id);
+
+		if(!empty($row->route)) {
+			http_response_code(301);
+			header('Location: ../' .  PagesInfo::PROFILE_PAGE_URL . '/' . $row->route);
+			exit();
+		} elseif(!array_key_exists('id', $_GET)) {
+			header('Location: ../' .  PagesInfo::PROFILE_PAGE_URL . '?id=' . $id);
+			exit();
+		}
+	} else {
+		show_error_page('not_settings');
+	}
 }
+
+global $profile;
 
 if(!$profile = Users::getUserData($pdo, $id)) {
 	show_error_page();

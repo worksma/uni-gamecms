@@ -97,6 +97,24 @@
 
 			<div class="block">
 				<div class="block_head">
+					Адрес страницы
+				</div>
+				<div class="input-group">
+					<div class="input-group-prepend">
+						<button class="btn btn-outline-primary" type="button" onclick="editUserRoute();">Изменить</button>
+					</div>
+					<input type="text" class="form-control" id="user_route" maxlength="30" autocomplete="off" value="{route}" placeholder="Введите адрес страницы">
+				</div>
+
+				<div class="noty-block info">
+					<p>Пример: {profileLink}<u>ваш-адрес</u></p>
+				</div>
+
+				<div id="edit_user_route_result"></div>
+			</div>
+
+			<div class="block">
+				<div class="block_head">
 					Дополнительные настройки
 				</div>
 				<div class="form-group">
@@ -244,6 +262,23 @@
 					</div>
 					<div id="edit_user_nick_result"></div>
 				</div>
+
+				<!--
+				<div class="form-group">
+					<label>
+						<h4>
+							Префикс в чате сервера
+						</h4>
+					</label>
+					<div class="input-group">
+						<div class="input-group-prepend">
+							<button class="btn btn-outline-primary" type="button" onclick="edit_user_prefix();">Изменить</button>
+						</div>
+						<input type="text" class="form-control" id="user_prefix" maxlength="16" autocomplete="off" value="{{$user->prefix}}" placeholder="Укажите префикс">
+					</div>
+					<div id="edit_user_prefix_result"></div>
+				</div>
+				-->
 
 				<div class="form-group">
 					<label>

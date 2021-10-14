@@ -1,15 +1,18 @@
-<!--[ Система Торговой площадки ]!-->
 <?
-	$playground = new Playground($pdo, $conf);
+	/*
+		Подключение различных элементов
+		///////////////////////////////
+	*/
+	
+	$playground = new Playground($pdo, $conf);									// Система торговой площадки
 	
 	if(strpos($_SERVER['REQUEST_URI'], "profile") !== false) {
-		$bgimage = $playground->get_resource_active(1, ($_GET['id'] ? $_GET['id'] : $_SESSION['id']));
+		global $profile;
+		$bgimage = $playground->get_resource_active(1, $profile->id);
 	}
 ?>
-<!--[ Система Торговой площадки ]!-->
 <div class="container-fluid wapper">
-	<div class="content"
-	<?
+	<div class="content" <?
 		if(isset($bgimage)) {
 			echo "style=\"background:url('../files/playground/{$bgimage}') no-repeat;
 			background-attachment: scroll;

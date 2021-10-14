@@ -1,28 +1,3 @@
-<style>
-	.div-frame {
-		position: relative;
-		margin-left:4px;
-	}
-	
-	.div-frame img {
-		background: unset !important;
-		filter: unset;
-		display: block;
-		padding: 0;
-		width: 100%;
-		height: 100%;
-		padding: 0px !important;
-	}
-	
-	.div-avatar-frame {
-		position: absolute;
-	}
-	
-	.div-avatar-frame > img {
-		transform: scale(1.23);
-		background: unset;
-	}
-</style>
 <div class="col-lg-9 order-is-first">
 	<div class="block">
 		<div class="block_head">
@@ -33,11 +8,9 @@
 			<div id="answer_0">
 				<div class="top-area">
 					<div class="left-side">
-						{if($very = new Verification($pdo) and $very->is_very('{author_id}'))}
-							<a href="../profile?id={author_id}">{author_login}</a> <?echo $very->get_very_style('standart');?>
-						{else}
-							<a href="../profile?id={author_id}">{author_login}</a>
-						{/if}
+						<a href="../profile?id={author_id}">
+							{author_login}
+						</a>
 					</div>
 					<div class="right-side">
 						<a href="#answer_0">
@@ -48,26 +21,7 @@
 
 				<div class="center-area">
 					<div class="left-side">
-						<?$playground = new Playground($pdo, $conf);?>
-						
-						{if($fmimage = $playground->get_resource_active(3, {author_id}))}
-							<div class="div-frame mb-4">
-								<div class="div-avatar-frame">
-									<img src="../files/playground/<?echo $fmimage;?>">
-								</div>
-								{if($avaimage = $playground->get_resource_active(2, {author_id}))}
-									<img src="../files/playground/<?echo $avaimage;?>">
-								{else}
-									<img src="../{author_avatar}">
-								{/if}
-							</div>
-						{else}
-							{if($avaimage = $playground->get_resource_active(2, {author_id}))}
-								<img src="../files/playground/<?echo $avaimage;?>">
-							{else}
-								<img src="../{author_avatar}">
-							{/if}
-						{/if}
+						<img src="../{author_avatar}" alt="{author_login}">
 
 						<p style="color: {group_color}">{group_name}</p><br>
 						<p>Рейтинг: {reit}</p><br>
@@ -147,9 +101,9 @@
 				Оставить ответ
 			</div>
 			<div id="send_answer">
-				<textarea id="text" maxlenght="2000"></textarea>
+				<textarea id="text" maxlength="2000"></textarea>
 				<div class="smile_input_forum mt-3">
-					<input id="send_btn" class="btn btn-primary" type="button" onclick="send_answer('{id}');" value="Отправить"></input>
+					<input id="send_btn" class="btn btn-primary" type="button" onclick="send_answer('{id}');" value="Отправить">
 					<div id="smile_btn" class="smile_btn visible-lg-inline-block" data-container="body" data-toggle="popover" data-placement="top" data-content="empty"></div>
 				</div>
 			</div>

@@ -69,7 +69,7 @@ if($ban->img != '0') {
 
 if($ban->status == 0){
 	$status = $messages['Not_reviewed'];
-	$color = "default";
+	$color = "warning";
 }
 if($ban->status == 1){
 	$status = $messages['Unbaned'];
@@ -116,11 +116,6 @@ if($ban->status != 0){
 	$tpl->set("{closed_a}", '');
 	$tpl->set("{closed_gp_name}", '');
 	$tpl->set("{closed_gp_color}", '');
-}
-if(isset($_SESSION['id'])) {
-	$tpl->set("{allow}", '1');
-} else {
-	$tpl->set("{allow}", '2');
 }
 $tpl->set("{site_host}", $site_host);
 $tpl->set("{template}", $conf->template); 

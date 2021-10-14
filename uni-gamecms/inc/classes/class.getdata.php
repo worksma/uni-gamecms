@@ -40,8 +40,7 @@ class GetData {
 		}
 
 		if(isset($row->id)) {
-			$SteamIDOperations = new SteamIDOperations();
-			if($SteamIDOperations->ValidateSteamID($nick)) {
+			if(SteamIDOperations::ValidateSteamID($nick)) {
 				$nick = $row->login;
 			}
 
@@ -235,7 +234,7 @@ class GetData {
 	public function banlist($start, $server, $limit = 30, $name = null) {
 		$start = checkStart($start);
 		$server = check($server, "int");
-		$name = checkJs($name, null);
+		$name = check($name, null);
 
 		global $messages;
 		global $users_groups;
@@ -245,11 +244,6 @@ class GetData {
 		}
 		if((empty($start) and $start != "0")) {
 			return '<tr><td colspan="10">Ошибка: [Неизвестные переменные]</td></tr>';
-		}
-		if($name != null) {
-			if(mb_strlen($name, 'UTF-8') < 2) {
-				return '<tr><td colspan="10">Слишком короткий идентификатор</td></tr>';
-			}
 		}
 
 		$STH = $this->pdo->query("SELECT price1, price2, price3 FROM config__prices LIMIT 1");
@@ -271,7 +265,7 @@ class GetData {
 		$server_name = $row->name;
 		$type = $row->type;
 		if(!$pdo2 = db_connect($db_host, $db_db, $db_user, $db_pass)) {
-			return '<tr><td colspan="10">'.$messages['Unable_connect_to_db'].'</td></tr>';
+			return '<tr><td colspan="10">'.$messages['errorConnectingToDatabase'].'</td></tr>';
 		}
 		set_names($pdo2, $row->db_code);
 
@@ -296,7 +290,7 @@ class GetData {
 				$table = set_prefix($db_prefix, 'bans');
 				$STH = $pdo2->prepare("SELECT * FROM $table WHERE server_ip = '$address' and (player_ip LIKE :name or player_nick LIKE :name or player_id LIKE :name or bid = :bid) ORDER BY bid DESC");
 				$STH->setFetchMode(PDO::FETCH_OBJ);
-				$STH->execute(array(":name" => "%".strip_data($name)."%", ":bid" => $name));
+				$STH->execute(array(":name" => getNameLike($name), ":bid" => $name));
 			} else {
 				$table = set_prefix($db_prefix, 'servers');
 				$STH = $pdo2->query("SELECT sid FROM $table WHERE ip='$ip' and port='$port' LIMIT 1");
@@ -307,7 +301,7 @@ class GetData {
 				$table2 = set_prefix($db_prefix, 'admins');
 				$STH = $pdo2->prepare("SELECT $table1.bid,$table1.unban_type,$table1.ban_closed,$table1.ip AS player_ip,$table1.RemoveType AS expired,$table1.authid AS player_id,$table1.name AS player_nick,$table1.created AS ban_created,$table1.length AS ban_length,$table1.reason AS ban_reason,$table1.adminip AS admin_ip,$table2.user AS admin_nick,$table2.nick AS admin_nick2,$table2.authid AS admin_id FROM $table1 LEFT JOIN $table2 ON $table1.aid = $table2.aid WHERE ($table1.sid = '$sid' or $table1.sid = '0') and ($table1.ip LIKE :name or $table1.authid LIKE :name or $table1.name LIKE :name or $table1.bid = :bid) ORDER BY $table1.bid DESC");
 				$STH->setFetchMode(PDO::FETCH_OBJ);
-				$STH->execute(array(":name" => "%".strip_data($name)."%", ":bid" => $name));
+				$STH->execute(array(":name" => getNameLike($name), ":bid" => $name));
 			}
 		}
 
@@ -402,7 +396,7 @@ class GetData {
 			$this->tpl->set("{address}", $address);
 			$this->tpl->set("{admin_nick}", $admin_nick);
 			$this->tpl->set("{player_ip}", $row->player_ip);
-			$this->tpl->set("{player_id}", $row->player_id);
+			$this->tpl->set("{player_id}", isNeedHidePlayerId() ? hidePlayerId($row->player_id) : $row->player_id);
 			$this->tpl->set("{ban_length}", expand_seconds2($ban_length));
 			$this->tpl->set("{ban_created}", expand_date(date("Y-m-d H:i:s", $ban_created), 7));
 			$this->tpl->set("{server_name}", $server_name);
@@ -432,18 +426,12 @@ class GetData {
 		$name = checkJs($name, null);
 
 		global $messages;
-		global $users_groups;
 
 		if(empty($server)) {
 			return '<tr><td colspan="10">Ошибка: [Неизвестные переменные]</td></tr>';
 		}
 		if((empty($start) and $start != "0")) {
 			return '<tr><td colspan="10">Ошибка: [Неизвестные переменные]</td></tr>';
-		}
-		if($name != null) {
-			if(mb_strlen($name, 'UTF-8') < 2) {
-				return '<tr><td colspan="10">Слишком короткий идентификатор</td></tr>';
-			}
 		}
 
 		$STH = $this->pdo->query("SELECT price2_1, price2_2, price2_3 FROM config__prices LIMIT 1");
@@ -481,11 +469,11 @@ class GetData {
 				$STH = $this->pdo->prepare("SELECT $table1.bid,$table1.type, $table1.expired AS unban_type, $table1.modified_by AS ban_closed, $table1.authid AS player_id, $table1.name AS player_nick, $table1.created AS ban_created, $table1.length AS ban_length, $table1.reason AS ban_reason, $table1.admin_nick AS admin_nick, $table2.name AS admin_nick2 FROM $table1 LEFT JOIN $table2 ON $table1.admin_id = $table2.id 
 				WHERE $table1.server_id = '$server' and ($table1.authid LIKE :name or $table1.name LIKE :name) ORDER BY $table1.bid DESC");
 				$STH->setFetchMode(PDO::FETCH_OBJ);
-				$STH->execute(array(":name" => "%".strip_data($name)."%"));
+				$STH->execute(array(":name" => getNameLike($name)));
 			}
 		} elseif($type == '4') {
 			if(!$pdo2 = db_connect($db_host, $db_db, $db_user, $db_pass)) {
-				return '<tr><td colspan="10">'.$massages['Unable_connect_to_db'].'</td></tr>';
+				return '<tr><td colspan="10">'.$messages['errorConnectingToDatabase'].'</td></tr>';
 			}
 			set_names($pdo2, $row->db_code);
 
@@ -510,7 +498,7 @@ class GetData {
 				} else {
 					$STH = $pdo2->prepare("SELECT $table1.bid,$table1.unban_type,$table1.ban_closed,$table1.type,$table1.RemoveType AS expired,$table1.authid AS player_id,$table1.name AS player_nick,$table1.created AS ban_created,$table1.length AS ban_length,$table1.reason AS ban_reason,$table1.adminip AS admin_ip,$table2.user AS admin_nick,$table2.nick AS admin_nick2,$table2.authid AS admin_id FROM $table1 LEFT JOIN $table2 ON $table1.aid = $table2.aid WHERE ($table1.sid = '$sid' or $table1.sid = '0') and ($table1.authid LIKE :name or $table1.name LIKE :name) ORDER BY $table1.bid DESC");
 					$STH->setFetchMode(PDO::FETCH_OBJ);
-					$STH->execute(array(":name" => "%".strip_data($name)."%"));
+					$STH->execute(array(":name" => getNameLike($name)));
 				}
 			} else {
 				return '<tr><td colspan="10">'.$messages['Not_found_tables'].'</td></tr>';
@@ -618,7 +606,7 @@ class GetData {
 			$this->tpl->set("{price}", $price);
 			$this->tpl->set("{address}", $address);
 			$this->tpl->set("{admin_nick}", $admin_nick);
-			$this->tpl->set("{player_id}", $row->player_id);
+			$this->tpl->set("{player_id}", isNeedHidePlayerId() ? hidePlayerId($row->player_id) : $row->player_id);
 			$this->tpl->set("{ban_length}", $ban_length2);
 			$this->tpl->set("{ban_created}", expand_date(date("Y-m-d H:i:s", $ban_created), 7));
 			$this->tpl->set("{type}", $row->type);
@@ -647,16 +635,11 @@ class GetData {
 		$name = checkJs($name, null);
 
 		if(empty($server)) {
-			return '<tr><td colspan="10">'.$massages['Unable_connect_to_db'].'</td></tr>';
+			return '<tr><td colspan="10">'.$messages['errorConnectingToDatabase'].'</td></tr>';
 		}
 
 		if((empty($start) and $start != "0")) {
-			return '<tr><td colspan="10">Игроков нет</td></tr>';
-		}
-		if($name != null) {
-			if(mb_strlen($name, 'UTF-8') < 2) {
-				return '<tr><td colspan="10">Слишком короткий идентификатор</td></tr>';
-			}
+			return '<tr><td colspan="10">Нет результатов</td></tr>';
 		}
 
 		$STH = $this->pdo->query("SELECT id,st_db_host,st_db_user,st_db_pass,st_db_db,st_type,st_db_code,st_sort_type,st_db_table,ip,port FROM servers WHERE st_type!=0 and id='$server' LIMIT 1");
@@ -673,7 +656,7 @@ class GetData {
 		$ip = $row->ip;
 		$port = $row->port;
 		if(!$pdo2 = db_connect($db_host, $db_db, $db_user, $db_pass)) {
-			return '<tr><td colspan="10">'.$massages['Unable_connect_to_db'].'</td></tr>';
+			return '<tr><td colspan="10">'.$messages['errorConnectingToDatabase'].'</td></tr>';
 		}
 		set_names($pdo2, $row->st_db_code);
 
@@ -923,7 +906,7 @@ class GetData {
 				$STH = $pdo2->prepare("SELECT `steam` AS authid, `name` AS nick, `deaths`, `kills` AS frags, `hits`, `lastconnect` AS lasttime, headshots, value, rank, $playtime_ `$shoots_` AS shots FROM `$table` WHERE (`name` LIKE :name or `steam` LIKE :name) ORDER BY $sort");
 				$STH->setFetchMode(PDO::FETCH_OBJ);
 			}
-			$STH->execute(array(":name" => "%".strip_data($name)."%"));
+			$STH->execute(array(":name" => getNameLike($name)));
 		}
 
 		$this->tpl->result['local_content'] = '';
@@ -1100,7 +1083,7 @@ class GetData {
 				$this->tpl->set("{connects}", $row->connects);
 			}
 			if($type == 1 || $type == 2 || $type == 3 || $type == 5) {
-				$this->tpl->set("{authid}", $row->authid);
+				$this->tpl->set("{authid}", isNeedHidePlayerId() ? hidePlayerId($row->authid) : $row->authid);
 				$this->tpl->set("{defused}", $row->defused);
 				$this->tpl->set("{planted}", $row->planted);
 				$this->tpl->set("{explode}", $row->explode);
@@ -1141,7 +1124,7 @@ class GetData {
 			$this->tpl->set("{headshots}", $row->headshots);
 			$this->tpl->set("{shots}", $row->shots);
 			$this->tpl->set("{hits}", $row->hits);
-			$this->tpl->set("{kdr}", round($row->frags/$row->deaths, 2));
+			$this->tpl->set("{kdr}", ($row->deaths == 0) ? 0 : round($row->frags/$row->deaths, 2));
 			$this->tpl->set("{procent1}", get_procent($row->deaths, $row->frags));
 			$this->tpl->set("{procent2}", get_procent($row->frags / 100, $row->headshots));
 			$this->tpl->set("{procent4}", get_procent($row->shots / 100, $row->hits));
@@ -1152,7 +1135,7 @@ class GetData {
 			$this->tpl->clear();
 		}
 		if(empty($this->tpl->result['local_content'])) {
-			return '<tr><td colspan="10">Игроков нет</td></tr>';
+			return '<tr><td colspan="10">Нет результатов</td></tr>';
 		} else {
 			return $this->tpl->result['local_content'];
 		}
@@ -1165,10 +1148,10 @@ class GetData {
 		global $messages;
 
 		if(empty($server)) {
-			return '<tr><td colspan="20">'.$massages['Unable_connect_to_db'].'</td></tr>';
+			return '<tr><td colspan="20">'.$messages['errorConnectingToDatabase'].'</td></tr>';
 		}
 		if(empty($auth)) {
-			return '<tr><td colspan="20">Информация не найдена</td></tr>';
+			return '<tr><td colspan="20">' . $messages['informationNotFound'] . '</td></tr>';
 		}
 
 		$STH = $this->pdo->query("SELECT id,st_db_host,st_db_user,st_db_pass,st_db_db,st_db_code,st_type FROM servers WHERE (st_type='1' or st_type='2') and id='$server' LIMIT 1");
@@ -1179,72 +1162,76 @@ class GetData {
 		$db_pass = $row->st_db_pass;
 		$db_db = $row->st_db_db;
 		if(empty($row->id) || !$pdo2 = db_connect($db_host, $db_db, $db_user, $db_pass)) {
-			return '<tr><td colspan="20">'.$massages['Unable_connect_to_db'].'</td></tr>';
+			return '<tr><td colspan="20">'.$messages['errorConnectingToDatabase'].'</td></tr>';
 		}
 		set_names($pdo2, $row->st_db_code);
 
-		$s_name = array("",
-		                "Sig Sauer P-228",
-		                "",
-		                "Steyr Scout",
-		                "High Explosive Grenade",
-		                "Benelli/H&K M4 Super 90 XM1014",
-		                "",
-		                "Ingram MAC-10",
-		                "Steyr Aug",
-		                "",
-		                "Dual Beretta 96G Elite",
-		                "Five-SeveN",
-		                "H&K UMP45",
-		                "Sig SG-550 Sniper",
-		                "Galil",
-		                "Fusil Automatique",
-		                "H&K USP .45 Tactical",
-		                "Glock 18 Select Fire",
-		                "Arctic Warfare Magnum (Police)",
-		                "H&K MP5-Navy",
-		                "M249 PARA Light Machine Gun",
-		                "Benelli M3 Super 90 Combat",
-		                "Colt M4A1 Carbine",
-		                "Steyr Tactical Machine Pistol",
-		                "G3SG1",
-		                "",
-		                "Desert Eagle .50AE",
-		                "Sig Sauer SG-552 Commando",
-		                "Kalashnikov AK-47",
-		                "Knife",
-		                "FN P90");
-		$pic_url = array("",
-		                 "https://s1.gameme.net/img/weapons/css/p228_14737_197a38f0645b774c6dc0da9eceb06ccc2c9fdfbc.png",
-		                 "",
-		                 "https://s1.gameme.net/img/weapons/cstrike/scout_14737_eb97a1822e3271e16780e47e1f79b516cb4464e1.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/grenade_14737_4b0f6f063c241da1ce2b68abadf3dad0b7e02884.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/xm1014_14737_b818c52b319f5b2eb0154e51183073e52354e050.png",
-		                 "",
-		                 "https://s1.gameme.net/img/weapons/cstrike/mac10_14737_95022054905aa11ce482b1454c5a466ea62ad28c.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/aug_14737_ed09af5570f2567ce2d5ea85a6edf8b09ea0ef4e.png",
-		                 "",
-		                 "https://s1.gameme.net/img/weapons/cstrike/elite_14737_7ab23b0a760a5456ac7a866498073d3a8b420ecb.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/fiveseven_14737_478edccc078d20a38f28eff5fb30be9a41642f57.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/ump45_14737_f745dd387401b6dd8ebb8b65bb849b2a3f0fa116.png",
-		                 "https://s1.gameme.net/img/weapons/css/sg550_14737_8463dbda7649d555a09db4d506258b24a870eee4.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/galil_14737_b09635ec7e1a46005921326293b75601153b25a2.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/famas_14737_ebf858b8cbe74c3d634c5e1c14b2e6139444f4f3.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/usp_14737_53a83d1325d8fe2d6c0d620543299848c7610b24.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/glock18_14737_dd14a18834cd318d19307db32d0418439c310fc8.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/awp_14737_bdecf4bb7f8217b91be11132f9ca9a0fd0cae0d4.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/mp5navy_14737_98373da7f9894f271f0b25137f687f6b33e3414b.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/m249_14737_e15b885e4b99b9ec99040ca32e119d65956a24bb.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/m3_14737_3d9d28aac03bfe15e079464e907cd826640ee5b3.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/m4a1_14737_49dde69d3fd7e1ac8ce1a0d1b3e8d2fa3ca5cfe1.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/tmp_14737_1fcfb822c6f056f7f8d594ba74630f859d1d00f2.png",
-		                 "https://s1.gameme.net/img/weapons/csgo/g3sg1_14737_674ce0a820fbd86265ceaf5b932241f545c709f2.png",
-		                 "",
-		                 "https://s1.gameme.net/img/weapons/cstrike/deagle_14737_c5f8423f8fbbc17c81899ec5a17f5c2df3b568e2.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/sg552_14737_0a68dfd08103b9470f6fb9c8ea9976550c4215b9.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/ak47_14737_a9721a64e38ffa329ece483bd5abd78cd23ac828.png",
-		                 "https://s1.gameme.net/img/weapons/csgo/knife_14737_37829b08457785610c778280f8112191940399b9.png",
-		                 "https://s1.gameme.net/img/weapons/cstrike/p90_14737_8c57b5fd997e2d496e56f3fca1b6c617d9953137.png");
+		$s_name  = [
+			"",
+			"Sig Sauer P-228",
+			"",
+			"Steyr Scout",
+			"High Explosive Grenade",
+			"Benelli/H&K M4 Super 90 XM1014",
+			"",
+			"Ingram MAC-10",
+			"Steyr Aug",
+			"",
+			"Dual Beretta 96G Elite",
+			"Five-SeveN",
+			"H&K UMP45",
+			"Sig SG-550 Sniper",
+			"Galil",
+			"Fusil Automatique",
+			"H&K USP .45 Tactical",
+			"Glock 18 Select Fire",
+			"Arctic Warfare Magnum (Police)",
+			"H&K MP5-Navy",
+			"M249 PARA Light Machine Gun",
+			"Benelli M3 Super 90 Combat",
+			"Colt M4A1 Carbine",
+			"Steyr Tactical Machine Pistol",
+			"G3SG1",
+			"",
+			"Desert Eagle .50AE",
+			"Sig Sauer SG-552 Commando",
+			"Kalashnikov AK-47",
+			"Knife",
+			"FN P90"
+		];
+		$pic_url = [
+			"",
+			"https://s1.gameme.net/img/weapons/css/p228_14737_197a38f0645b774c6dc0da9eceb06ccc2c9fdfbc.png",
+			"",
+			"https://s1.gameme.net/img/weapons/cstrike/scout_14737_eb97a1822e3271e16780e47e1f79b516cb4464e1.png",
+			"https://s1.gameme.net/img/weapons/cstrike/grenade_14737_4b0f6f063c241da1ce2b68abadf3dad0b7e02884.png",
+			"https://s1.gameme.net/img/weapons/cstrike/xm1014_14737_b818c52b319f5b2eb0154e51183073e52354e050.png",
+			"",
+			"https://s1.gameme.net/img/weapons/cstrike/mac10_14737_95022054905aa11ce482b1454c5a466ea62ad28c.png",
+			"https://s1.gameme.net/img/weapons/cstrike/aug_14737_ed09af5570f2567ce2d5ea85a6edf8b09ea0ef4e.png",
+			"",
+			"https://s1.gameme.net/img/weapons/cstrike/elite_14737_7ab23b0a760a5456ac7a866498073d3a8b420ecb.png",
+			"https://s1.gameme.net/img/weapons/cstrike/fiveseven_14737_478edccc078d20a38f28eff5fb30be9a41642f57.png",
+			"https://s1.gameme.net/img/weapons/cstrike/ump45_14737_f745dd387401b6dd8ebb8b65bb849b2a3f0fa116.png",
+			"https://s1.gameme.net/img/weapons/css/sg550_14737_8463dbda7649d555a09db4d506258b24a870eee4.png",
+			"https://s1.gameme.net/img/weapons/cstrike/galil_14737_b09635ec7e1a46005921326293b75601153b25a2.png",
+			"https://s1.gameme.net/img/weapons/cstrike/famas_14737_ebf858b8cbe74c3d634c5e1c14b2e6139444f4f3.png",
+			"https://s1.gameme.net/img/weapons/cstrike/usp_14737_53a83d1325d8fe2d6c0d620543299848c7610b24.png",
+			"https://s1.gameme.net/img/weapons/cstrike/glock18_14737_dd14a18834cd318d19307db32d0418439c310fc8.png",
+			"https://s1.gameme.net/img/weapons/cstrike/awp_14737_bdecf4bb7f8217b91be11132f9ca9a0fd0cae0d4.png",
+			"https://s1.gameme.net/img/weapons/cstrike/mp5navy_14737_98373da7f9894f271f0b25137f687f6b33e3414b.png",
+			"https://s1.gameme.net/img/weapons/cstrike/m249_14737_e15b885e4b99b9ec99040ca32e119d65956a24bb.png",
+			"https://s1.gameme.net/img/weapons/cstrike/m3_14737_3d9d28aac03bfe15e079464e907cd826640ee5b3.png",
+			"https://s1.gameme.net/img/weapons/cstrike/m4a1_14737_49dde69d3fd7e1ac8ce1a0d1b3e8d2fa3ca5cfe1.png",
+			"https://s1.gameme.net/img/weapons/cstrike/tmp_14737_1fcfb822c6f056f7f8d594ba74630f859d1d00f2.png",
+			"https://s1.gameme.net/img/weapons/csgo/g3sg1_14737_674ce0a820fbd86265ceaf5b932241f545c709f2.png",
+			"",
+			"https://s1.gameme.net/img/weapons/cstrike/deagle_14737_c5f8423f8fbbc17c81899ec5a17f5c2df3b568e2.png",
+			"https://s1.gameme.net/img/weapons/cstrike/sg552_14737_0a68dfd08103b9470f6fb9c8ea9976550c4215b9.png",
+			"https://s1.gameme.net/img/weapons/cstrike/ak47_14737_a9721a64e38ffa329ece483bd5abd78cd23ac828.png",
+			"https://s1.gameme.net/img/weapons/csgo/knife_14737_37829b08457785610c778280f8112191940399b9.png",
+			"https://s1.gameme.net/img/weapons/cstrike/p90_14737_8c57b5fd997e2d496e56f3fca1b6c617d9953137.png"
+		];
 
 		$STH = $pdo2->prepare("SELECT * FROM weapon_ak47 WHERE authid=:authid UNION
 										 SELECT * FROM weapon_aug WHERE authid=:authid UNION
@@ -1302,7 +1289,7 @@ class GetData {
 		}
 
 		if($this->tpl->result['local_content'] == '') {
-			return '<tr><td colspan="20">Информация не найдена</td></tr>';
+			return '<tr><td colspan="20">' . $messages['informationNotFound'] . '</td></tr>';
 		} else {
 			return $this->tpl->result['local_content'];
 		}
@@ -1315,10 +1302,10 @@ class GetData {
 		global $messages;
 
 		if(empty($server)) {
-			return '<tr><td colspan="10">'.$massages['Unable_connect_to_db'].'</td></tr>';
+			return '<tr><td colspan="10">' . $messages['errorConnectingToDatabase'] . '</td></tr>';
 		}
 		if(empty($auth)) {
-			return '<tr><td colspan="10">Информация не найдена</td></tr>';
+			return '<tr><td colspan="10">' . $messages['informationNotFound'] . '</td></tr>';
 		}
 
 		$STH = $this->pdo->query("SELECT id,st_db_host,st_db_user,st_db_pass,st_db_db,st_db_code,st_type FROM servers WHERE (st_type='1' or st_type='2') and id='$server' LIMIT 1");
@@ -1328,8 +1315,16 @@ class GetData {
 		$db_user = $row->st_db_user;
 		$db_pass = $row->st_db_pass;
 		$db_db = $row->st_db_db;
-		if(empty($row->id) || !$pdo2 = db_connect($db_host, $db_db, $db_user, $db_pass)) {
-			return '<tr><td colspan="10">'.$massages['Unable_connect_to_db'].'</td></tr>';
+		if(
+			empty($row->id)
+			|| !$pdo2 = db_connect(
+				$db_host,
+				$db_db,
+				$db_user,
+				$db_pass
+			)
+		) {
+			return '<tr><td colspan="10">' . $messages['errorConnectingToDatabase'] . '</td></tr>';
 		}
 		set_names($pdo2, $row->st_db_code);
 
@@ -1350,7 +1345,7 @@ class GetData {
 		}
 
 		if($this->tpl->result['local_content'] == '') {
-			return '<tr><td colspan="10">Информация не найдена</td></tr>';
+			return '<tr><td colspan="10">' . $messages['informationNotFound'] . '</td></tr>';
 		} else {
 			return $this->tpl->result['local_content'];
 		}
@@ -1519,7 +1514,9 @@ class GetData {
 	}
 
 	public function bans_applications($start, $server, $limit = 10) {
-		$start = checkStart($start, "int");
+		global $messages;
+
+		$start = checkStart($start);
 		$server = check($server, "int");
 		$limit = check($limit, "int");
 
@@ -1540,15 +1537,15 @@ class GetData {
 		$this->tpl->result['local_content'] = '';
 		while($row = $STH->fetch()) {
 			if($row->status == 0) {
-				$status = "Не рассмотрена";
+				$status = $messages['Not_reviewed'];
 				$color = "warning";
 			}
 			if($row->status == 1) {
-				$status = "Разбанен";
+				$status = $messages['Unbaned'];
 				$color = "success";
 			}
 			if($row->status == 2) {
-				$status = "Не разбанен";
+				$status = $messages['Do_not_unbaned'];
 				$color = "danger";
 			}
 			$this->tpl->load_template('elements/ban_application.tpl');
@@ -1571,7 +1568,140 @@ class GetData {
 		return $this->tpl->result['local_content'];
 	}
 
+	public function getAdmins($server = 0, $userId = null, $name = null, $adminId = null) {
+		$server  = clean($server, "int");
+		$userId  = clean($userId, "int");
+		$name    = clean($name, null);
+		$adminId = clean($adminId, "int");
+
+		global $users_groups;
+
+		$admins = [];
+		$whereData = [];
+		$where = [];
+
+		if(!empty($server)) {
+			$where[] = '(admins.server = :server) ';
+			$whereData[':server'] = $server;
+		}
+
+		if(!empty($name)) {
+			$where[] = '(admins.name LIKE :name OR users.login LIKE :name OR users.nick LIKE :name) ';
+			$whereData[':name'] = getNameLike($name);
+		}
+
+		if(!empty($userId)) {
+			$where[] = '(users.id = :userId) ';
+			$whereData[':userId'] = $userId;
+		}
+
+		if(!empty($where)) {
+			$where = ' WHERE ' . implode(' AND ', $where);
+		}
+
+		if(!empty($adminId)) {
+			$where = ' WHERE admins.id = :adminId ';
+			$whereData = [];
+			$whereData[':adminId'] = $adminId;
+		}
+
+		$STH = $this->pdo->prepare("SELECT 
+    									admins.id, 
+    									admins.type, 
+    									admins.name, 
+    									admins.cause, 
+    									admins.price, 
+    									admins.link, 
+    									admins.active, 
+    									admins.user_id, 
+    									users.login, 
+    									users.avatar, 
+    									users.rights, 
+										servers.name as server_name,
+    									servers.id as server_id
+										FROM 
+										    admins
+							  				LEFT JOIN 
+										        users 
+										            ON users.id = admins.user_id
+										    LEFT JOIN 
+										        servers 
+										            ON servers.id = admins.server 
+							  		$where
+									ORDER BY admins.id");
+		$STH->setFetchMode(PDO::FETCH_OBJ);
+		$STH->execute($whereData);
+		while($row = $STH->fetch()) {
+			$STH2 = $this->pdo->prepare(
+				"SELECT 
+					    services.name, 
+					    services.show_adm 
+					FROM 
+					    admins__services 
+					        LEFT JOIN 
+					        services 
+					            ON 
+					                admins__services.service = services.id 
+					WHERE admins__services.admin_id=:admin_id LIMIT 10");
+			$STH2->setFetchMode(PDO::FETCH_OBJ);
+			$STH2->execute([':admin_id' => $row->id]);
+
+			$show = 0;
+			$services = '';
+			while($row2 = $STH2->fetch()) {
+				if(empty($row2->show_adm) or $row2->show_adm == 1) {
+					if(empty($row2->name)) {
+						$row2->name = 'Неизвестно';
+					}
+					if($services == '') {
+						$services .= $row2->name;
+					} else {
+						$services .= ' + ' . $row2->name;
+					}
+					$show++;
+				}
+			}
+
+			if(empty($row->rights)) {
+				$row->rights = 0;
+			}
+			if(empty($row->login)) {
+				$row->login = 0;
+			}
+			if(empty($row->name)) {
+				$row->name = 0;
+			}
+			if(empty($row->avatar)) {
+				$row->avatar = 0;
+			}
+
+			$admins[] = [
+				'id' => $row->id,
+				'show' => $show > 0,
+				'server' => $row->server_name,
+				'server_id' => $row->server_id,
+				'services' => $services,
+				'active' => $row->active,
+				'cause' => $row->cause,
+				'price' => $row->price,
+				'link' => $row->link,
+				'user_id' => $row->user_id,
+				'login' => $row->login,
+				'name' => isNeedHideAdminId() ? hidePlayerId($row->name) : $row->name,
+				'name_original' => $row->name,
+				'avatar' => $row->avatar,
+				'type' => $row->type,
+				'gp_name' => $users_groups[$row->rights]['name'],
+				'gp_color' => $users_groups[$row->rights]['color'],
+			];
+		}
+
+		return $admins;
+	}
+
 	public function servers_admins($server) {
+		global $messages;
+		
 		if(!empty($server)) {
 			$server = clean($server, "int");
 			$STH = $this->pdo->query("SELECT `id`, `name` FROM `servers` WHERE `id`='$server' LIMIT 1");
@@ -1579,91 +1709,37 @@ class GetData {
 			$STH = $this->pdo->query("SELECT `id`, `name` FROM `servers` WHERE `type`!=0 AND `united` = '0' ORDER BY `trim`");
 		}
 		$STH->execute();
-		$server = $STH->fetchAll();
-		$count = count($server);
-
-		global $users_groups;
+		$servers = $STH->fetchAll();
 
 		$this->tpl->result['local_content'] = '';
-		for($i = 0; $i < $count; $i++) {
-			$j = 0;
+		foreach($servers as $server) {
+
+			$i = 0;
 			$this->tpl->result['admin'] = '';
-			$STH = $this->pdo->prepare("SELECT `admins`.`id`, `admins`.`type`, `admins`.`name`, `admins`.`cause`, `admins`.`pirce`, `admins`.`link`, `admins`.`active`, `admins`.`user_id`, `users`.`login`, `users`.`avatar`, `users`.`rights` FROM `admins`
-								  LEFT JOIN users ON `users`.`id` = `admins`.`user_id`
-								  WHERE `admins`.`server`=:server ORDER BY `admins`.`id`");
-			$STH->setFetchMode(PDO::FETCH_OBJ);
-			$STH->execute(array(':server' => $server[$i]['id']));
-			while($row = $STH->fetch()) {
-				$STH2 = $this->pdo->prepare("SELECT `services`.`name`, `services`.`show_adm` FROM `admins__services` LEFT JOIN `services` ON `admins__services`.`service` = `services`.`id` WHERE `admins__services`.`admin_id`=:admin_id LIMIT 10");
-				$STH2->setFetchMode(PDO::FETCH_OBJ);
-				$STH2->execute(array(':admin_id' => $row->id));
-				$show = 0;
-				$services = '';
-				while($row2 = $STH2->fetch()) {
-					if(empty($row2->show_adm) or $row2->show_adm == 1) {
-						if(empty($row2->name)) {
-							$row2->name = 'Неизвестно';
-						}
-						if($services == '') {
-							$services .= $row2->name;
-						} else {
-							$services .= ' + '.$row2->name;
-						}
-						$show++;
-					}
-				}
+			$admins = $this->getAdmins($server['id']);
 
-				if(empty($row->rights)) {
-					$row->rights = 0;
-				}
-				if(empty($row->login)) {
-					$row->login = 0;
-				}
-				if(empty($row->name)) {
-					$row->name = 0;
-				}
-				if(empty($row->avatar)) {
-					$row->avatar = 0;
-				}
+			foreach($admins as $admin) {
+				if($admin['show']) {
+					$i++;
 
-				if($show > 0) {
-					$j++;
-					if($row->type == 'a') {
-						$type = 'Nick+Pass';
-					}
-					if($row->type == 'ce') {
-						$type = 'SteamID';
-					}
-					if($row->type == 'ca') {
-						$type = 'SteamID+Pass';
-					}
+					$admin['i'] = $i;
+					$admin['server'] = '';
 					$this->tpl->load_template('elements/admin.tpl');
-					$this->tpl->set("{id}", $row->id);
-					$this->tpl->set("{server}", '');
-					$this->tpl->set("{services}", $services);
-					$this->tpl->set("{active}", $row->active);
-					$this->tpl->set("{cause}", $row->cause);
-					$this->tpl->set("{pirce}", $row->pirce);
-					$this->tpl->set("{link}", $row->link);
-					$this->tpl->set("{user_id}", $row->user_id);
-					$this->tpl->set("{login}", $row->login);
-					$this->tpl->set("{name}", $row->name);
-					$this->tpl->set("{avatar}", $row->avatar);
-					$this->tpl->set("{type}", $type);
-					$this->tpl->set("{i}", $j);
-					$this->tpl->set("{gp_name}", $users_groups[$row->rights]['name']);
-					$this->tpl->set("{gp_color}", $users_groups[$row->rights]['color']);
+					foreach($admin as $key => $value) {
+						$this->tpl->set('{' . $key . '}', $value);
+					}
 					$this->tpl->compile('admin');
 					$this->tpl->clear();
 				}
 			}
-			if($j == 0) {
-				$this->tpl->result['admin'] = '<tr><td colspan="10">Администраторов нет</td></tr>';
+
+			if($this->tpl->result['admin'] == '') {
+				$this->tpl->result['admin'] = '<tr><td colspan="10">' . $messages['informationNotFound'] . '</td></tr>';
 			}
 
 			$this->tpl->load_template('elements/admins.tpl');
-			$this->tpl->set("{server_name}", $server[$i]['name']);
-			$this->tpl->set("{server_id}", $server[$i]['id']);
+			$this->tpl->set("{server_name}", $server['name']);
+			$this->tpl->set("{server_id}", $server['id']);
 			$this->tpl->set("{admins}", $this->tpl->result['admin']);
 			$this->tpl->compile('local_content');
 			$this->tpl->clear();
@@ -1695,7 +1771,7 @@ class GetData {
 			while($service = $STH2->fetch()) {
 				$i = 0;
 				$tarifs = '';
-				$STH3 = $this->pdo->prepare("SELECT `id`, `pirce`, `time`, `discount` FROM `services__tarifs` WHERE `service`=:service");
+				$STH3 = $this->pdo->prepare("SELECT `id`, `price`, `time`, `discount` FROM `services__tarifs` WHERE `service`=:service");
 				$STH3->setFetchMode(PDO::FETCH_OBJ);
 				$STH3->execute(array(':service' => $service->id));
 				while($tarif = $STH3->fetch()) {
@@ -1706,7 +1782,7 @@ class GetData {
 						$time = $tarif->time.' дней';
 					}
 					$proc = calculate_discount($server->discount, $discount, $user_proc, $service->discount, $tarif->discount);
-					$price = calculate_pirce($tarif->pirce, $proc);
+					$price = calculate_price($tarif->price, $proc);
 					$tarifs .= '<tr>
 									<td>'.$i.'</td>
 									<td>'.$time.'</td>
@@ -1732,7 +1808,7 @@ class GetData {
 	}
 
 	public function notifications($start, $limit = 10) {
-		$start = checkStart($start, "int");
+		$start = checkStart($start);
 		$limit = check($limit, "int");
 
 		if(empty($start)) {

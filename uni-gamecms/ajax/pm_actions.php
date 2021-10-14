@@ -181,7 +181,7 @@ if(isset($_POST['open_dialog'])){
 	$row = $STH->fetchAll();
 	$count = count($row);
 	if ($count == 0){
-		exit('<p class="t-c">Сообщений нет</p>');
+		$tpl->result['messages'] = '<p class="t-c">Сообщений нет</p>';
 	} else {
 		if(($row[0]['user_id1'] != $_SESSION['id'] ) and ($row[0]['user_id2'] != $_SESSION['id'])){
 			exit();
@@ -469,4 +469,3 @@ if(isset($_POST['drop_img'])) {
 
 	exit(json_encode(array('status' => '1')));
 }
-?>

@@ -296,9 +296,10 @@
 					<div class="form-group">
 						<small>Кодировка</small>
 						<select class="form-control" id="db_code">
-							<option value="0">Стандартная</option>
+							<option value="0">Определять автоматически</option>
 							<option value="1">utf-8</option>
 							<option value="2">latin1</option>
+							<option value="3">utf8mb4</option>
 						</select>
 					</div>
 				</div>
@@ -352,9 +353,10 @@
 					<div class="form-group">
 						<small>Кодировка</small>
 						<select class="form-control" id="st_db_code">
-							<option value="0">Стандартная</option>
+							<option value="0">Определять автоматически</option>
 							<option value="1">utf-8</option>
 							<option value="2">latin1</option>
+							<option value="3">utf8mb4</option>
 						</select>
 					</div>
 					<div class="form-group">
@@ -380,8 +382,11 @@
 		</div>
 	</div>
 
-	<form role="form" id="servers">
+	<div id="servers">
 		<br><center><img src="{site_host}templates/admin/img/loader.gif"></center>
-		<script>local_change_game('', 1); load_servers();</script>
-	</form>
+		<script>
+			local_change_game('', 1);
+			load_servers();
+		</script>
+	</div>
 </div>

@@ -7,9 +7,9 @@
 				<img src="../files/avatars/no_avatar.jpg" alt="Неизвестно"> Неизвестно
 			</a>
 			{else}
-			<a target="_blank" href="../profile?id={user_id}">
-				<img src="../{avatar}" alt="{login}"> {login}
-			</a>
+				<a target="_blank" href="../profile?id={user_id}" title="{gp_name}">
+					<img src="../{avatar}" alt="{login}"> <span style="color: {gp_color}">{login}</span>
+				</a>
 			{/if}
 		{else}
 			{server}
@@ -18,13 +18,12 @@
 	<td>
 		{name}
 		{if('{active}' == '2')}
-			<a id="admin{id}" class="text-danger" data-container="body" data-toggle="popover" data-placement="top" title="Приостановлен" data-content='Причина: {cause}<br>Цена разблокировки: {pirce}{{$messages['RUB']}}{if('{link}'!='')}<br>Ссылка на <a target="blank" href="{link}">доказательства</a>{/if}'>
+			<a id="admin{id}" class="text-danger" data-container="body" data-toggle="popover" data-placement="top" title="Приостановлен" data-content='Причина: {cause}<br>Цена разблокировки: {price}{{$messages['RUB']}}{if('{link}'!='')}<br>Ссылка на <a target="blank" href="{link}">доказательства</a>{/if}'>
 				(приостановлен)
 			</a>
 			<script>$('#admin{id}').popover({ html: true, animation: true, trigger: "click", delay: { "show": 100, "hide": 100 } });</script>
 		{/if}
 	</td>
-	<td>{type}</td>
 	<td>
 		<a href="#" onclick="get_admin_info2({id});" data-target="#modal{id}" data-toggle="modal" title="Подробнее">{services}</a>
 	</td>

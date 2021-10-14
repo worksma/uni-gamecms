@@ -542,7 +542,7 @@ class Forum {
 	}
 
 	public function recount_topic_answers($topic_id) {
-		$STH = $this->pdo->query("SELECT `id` FROM `forums__messages` WHERE `topic` = :topic ");
+		$STH = $this->pdo->prepare("SELECT `id` FROM `forums__messages` WHERE `topic` = :topic ");
 		$STH->execute(array('topic' => $topic_id));
 		$row   = $STH->fetchAll();
 		$count = count($row);
@@ -819,6 +819,7 @@ class Forum {
 							$msg_author = '';
 							$msg_avatar = '';
 							$msg_date   = '';
+							$msg_group  = 0;
 							if(isset($row->id) && isset($forum[$i_forum]['last_msg'])) {
 								if($forum[$i_forum]['date'] > $row->old_date) {
 									$msg_id     = $forum[$i_forum]['id2'];

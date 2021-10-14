@@ -3,6 +3,13 @@
 		<title>{title}</title>
 
 		<link rel="stylesheet" href="{site_host}templates/{template}/css/main.css?v={cache}">
+        {if($theme == 1)}
+			<link rel="stylesheet" href="{site_host}templates/{template}/css/theme_dark.css?v={cache}">
+        {/if}
+        {if($theme == 2)}
+			<link rel="stylesheet" href="{site_host}templates/{template}/css/theme_ghost.css?v={cache}">
+        {/if}
+
 		<link rel="shortcut icon" href="{site_host}templates/{template}/img/favicon.ico?v={cache}">
 		<link rel="image_src" href="{image}">
 
@@ -22,7 +29,7 @@
 		<meta property="og:url" content="{url}">
 
 		<meta name="dc.title" content="{title}">
-		<meta name="dc.rights" content="Copyright 2021, WORKSMA. Все права сохранены.">
+		<meta name="dc.rights" content="Копирайт 2018, Торговая площадка WORKSMA. Все права сохранены.">
 		<meta name="dc.creator" content="worksma.ru">
 		<meta name="dc.language" content="RU">
 
@@ -31,6 +38,8 @@
 		<script src="{site_host}templates/{template}/js/noty.js?v={cache}"></script>
 		<script src="{site_host}templates/{template}/js/mix.js?v={cache}"></script>
 		<script src="{site_host}templates/{template}/js/bootstrap.js?v={cache}"></script>
+
+		<script src="{site_host}ajax/helpers.js?v={cache}"></script>
 		<script src="{site_host}ajax/ajax-user.js?v={cache}"></script>
 
 		{if($conf->new_year == 1 || $conf->win_day == 1)}

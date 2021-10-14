@@ -5,11 +5,10 @@
 			<table class="table table-bordered">
 				<thead>
 					<tr>
-						<td>Ник</td>
+						<td>Действие</td>
 						<td>Пользователь</td>
 						<td>Статус</td>
-						<td>Сервер</td>
-						<td>Дата</td>
+						<td>Дата создания</td>
 					</tr>
 				</thead>
 				<tbody id="bans">

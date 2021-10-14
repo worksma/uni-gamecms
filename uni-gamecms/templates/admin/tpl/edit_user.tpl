@@ -67,6 +67,16 @@
 				<div id="password_result"></div>
 				<br>
 
+				<b>Адрес страницы</b>
+				<div class="input-group">
+					<span class="input-group-btn">
+						<button class="btn btn-default" type="button" onclick="editUserRouteByAdmin({id});">Изменить</button>
+					</span>
+					<input type="text" class="form-control" id="user_route" maxlength="32" autocomplete="off" value="{route}">
+				</div>
+				<div id="route_result"></div>
+				<br>
+
 				<b>Имя</b>
 				<div class="input-group">
 					<span class="input-group-btn">
@@ -187,8 +197,8 @@
 
 				<b>Подпись</b>
 				<div class="input-group">
-					<textarea id="signature" class="form-control maxMinW100" maxlenght="500">{signature}</textarea>
-					<input id="send_btn" class="btn btn-default mt-5" type="button" onclick="admin_change_signature({id});" value="Отправить"></input>
+					<textarea id="signature" class="form-control maxMinW100" maxlength="500">{signature}</textarea>
+					<input id="send_btn" class="btn btn-default mt-5" type="button" onclick="admin_change_signature({id});" value="Отправить">
 				</div>
 			</div>
 

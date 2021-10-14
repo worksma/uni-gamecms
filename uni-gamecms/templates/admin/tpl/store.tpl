@@ -49,7 +49,8 @@
 			Выберите услугу:
 			<select class="form-control" id="services"></select>
 			<input class="form-control mt-10" type="text" maxlength="7" id="time" placeholder="Время (в днях, 0 - навсегда)" autocomplete="off">
-			<input class="form-control mt-10" type="number" maxlength="6" id="pirce" placeholder="Цена" autocomplete="off">
+			<input class="form-control mt-10" type="number" maxlength="6" id="price" placeholder="Цена покупки" autocomplete="off">
+			<input class="form-control mt-10" type="number" maxlength="6" id="priceRenewal" placeholder="Цена продления (0 - соответствует цене покупки)" autocomplete="off">
 			<input class="form-control mt-10" type="number" maxlength="2" id="tarif_discount" placeholder="Скидка (в % от 0 до 99)" autocomplete="off">
 			<button class="btn2 mt-10" onclick="add_tarif();">Добавить</button>
 		</div>

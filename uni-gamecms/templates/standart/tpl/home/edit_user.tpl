@@ -90,6 +90,21 @@
 		<div class="form-group">
 			<label>
 				<h4>
+					Адрес страницы
+				</h4>
+			</label>
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<button class="btn btn-outline-primary" type="button" onclick="editUserRouteByAdmin({id});">Изменить</button>
+				</div>
+				<input type="text" class="form-control" id="user_route" maxlength="32" autocomplete="off" value="{route}">
+			</div>
+			<div id="route_result"></div>
+		</div>
+
+		<div class="form-group">
+			<label>
+				<h4>
 					Имя
 				</h4>
 			</label>
@@ -114,6 +129,22 @@
 				<input type="text" class="form-control" id="user_nick" maxlength="30" autocomplete="off" value="{nick}">
 			</div>
 		</div>
+
+		<!--
+		<div class="form-group">
+			<label>
+				<h4>
+					Префикс в серверном чате
+				</h4>
+			</label>
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<button class="btn btn-outline-primary" type="button" onclick="admin_change_prefix({id});">Изменить</button>
+				</div>
+				<input type="text" class="form-control" id="user_prefix" maxlength="16" autocomplete="off" value="{{$profile->prefix}}">
+			</div>
+		</div>
+		-->
 
 		<div class="form-group">
 			<label>
@@ -267,7 +298,7 @@
 					Подпись
 				</h4>
 			</label>
-			<textarea id="signature" maxlenght="500">{signature}</textarea>
+			<textarea id="signature" maxlength="500">{signature}</textarea>
 			<input id="send_btn" class="btn btn-outline-primary mt-3" type="button" onclick="admin_change_signature({id});" value="Отправить">
 		</div>
 	</div>

@@ -131,7 +131,7 @@ class AdminsManager {
 					$admin[$i]['service_name'] = 'Неизвестно';
 				}
 
-				include_once $_SERVER['DOCUMENT_ROOT']."/inc/notifications.php";
+				incNotifications();
 
 				$noty = noty_of_dell_service($admin[$i]['name'], $admin[$i]['service_name'], $admin[$i]['server_name']);
 				send_noty($pdo, $noty, $admin[$i]['user_id'], 3);
@@ -287,7 +287,7 @@ class AdminsManager {
 					$admin[$i]['service_name'] = 'Неизвестно';
 				}
 
-				include_once $_SERVER['DOCUMENT_ROOT']."/inc/notifications.php";
+				incNotifications();
 
 				$noty = noty_of_ending_service($left, $admin[$i]['name'], $admin[$i]['service_name'], $admin[$i]['server_name']);
 				send_noty($pdo, $noty, $admin[$i]['user_id'], 3);
@@ -417,15 +417,12 @@ class AdminsManager {
 
 	public function collect_rights($rights) {
 		$out_rights = '';
-		$tmp = array();
+		$tmp        = [];
 
-		for ( $a = 0; $a < strlen($rights); $a++) {
-			if (in_array($rights[$a], $tmp)) {
+		for($a = 0; $a < strlen($rights); $a++) {
+			if(in_array($rights[$a], $tmp))
 				continue;
-			}
-			else {
-				$out_rights .= ($tmp[] = $rights[$a]);
-			}
+			else $out_rights .= ($tmp[] = $rights[$a]);
 		}
 		return $out_rights;
 	}
@@ -591,13 +588,13 @@ class AdminsManager {
 			}
 		}
 
-		$SQ = new OurSourceQuery;
+
+
 		try {
-			$SQ->reolad_admins($pdo, $info->id);
+			(new OurSourceQuery())->reloadAdmins($info->id);
 		} catch(Exception $e) {
-			$err = 1;
+			log_error($e->getMessage());
 		}
-		unset($SQ);
 
 		$this->set_admin_dell_time($pdo);
 
@@ -642,7 +639,7 @@ class AdminsManager {
 				$pass = htmlspecialchars_decode($row[$i]['pass'], ENT_QUOTES);
 			}
 
-			$ftp_data .= $active.'"'.$name.'" "'.$pass.'" "'.$rights['flags'].'" "'.$row[$i]['type'].'";'. "'".$admin_services."' '".$row[$i]['user_id']."' written by uni-gamecms :end:"."\n";
+			$ftp_data .= $active.'"'.$name.'" "'.$pass.'" "'.$rights['flags'].'" "'.$row[$i]['type'].'";'. "'".$admin_services."' '".$row[$i]['user_id']."' written by gamecms :end:"."\n";
 		}
 
 		if(!$ftp_connection = $this->ftp_connection($server->ftp_host, $server->ftp_port, $server->ftp_login, $server->ftp_pass, $title)){
@@ -676,11 +673,11 @@ class AdminsManager {
 			return false;
 		}
 
-		$SQ = new OurSourceQuery;
 		try {
-			$SQ->reolad_admins($pdo, $united);
-		} catch( Exception $e ) { $err = 1; }
-		unset($SQ);
+			(new OurSourceQuery())->reloadAdmins($united);
+		} catch(Exception $e) {
+			log_error($e->getMessage());
+		}
 
 		$this->set_admin_dell_time($pdo);
 
@@ -1260,7 +1257,7 @@ class AdminsManager {
 							$STH->execute(array( ':ip' => $server->ip, ':port' => $server->port ));
 							$servers = $STH->fetch();
 
-							$admin_id = get_ai($pdo2, set_prefix($server->db_prefix, "admins")) - 1;
+							$admin_id = get_ai($pdo2, set_prefix($server->db_prefix, "admins"), 'aid') - 1;
 							$table = set_prefix($server->db_prefix, "admins_servers_groups");
 							$STH = $pdo2->prepare("INSERT INTO `$table` (`admin_id`,`server_id`,`group_id`,`srv_group_id`) values (:admin_id, :server_id, :group_id, :srv_group_id)");  
 							if ($STH->execute(array( ':admin_id' => $admin_id, ':server_id' => $servers->sid, 'group_id' => '0', 'srv_group_id' => '-1' )) != '1') {
@@ -1272,13 +1269,11 @@ class AdminsManager {
 				}
 			}
 
-			$SQ = new OurSourceQuery;
 			try {
-				$SQ->reolad_admins($pdo, $server->id, $admin_id);
+				(new OurSourceQuery())->reloadAdmins($server->id);
 			} catch(Exception $e) {
-				$err = 1;
+				log_error($e->getMessage());
 			}
-			unset($SQ);
 
 			$this->set_admin_dell_time($pdo);
 
@@ -1416,7 +1411,7 @@ class AdminsManager {
 								$STH->execute(array( ':ip' => $server->ip, ':port' => $server->port ));
 								$servers = $STH->fetch();
 
-								$admin_id = get_ai($pdo2, set_prefix($server->db_prefix, "admins")) - 1;
+								$admin_id = get_ai($pdo2, set_prefix($server->db_prefix, "admins"), 'aid') - 1;
 								$table = set_prefix($server->db_prefix, "admins_servers_groups");
 								$STH = $pdo2->prepare("INSERT INTO `$table` (`admin_id`,`server_id`,`group_id`,`srv_group_id`) values (:admin_id, :server_id, :group_id, :srv_group_id)");  
 								if ($STH->execute(array( ':admin_id' => $admin_id, ':server_id' => $servers->sid, 'group_id' => '0', 'srv_group_id' => '-1' )) != '1') {
@@ -1429,13 +1424,11 @@ class AdminsManager {
 				}
 			}
 
-			$SQ = new OurSourceQuery;
 			try {
-				$SQ->reolad_admins($pdo, $server->id);
+				(new OurSourceQuery())->reloadAdmins($server->id);
 			} catch(Exception $e) {
-				$err = 1;
+				log_error($e->getMessage());
 			}
-			unset($SQ);
 
 			$this->set_admin_dell_time($pdo);
 		}

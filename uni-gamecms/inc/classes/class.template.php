@@ -1,5 +1,9 @@
 <?php
-class Template { 
+class Template {
+	const ADMIN_TEMPLATE_DIR = 'templates/admin/tpl/';
+	const CLIENT_TEMPLATE_DIR = 'templates/{template}/tpl/';
+	const DOWN_TO_ROOT = '../../../';
+
 	public  $dir = '.'; 
 	public  $sec_dir = ''; 
 	public  $template = null; 
@@ -9,6 +13,7 @@ class Template {
 	public  $modules_tpls = array();
 	public  $files = '';
 	public  $caching = 0;
+	private $includeLimit = 0;
 	protected $using_tpl = '';
 	protected $templater_preg = array(
 		'/{\*.*?\*}/is' => '', // comment: {* some comment text *}
@@ -47,18 +52,52 @@ class Template {
 		} 
 	}
 
-	private function replace_tpl($tpl_name) {
-		$this->sec_dir = '';
-		for ($i=0; $i < count($this->modules_tpls); $i++) { 
-			for ($j=0; $j < count($this->modules_tpls[$i]); $j++) { 
-				if($tpl_name == $this->modules_tpls[$i][$j][0]) {
-					$this->sec_dir = "modules_extra/".$this->modules_tpls[$i][0]."/";
-					$tpl_name = $this->modules_tpls[$i][$j][1];
-					break(2);
-				}
-			}
-		}
-		return $tpl_name;
+	public function setCoreDir() {
+		$this->dir = $this->getCoreDir();
+	}
+
+	public function setCoreAdminDir() {
+		$this->dir = $this->getCoreAdminDir();
+	}
+
+	public function setExtraModuleDir($moduleName) {
+		$this->dir = $this->getExtraModuleDir($moduleName);
+	}
+
+	public function setExtraModuleAdminDir($moduleName) {
+		$this->dir = $this->getExtraModuleAdminDir($moduleName);
+	}
+
+	public function getCoreDir() {
+		return __DIR__ . '/../../' . $this->getRelativeCoreDir();
+	}
+
+	public function getCoreAdminDir() {
+		return __DIR__ . '/../../' . $this->getRelativeCoreAdminDir();
+	}
+
+	public function getExtraModuleDir($moduleName) {
+		return __DIR__ . '/../../' . $this->getRelativeExtraModuleDir($moduleName);
+	}
+
+	public function getExtraModuleAdminDir($moduleName) {
+		return __DIR__ . '/../../' . $this->getRelativeExtraModuleAdminDir($moduleName);
+	}
+
+	public function getRelativeCoreDir() {
+		return str_replace('{template}', configs()->template, self::CLIENT_TEMPLATE_DIR);
+	}
+
+	public function getRelativeCoreAdminDir() {
+		return self::ADMIN_TEMPLATE_DIR;
+	}
+
+	public function getRelativeExtraModuleDir($moduleName) {
+		return 'modules_extra/' . $moduleName . '/' . str_replace('{template}', configs()->template, self::CLIENT_TEMPLATE_DIR);
+	}
+
+	public function getRelativeExtraModuleAdminDir($moduleName) {
+		return 'modules_extra/' . $moduleName . '/' . self::ADMIN_TEMPLATE_DIR;
 	}
 
 	public function replace_preg($data) {
@@ -96,37 +135,12 @@ class Template {
 		}
 		
 		if ( stristr( $this->template, "{include file=" ) ) {
+			$this->includeLimit = 0;
 			$this->template = preg_replace_callback( "#\\{include file=['\"](.+?)['\"]\\}#is", "self::sub_load_template", $this->template);
 		}
 
 		$this->copy_template = $this->template;
 		return true; 
-	}
-
-	private function sub_load_template($tpl_name) {
-		if ($tpl_name[1] == '' || !file_exists($this->dir.'/'.$tpl_name[1])) { 
-			die ("[Class Template]: Unable to load template: ". $tpl_name[1]);
-			return false;
-		} 
-
-		$template = file_get_contents($this->dir.'/'.$tpl_name[1]); 
-
-		if(($tpl_name[1] != 'elements/title.tpl') && isset($_SESSION['dev_mode']) && ($_SESSION['dev_mode'] == 1)) {
-			$template = "\n<!-- Start ".$tpl_name[1]." -->\n".$template."\n<!-- End ".$tpl_name[1]." -->\n";
-		}
-		if($tpl_name[1] == 'config.tpl') {
-			if(preg_match($this->config_preg[0], $template)) {
-
-				preg_match_all($this->config_preg[1], $template, $matches, PREG_SET_ORDER);
-
-				$template = '<?php'."\n";
-				for ($i = 0; $i < count($matches); $i++) {
-					$template .= '$'.$matches[$i][1].' = \''.str_replace("'", "\'", $matches[$i][2]).'\';'."\n";
-				}
-				$template .= "\n".'?>';
-			}
-		}
-		return $template; 
 	}
 
 	public function _clear() { 
@@ -207,7 +221,18 @@ class Template {
 		foreach($GLOBALS as $key=>$val){
 			global $$key;
 		}
-		eval(' ?>'.$tpl_data_.'<?php '); 
+		eval(' ?>'.$tpl_data_.'<?php ');
+	}
+
+	public function getShow($tpl_data_) {
+		ob_start();
+
+		foreach($GLOBALS as $key=>$val){
+			global $$key;
+		}
+		eval(' ?>'.$tpl_data_.'<?php ');
+
+		return ob_get_clean();
 	}
 
 	public function get_nav($array, $tpl_name, $point = 0) {
@@ -369,5 +394,55 @@ class Template {
 		}
 
 		return true;
+	}
+
+	private function replace_tpl($tpl_name) {
+		$this->sec_dir = '';
+		for ($i=0; $i < count($this->modules_tpls); $i++) {
+			for ($j=0; $j < count($this->modules_tpls[$i]); $j++) {
+				if($tpl_name == $this->modules_tpls[$i][$j][0]) {
+					$this->sec_dir = "modules_extra/".$this->modules_tpls[$i][0]."/";
+					$tpl_name = $this->modules_tpls[$i][$j][1];
+					break(2);
+				}
+			}
+		}
+		return $tpl_name;
+	}
+
+	private function sub_load_template($tpl_name) {
+		$this->includeLimit++;
+
+		if($this->includeLimit == 10) {
+			return '';
+		}
+
+		if ($tpl_name[1] == '' || !file_exists($this->dir.'/'.$tpl_name[1])) {
+			die ("[Class Template]: Unable to load template: ". $tpl_name[1]);
+		}
+
+		$template = file_get_contents($this->dir.'/'.$tpl_name[1]);
+
+		if ( stristr( $template, "{include file=" ) ) {
+			$template = preg_replace_callback( "#\\{include file=['\"](.+?)['\"]\\}#is", "self::sub_load_template", $template);
+		} else {
+			if(($tpl_name[1] != 'elements/title.tpl') && isset($_SESSION['dev_mode']) && ($_SESSION['dev_mode'] == 1)) {
+				$template = "\n<!-- Start ".$tpl_name[1]." -->\n".$template."\n<!-- End ".$tpl_name[1]." -->\n";
+			}
+			if($tpl_name[1] == 'config.tpl') {
+				if(preg_match($this->config_preg[0], $template)) {
+
+					preg_match_all($this->config_preg[1], $template, $matches, PREG_SET_ORDER);
+
+					$template = '<?php'."\n";
+					for ($i = 0; $i < count($matches); $i++) {
+						$template .= '$'.$matches[$i][1].' = \''.str_replace("'", "\'", $matches[$i][2]).'\';'."\n";
+					}
+					$template .= "\n".'?>';
+				}
+			}
+		}
+
+		return $template;
 	}
 }

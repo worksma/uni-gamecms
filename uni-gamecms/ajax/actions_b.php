@@ -26,8 +26,7 @@ if (isset($_POST['save_chat_message']) and is_worthy("d")) {
 	$text = magic_quotes($_POST['text']);
 	$text = htmlspecialchars_decode($text);
 
-	include_once '../inc/classes/HTMLPurifier/HTMLPurifier.auto.php';
-	$text = $Purifier->purify($text);
+	$text = HTMLPurifier()->purify($text);
 	$text = clean_from_php($text);
 
 	$STH = $pdo->prepare("UPDATE `chat` SET `message_text`=:message_text WHERE `id`=:id LIMIT 1");
@@ -71,8 +70,7 @@ if (isset($_POST['add_new']) and is_worthy("b")) {
 	$date = check($_POST['date'],null);
 	$date = date( 'Y-m-d H:i:s', strtotime($date));
 
-	include_once '../inc/classes/HTMLPurifier/HTMLPurifier.auto.php';
-	$text = $Purifier->purify($_POST['text']);
+	$text = HTMLPurifier()->purify($_POST['text']);
 	$text = find_img_mp3($text, $_SESSION['id'], 1);
 
 	if (empty($img)){
@@ -128,8 +126,7 @@ if (isset($_POST['change_new']) and is_worthy("q")) {
 	$date = check($_POST['date'],null);
 	$date = date( 'Y-m-d H:i:s', strtotime($date));
 
-	include_once '../inc/classes/HTMLPurifier/HTMLPurifier.auto.php';
-	$text = $Purifier->purify($_POST['text']);
+	$text = HTMLPurifier()->purify($_POST['text']);
 	$text = find_img_mp3($text, $id, 1);
 
 	if (empty($img)){
@@ -180,8 +177,7 @@ if (isset($_POST['edit_topic'])) {
 	$id = checkJs($_POST['id'],"int");
 	$name = check($_POST['name'],null);
 
-	include_once '../inc/classes/HTMLPurifier/HTMLPurifier.auto.php';
-	$text = $Purifier->purify($_POST['text']);
+	$text = HTMLPurifier()->purify($_POST['text']);
 	$text = find_img_mp3($text, $id, 1);
 
 	if (empty($img)){
@@ -210,8 +206,7 @@ if (isset($_POST['edit_topic'])) {
 if (isset($_POST['edit_message'])) {
 	$id = checkJs($_POST['id'],"int");
 
-	include_once '../inc/classes/HTMLPurifier/HTMLPurifier.auto.php';
-	$text = $Purifier->purify($_POST['text']);
+	$text = HTMLPurifier()->purify($_POST['text']);
 	$text = find_img_mp3($text, $id, 1);
 
 	if (empty($text)) {
@@ -313,5 +308,32 @@ if (isset($_POST['dell_event']) and is_worthy("d")) {
 	exit(json_encode(array('status' => '1')));
 }
 
-exit(json_encode(array('status' => '2')));
-?>
+if(isset($_POST['removeComplaintComment']) && is_worthy("u")) {
+	$id = check($_POST['id'], "int");
+
+	if(empty($id)) {
+		exit(json_encode(['status' => 2]));
+	}
+
+	$STH = $pdo->prepare(
+		"SELECT 
+				    complaints.accused_admin_server_id 
+				FROM complaints__comments 
+				    LEFT JOIN complaints ON complaints__comments.complaint_id = complaints.id 
+				WHERE complaints__comments.id = :id LIMIT 1"
+	);
+	$STH->setFetchMode(PDO::FETCH_OBJ);
+	$STH->execute([':id' => $id]);
+	$row = $STH->fetch();
+
+	if(!is_worthy_specifically("u", $row->accused_admin_server_id)) {
+		exit(json_encode(['status' => 2]));
+	}
+
+	$STH = $pdo->prepare("DELETE FROM complaints__comments WHERE id=:id LIMIT 1");
+	$STH->execute([':id' => $id]);
+
+	exit(json_encode(['status' => 1]));
+}
+
+exit(json_encode(['status' => 2]));

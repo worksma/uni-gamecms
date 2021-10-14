@@ -1,5 +1,15 @@
-		</div>
-	</div>
+
+			<div class="clearfix"></div>
+			<footer>
+				<div class="copyright">
+					Powered by
+					<a title="Powered by UNI GameCMS" href="https://worksma.ru/uni-gamecms" target="_blank">
+						UNI GameCMS
+					</a>
+				</div>
+			</footer>
+		</main>
+	</section>
 </div>
 <script src="{site_host}templates/admin/js/lightbox.js"></script>
 <script>
@@ -7,4 +17,5 @@
 		$('[tooltip="yes"]').tooltip();
 		$('[data-toggle="dropdown"]').dropdown();
 	};
-</script>
+</script>	<link href="{site_host}files/toasts/toasty.min.css?v={cache}">
+	<script src="{site_host}files/toasts/toasty.min.js?v={cache}"></script>

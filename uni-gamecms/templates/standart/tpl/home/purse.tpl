@@ -46,44 +46,31 @@
 		</div>
 	</div>
 
+	{if('{bonusesActivity}' == '1')}
+		<div class="block">
+			<div class="block_head">
+				Бонусы
+			</div>
+
+			<div class="row">
+				{for($i = 0; $i < count($bonuses); $i++)}
+					<div class="col-lg-{if(count($bonuses) % 4 == 0)}3{else}{if(count($bonuses) % 3 == 0)}4{else}{if(count($bonuses) % 2 == 0)}6{else}12{/if}{/if}{/if}">
+						<div class="noty-block">
+							<h5>+{{$bonuses[$i]['value']}}{if($bonuses[$i]['type'] == 1)}{{$messages['RUB']}}{else}%{/if}</h5>
+							При пополнении на сумму от {{$bonuses[$i]['start']}} до {{$bonuses[$i]['end']}}{{$messages['RUB']}}
+						</div>
+					</div>
+				{/for}
+			</div>
+		</div>
+	{/if}
+
 	<div class="row pay_area">
-		{if('{freekassa}' == '1')}
+		{if('{up}' == '1')}
 			<div class="col-md-6">
 				<div class="block">
 					<div class="block_head">
-						FreeKassa - MasterCard/Visa, Qiwi, ЮMoney, СберБанк и т.д.
-					</div>
-					<label for="number_up">
-						<img src="../templates/{template}/img/freekassa.jpg" alt="FreeKassa">
-					</label>
-					<input class="form-control" id="number_freekassa" placeholder="Укажите сумму" value="{price}">
-					<div id="balance_result_freekassa" class="mt-3"></div>
-					<button class="btn btn-outline-primary btn-xl" onclick="refill_balance('freekassa');">Пополнить баланс</button>
-				</div>
-			</div>
-		{/if}
-	
-		{if('{amarapay}' == '1')}
-			<div class="col-md-6">
-				<div class="block">
-					<div class="block_head">
-						AmaraPay - Qiwi, ЮMoney, VISA/MasterCard и т.д.
-					</div>
-					<label for="number_up">
-						<img src="../templates/{template}/img/amarapay.png" alt="AmaraPay">
-					</label>
-					<input class="form-control" id="number_amarapay" placeholder="Укажите сумму" value="{price}">
-					<div id="balance_result_amarapay" class="mt-3"></div>
-					<button class="btn btn-outline-primary btn-xl" onclick="refill_balance('amarapay');">Пополнить баланс</button>
-				</div>
-			</div>
-		{/if}
-		
-        {if('{up}' == '1')}
-			<div class="col-md-6">
-				<div class="block">
-					<div class="block_head">
-						UnitPay - VISA/MasterCard, ЮMoney, QIWI, SMS и т.д.
+						UnitPay - VISA/MasterCard, ЮMoney, QIWI, SMS...
 					</div>
 					<label for="number_up">
 						<img src="../templates/{template}/img/unitpay.jpg" alt="UnitPay">
@@ -93,13 +80,29 @@
 					<button class="btn btn-outline-primary btn-xl" onclick="refill_balance('up');">Пополнить баланс</button>
 				</div>
 			</div>
-        {/if}
+		{/if}
 
-        {if('{fk}' == '1')}
+		{if('{enot}' == '1')}
 			<div class="col-md-6">
 				<div class="block">
 					<div class="block_head">
-						Free-Kassa - VISA/MasterCard, ЮMoney, QIWI, SMS и т.д.
+						Enot - VISA/MasterCard, ЮMoney, QIWI, SMS...
+					</div>
+					<label for="number_up">
+						<img src="../templates/{template}/img/enot.jpg" alt="Enot">
+					</label>
+					<input class="form-control" id="number_enot" placeholder="Укажите сумму" value="{price}">
+					<div id="balance_result_enot" class="mt-3"></div>
+					<button class="btn btn-outline-primary btn-xl" onclick="refill_balance('enot');">Пополнить баланс</button>
+				</div>
+			</div>
+		{/if}
+
+		{if('{fk}' == '1')}
+			<div class="col-md-6">
+				<div class="block">
+					<div class="block_head">
+						Free-Kassa - VISA/MasterCard, ЮMoney, QIWI, SMS...
 					</div>
 					<label for="number_fk">
 						<img src="../templates/{template}/img/freekassa.jpg" alt="Free-Kassa">
@@ -109,13 +112,29 @@
 					<button class="btn btn-outline-primary btn-xl" onclick="refill_balance('fk');">Пополнить баланс</button>
 				</div>
 			</div>
-        {/if}
+		{/if}
+
+		{if('{fk_new}' == '1')}
+			<div class="col-md-6">
+				<div class="block">
+					<div class="block_head">
+						FreeKassa - VISA/MasterCard, ЮMoney, QIWI, SMS...
+					</div>
+					<label for="number_fk_new">
+						<img src="../templates/{template}/img/freekassa.jpg" alt="FreeKassa">
+					</label>
+					<input class="form-control" id="number_fk_new" placeholder="Укажите сумму" value="{price}">
+					<div id="balance_result_fk_new" class="mt-3"></div>
+					<button class="btn btn-outline-primary btn-xl" onclick="refill_balance('fk_new');">Пополнить баланс</button>
+				</div>
+			</div>
+		{/if}
 
         {if('{rb}' == '1')}
 			<div class="col-md-6">
 				<div class="block">
 					<div class="block_head">
-						RoboKassa - VISA/MasterCard, ЮMoney, QIWI, SMS и т.д.
+						RoboKassa - VISA/MasterCard, ЮMoney, QIWI, SMS...
 					</div>
 					<label for="number_rb">
 						<img src="../templates/{template}/img/robokassa.jpg" alt="RoboKassa">
@@ -179,7 +198,7 @@
 			<div class="col-md-6">
 				<div class="block">
 					<div class="block_head">
-						InterKassa - QIWI, ЮMoney, VISA/MasterCard, WebMoney и т.д.
+						InterKassa - QIWI, ЮMoney, VISA/MasterCard, WebMoney...
 					</div>
 					<label for="number_ik">
 						<img src="../templates/{template}/img/interkassa.jpg" alt="InterKassa">
@@ -195,7 +214,7 @@
 			<div class="col-md-6">
 				<div class="block">
 					<div class="block_head">
-						WalletOne - QIWI, ЮMoney, VISA/MasterCard, WebMoney и т.д.
+						WalletOne - QIWI, ЮMoney, VISA/MasterCard, WebMoney...
 					</div>
 					<label for="number_wo">
 						<img src="../templates/{template}/img/walletone.jpg" alt="WalletOne">
@@ -243,7 +262,7 @@
 			<div class="col-md-6">
 				<div class="block">
 					<div class="block_head">
-						AnyPay - VISA/MasterCard, ЮMoney, QIWI, SMS и т.д.
+						AnyPay - VISA/MasterCard, ЮMoney, QIWI, SMS...
 					</div>
 					<label for="number_ps">
 						<img src="../templates/{template}/img/anypay.jpg" alt="AnyPay">

@@ -51,7 +51,7 @@ if(empty($row->id)){
 	$error = "";
 
 	if(!$pdo2 = db_connect($db_host, $db_db, $db_user, $db_pass)) {
-		$error = $messages['Unable_connect_to_db'];
+		$error = $messages['errorConnectingToDatabase'];
 	} else {
 		if($type == '1' or $type == '2') {
 			$STH = $pdo2->query("SELECT COUNT(*) as count FROM csstats_players WHERE frags!=0");

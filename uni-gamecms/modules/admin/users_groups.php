@@ -58,8 +58,18 @@ foreach ($users_groups as &$value) {
 	}
 }
 
+$tpl->load_template('elements/group_form.tpl');
+$tpl->set("{id}", '');
+$tpl->set("{color}", '#FFFFFF');
+$tpl->set("{name}", '');
+$tpl->set("{rights}", '');
+$tpl->set("{style}", '');
+$tpl->compile('{add_group_form}');
+$tpl->clear();
+
 $tpl->load_template('users_groups.tpl');
 $tpl->set("{site_host}", $site_host);
+$tpl->set("{add_group_form}", $tpl->result['{add_group_form}']);
 $tpl->set("{users_groups}", $user_groups_str);
 $tpl->compile( 'content' );
 $tpl->clear();

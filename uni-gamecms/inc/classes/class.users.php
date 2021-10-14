@@ -61,8 +61,22 @@ class Users {
 		return true;
 	}
 
-	public function check_login_lenght($login) {
-		if(mb_strlen($login, 'UTF-8') < 3 or mb_strlen($login, 'UTF-8') > 30) {
+	public function check_login_length($login) {
+		if(
+			isStringLengthLess($login, 3)
+			|| isStringLengthMore($login, 30)
+		) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	public function check_route_length($route) {
+		if(
+			isStringLengthLess($route, 3)
+			|| isStringLengthMore($route, 32)
+		) {
 			return false;
 		} else {
 			return true;
@@ -77,18 +91,57 @@ class Users {
 		}
 	}
 
-	public function check_login_busyness($login, $id = 0) {
-		$STH = $this->pdo->query("SELECT `id` FROM `users` WHERE login='$login'");
-		$STH->setFetchMode(PDO::FETCH_OBJ);
-		$row = $STH->fetch();
-		if(!empty($row->id) && $row->id != $id) {
+	public function check_route_composition($login) {
+		if(preg_replace('/[^a-zA-Z0-9_-]/ui', '', $login) != $login) {
 			return false;
 		} else {
 			return true;
 		}
 	}
 
-	public function check_password_lenght($password) {
+	public function check_login_busyness($login, $id = 0) {
+		$STH = $this->pdo->prepare("SELECT * FROM users WHERE login=:login LIMIT 1");
+		$STH->setFetchMode(PDO::FETCH_OBJ);
+		$STH->execute([':login' => $login]);
+		$row = $STH->fetch();
+
+		if($id == 0) {
+			if(empty($row->id)) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			if(!empty($row->id) && $id != $row->id) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+	}
+
+	public function check_route_busyness($route, $id = 0) {
+		$STH = $this->pdo->prepare("SELECT * FROM users WHERE route=:route LIMIT 1");
+		$STH->setFetchMode(PDO::FETCH_OBJ);
+		$STH->execute([':route' => $route]);
+		$row = $STH->fetch();
+
+		if($id == 0) {
+			if(empty($row->id)) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			if(!empty($row->id) && $id != $row->id) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+	}
+
+	public function check_password_length($password) {
 		if(mb_strlen($password, 'UTF-8') < 6 or mb_strlen($password, 'UTF-8') > 15) {
 			return false;
 		} else {
@@ -178,7 +231,7 @@ class Users {
 			$avatar = "files/avatars/no_avatar.jpg";
 		}
 		if(empty($birth)) {
-			$birth = '1900-01-01';
+			$birth = '1960-01-01';
 		}
 		if(empty($vk)) {
 			$vk = '---';
@@ -217,44 +270,44 @@ class Users {
 		$shilings = $row->stand_balance;
 
 		$STH = $this->pdo->prepare("INSERT INTO users (login,password,email,avatar,regdate,birth,rights,active,shilings,invited,signature,ip,browser,steam_id,steam_api,vk,vk_api,fb,fb_api) VALUES (:login, :password, :email, :avatar, :regdate, :birth, :rights, :active, :shilings, :invited, :signature, :ip, :browser, :steam_id, :steam_api, :vk, :vk_api, :fb, :fb_api)");
-		if(
-			$STH->execute(
-				[
-					'login'     => $login,
-					'password'  => $password,
-					'email'     => $email,
-					'avatar'    => $avatar,
-					'regdate'   => $regdate,
-					'birth'     => $birth,
-					'rights'    => $rights,
-					'active'    => $active,
-					'shilings'  => $shilings,
-					'invited'   => $invited,
-					'signature' => '',
-					'ip'        => $ip,
-					'browser'   => $browser,
-					'steam_id'  => $steam_id,
-					'steam_api' => $steam_api,
-					'vk'        => $vk,
-					'vk_api'    => $vk_api,
-					'fb'        => $fb,
-					'fb_api'    => $fb_api
-				]
-			) == '1'
-		) {
-			return true;
-		} else {
-			return false;
-		}
+		$STH->execute(
+			[
+				'login'     => $login,
+				'password'  => $password,
+				'email'     => $email,
+				'avatar'    => $avatar,
+				'regdate'   => $regdate,
+				'birth'     => $birth,
+				'rights'    => $rights,
+				'active'    => $active,
+				'shilings'  => $shilings,
+				'invited'   => $invited,
+				'signature' => '',
+				'ip'        => $ip,
+				'browser'   => $browser,
+				'steam_id'  => $steam_id,
+				'steam_api' => $steam_api,
+				'vk'        => $vk,
+				'vk_api'    => $vk_api,
+				'fb'        => $fb,
+				'fb_api'    => $fb_api
+			]
+		);
+
+		return $this->getUserByLoginPassword($login, $password);
 	}
 
-	public function after_registration_actions($SC, $salt, $site_name, $login, $full_site_host) {
-		include_once $_SERVER['DOCUMENT_ROOT']."/inc/notifications.php";
+	public function getUserByLoginPassword($login, $password) {
+		$STH = $this->pdo->prepare("SELECT * FROM users WHERE login=:login AND password=:password LIMIT 1");
+		$STH->execute([':login' => $login, ':password' => $password]);
 
-		$STH = $this->pdo->prepare("SELECT id, rights, protect, invited, email, active, password, multi_account FROM users WHERE login=:login LIMIT 1");
-		$STH->setFetchMode(PDO::FETCH_OBJ);
-		$STH->execute([':login' => $login]);
-		$user = $STH->fetch();
+		return $STH->fetch(PDO::FETCH_OBJ);
+	}
+
+	public function after_registration_actions($SC, $salt, $site_name, $userId, $full_site_host) {
+		incNotifications();
+
+		$user = self::getUserData($this->pdo, $userId);
 
 		if(empty($user->id)) {
 			$answer['message'] = 'error';
@@ -268,26 +321,26 @@ class Users {
 				$user->rights = 1;
 			}
 
-			$this->auth_user($SC, $user->protect, $user->password, $login, $user->id, $user->rights, $user->multi_account);
-			welcome_noty($this->pdo, $login, $user->id);
+			$this->auth_user($SC, $user->protect, $user->password, $user->login, $user->id, $user->rights, $user->multi_account);
+			welcome_noty($this->pdo, $user->login, $user->id);
 
 			$ES = new EventsRibbon($this->pdo);
-			$ES->new_user($user->id, $login);
+			$ES->new_user($user->id, $user->login);
 
 			if($user->invited != 0) {
-				$noty = new_referal($user->id, $login);
+				$noty = new_referal($user->id, $user->login);
 				send_noty($this->pdo, $noty, $user->invited, 2);
 			}
 
-			$answer['letter']  = reg_letter($site_name, $login);
+			$answer['letter']  = reg_letter($site_name, $user->login);
 			$answer['message'] = '<script>reset_page();</script>';
 		} else {
-			welcome_noty($this->pdo, $login, $user->id);
+			welcome_noty($this->pdo, $user->login, $user->id);
 
-			$code = $this->convert_password($login, $salt);
+			$code = $this->convert_password($user->login, $salt);
 			$link = $full_site_host."?id=".$user->id."&key=".$code;
 
-			$answer['letter']  = reg_letter_with_key($site_name, $login, $link);
+			$answer['letter']  = reg_letter_with_key($site_name, $user->login, $link);
 			$answer['message'] = 'Вы успешно зарегистрированы! Инструкция по активации аккаунта указана в письме, которое мы выслали на Ваш e-mail';
 		}
 
@@ -309,7 +362,25 @@ class Users {
 		$SC->set_user_cookie();
 		$this->check_to_multi_account($multi_account);
 
-		return true;
+		if(is_worthy("z")) {
+			log_error($messages['Trying_to_auth_ban']);
+			$SC->unset_user_session();
+
+			return ['status' => false, 'response' => 'Вы заблокированы на 15 минут. Попробуйте позже'];
+		} elseif(is_worthy("x")) {
+			log_error($messages['Trying_to_auth_ban'] . ' (ip+cookies)');
+			$SC->unset_user_session();
+
+			$STH = $pdo->prepare("INSERT INTO `users__blocked` (`ip`) VALUES (:ip)");
+			$STH->execute(array('ip' => $ip));
+			$SC->set_cookie("point", "1");
+
+			return ['status' => false, 'response' => 'Вы заблокированы'];
+		} else {
+			write_log("Авторизация на сайте");
+
+			return ['status' => true];
+		}
 	}
 
 	public function check_to_multi_account($multi_accounts, $id = 0) {
@@ -497,5 +568,50 @@ class Users {
 		$row = $STH->fetch();
 
 		return (empty($row->id)) ? false : $row;
+	}
+
+	public static function getIdByRoute($pdo, $route) {
+		$STH = $pdo->prepare("SELECT id FROM users WHERE route=:route LIMIT 1");
+		$STH->setFetchMode(PDO::FETCH_OBJ);
+		$STH->execute([':route' => $route]);
+		$row = $STH->fetch();
+
+		return (empty($row->id)) ? false : $row;
+	}
+
+	public static function getRouteById($pdo, $userId = 0) {
+		$STH = $pdo->prepare("SELECT route FROM users WHERE id=:id LIMIT 1");
+		$STH->setFetchMode(PDO::FETCH_OBJ);
+		$STH->execute([':id' => $userId]);
+		$row = $STH->fetch();
+
+		return (empty($row->route)) ? false : $row;
+	}
+
+	public static function isGroupStronger($newGroupId, $userId, $pdo) {
+		$STH = $pdo->prepare("SELECT rights FROM users__groups WHERE id=:id LIMIT 1");
+		$STH->setFetchMode(PDO::FETCH_OBJ);
+		$STH->execute(array( ':id' => $newGroupId ));
+		$row = $STH->fetch();
+		$newGroupRights = preg_replace('/[^a-zA-Z]/ui', '', $row->rights);
+
+		$STH = $pdo->prepare(
+			"SELECT 
+    				users__groups.rights 
+				FROM 
+				    users
+						INNER JOIN users__groups ON users.rights = users__groups.id
+				WHERE users.id=:id LIMIT 1"
+		);
+		$STH->setFetchMode(PDO::FETCH_OBJ);
+		$STH->execute(array( ':id' => $userId ));
+		$row = $STH->fetch();
+		$currentGroupRights = preg_replace('/[^a-zA-Z]/ui', '', $row->rights);
+
+		if (mb_strlen($newGroupRights, 'UTF-8') > mb_strlen($currentGroupRights, 'UTF-8')) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }

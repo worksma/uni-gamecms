@@ -54,15 +54,15 @@ if(empty($row->id)){
 
 	$error = "";
 	if(!$pdo2 = db_connect($db_host, $db_db, $db_user, $db_pass)) {
-		$error = $messages['Unable_connect_to_db'];
+		$error = $messages['errorConnectingToDatabase'];
 	} else {
 		$now = time();
 		if ($type == '2' || $type == '3' || $type == '5') {
 			$table = set_prefix($db_prefix, 'bans');
-			$count = get_rows_count($pdo2, $table, "`server_ip` = '$address'");
-			$count_active = get_rows_count($pdo2, $table, "(`expired` = 0 OR (`ban_created`+`ban_length`*60 > '$now' AND `ban_length`!='0')) AND `server_ip` = '$address'");
-			$count_permanent = get_rows_count($pdo2, $table, "`ban_length` = '0' AND `server_ip` = '$address'");
-			$count_temporal = get_rows_count($pdo2, $table, "`ban_length` != '0' AND `server_ip` = '$address'");
+			$count = get_rows_count($pdo2, $table, "server_ip = '$address'");
+			$count_active = get_rows_count($pdo2, $table, "(unban_type IS NULL AND expired = 0 AND (((ban_created + ban_length*60) > '$now' AND ban_length != 0)) OR ban_length = 0) AND server_ip = '$address'");
+			$count_permanent = get_rows_count($pdo2, $table, "ban_length = 0 AND server_ip = '$address'");
+			$count_temporal = get_rows_count($pdo2, $table, "ban_length != 0 AND server_ip = '$address'");
 		} else {
 			$table = set_prefix($db_prefix, 'servers');
 			$STH = $pdo2->query("SELECT sid FROM $table WHERE ip='$ip' and port='$port' LIMIT 1"); $STH->setFetchMode(PDO::FETCH_OBJ);  
@@ -70,10 +70,10 @@ if(empty($row->id)){
 			$sid = $row->sid;
 
 			$table = set_prefix($db_prefix, 'bans');
-			$count = get_rows_count($pdo2, $table, "`sid` = '$sid'");
-			$count_active = get_rows_count($pdo2, $table, "(`RemoveType` is NULL OR (`created`+`length` > '$now' AND `length`!='0')) AND `sid` = '$sid'");
-			$count_permanent = get_rows_count($pdo2, $table, "`length` = '0' AND `sid` = '$sid'");
-			$count_temporal = get_rows_count($pdo2, $table, "`length` != '0' AND `sid` = '$sid'");
+			$count = get_rows_count($pdo2, $table, "sid = '$sid'");
+			$count_active = get_rows_count($pdo2, $table, "unban_type IS NULL AND RemoveType IS NULL AND ((created + length > '$now' AND length != 0) OR length = 0) AND sid = '$sid'");
+			$count_permanent = get_rows_count($pdo2, $table, "length = '0' AND sid = '$sid'");
+			$count_temporal = get_rows_count($pdo2, $table, "length != '0' AND sid = '$sid'");
 		}
 	}
 	$stages = 3;

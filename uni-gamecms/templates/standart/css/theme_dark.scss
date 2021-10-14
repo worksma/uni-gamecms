@@ -1,0 +1,39 @@
+$bg-color: rgb(26, 26, 31);
+
+$card-color: rgb(34, 33, 39);
+$card-color-light: rgb(42, 41, 49);
+
+$header-color: $card-color;
+
+$shadow: 0 5px 19px 0 rgba(0, 0, 0, 0.03);
+
+$font-color: rgb(183, 180, 191);
+$font-color-light: rgb(174, 174, 174);
+$title-color: rgb(230, 230, 230);
+
+$white: #ffffff;
+$black: #000000;
+$primary-color: rgb(108, 151, 212);
+$pink-color: rgb(186, 119, 202);
+$red-color: rgb(216, 87, 82);
+$blue-color: rgb(53, 172, 172);
+$yellow-color: rgb(248, 215, 73);
+$orange-color: rgb(207, 106, 50);
+$green-color: rgb(71, 188, 138);
+
+$theme-colors: (
+		"primary": $primary-color,
+		"success": $green-color,
+		"info": $blue-color,
+		"warning": $orange-color,
+		"danger": $red-color,
+		"error": $red-color,
+);
+
+$input-color: rgb(54, 53, 62);
+$input-border-color: rgb(58, 56, 70);
+
+$border-radius-sm: 6px;
+$border-radius: 8px;
+
+@import 'theme';

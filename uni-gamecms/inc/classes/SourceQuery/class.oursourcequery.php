@@ -2,66 +2,94 @@
 
 class OurSourceQuery extends SourceQuery {
 
-	public function get_server($pdo, $id, $type = 1) {
-		if($type == 1) {
-			$STH = $pdo->prepare("SELECT servers.type, servers.ip, servers.port, servers.rcon, servers.rcon_password, servers__commands.reload_admins FROM servers LEFT JOIN servers__commands ON servers__commands.server=servers.id WHERE servers.id=:id LIMIT 1");
-			$STH->setFetchMode(PDO::FETCH_OBJ);
-			$STH->execute(array(':id' => $id));
-			$row = $STH->fetch();
-		} else {
-			$STH = $pdo->prepare("SELECT servers.type, servers.ip, servers.port, servers.rcon, servers.rcon_password, servers__commands.kick, servers__commands.ban, servers__commands.reload_admins FROM servers LEFT JOIN servers__commands ON servers__commands.server=servers.id WHERE servers.id=:id LIMIT 1");
-			$STH->setFetchMode(PDO::FETCH_OBJ);
-			$STH->execute(array(':id' => $id));
-			$row = $STH->fetch();
-		}
-		if(empty($row->ip) || $row->rcon == 2 || empty($row->rcon_password)) {
+	private $server = null;
+
+	public function setServer($server) {
+		$this->server = $server;
+
+		return $this;
+	}
+
+	public function isServerCanWorkWithRcon() {
+		if(
+			empty($this->server->id)
+			|| $this->server->rcon == 2
+			|| empty($this->server->rcon_password)
+		) {
 			return false;
 		} else {
-			return $row;
+			return true;
 		}
 	}
 
-	public function check_connect($ip, $port, $type) {
-		if($type == 4) {
-			return $this->Connect($ip, $port, 1, SourceQuery::SOURCE);
+	public function checkConnect() {
+		if($this->server->game == 'Counter-Strike: 1.6') {
+			$this->Connect($this->server->ip, $this->server->port, 1, SourceQuery::GOLDSOURCE);
 		} else {
-			return $this->Connect($ip, $port, 1, SourceQuery::GOLDSOURCE);
+			$this->Connect($this->server->ip, $this->server->port, 1, SourceQuery::SOURCE);
 		}
+
+		return $this;
 	}
 
-	public function replace($name, $var, $command) {
-		return str_replace("{".$name."}", '"'.$var.'"', $command);
+	public function auth() {
+		$this->SetRconPassword($this->server->rcon_password);
+
+		return $this;
 	}
 
-	public function reolad_admins($pdo, $server, $admin = 0) {
-		$id = $server;
-		if(!$server = $this->get_server($pdo, $server)) {
-			return false;
+	public function send($command) {
+		$answer = $this->Rcon($command);
+		$this->log($command);
+
+		return $answer;
+	}
+
+	public function reloadAdmins($server = null) {
+		if(is_null($this->server)) {
+			$this->setServer(
+				(new ServersManager())->getServer($server)
+			);
 		}
-		$this->check_connect($server->ip, $server->port, $server->type);
-		$this->SetRconPassword($server->rcon_password);
-		$this->Rcon($this->replace('id', $admin, $server->reload_admins));
-		$this->log($server->reload_admins, $id);
+
+		$this->checkConnect();
+		$this->auth();
+
+		$command = (new ServerCommands())
+			->getCommandBySlug(
+				ServerCommands::RELOAD_ADMINS_COMMAND_SLUG,
+				$this->server->id
+			);
+
+		$command = empty($command->command) ? '' : $command->command;
+
+		$answer = $this->send($command);
 		$this->Disconnect();
+
+		return $answer;
 	}
 
-	public function log($command, $server) {
-		$file = get_log_file_name("rcon_log_".$server);
+	public function log($command)
+	{
+		$file = get_log_file_name("rcon_log_" . $this->server->id);
 
-		if(file_exists($_SERVER['DOCUMENT_ROOT']."/logs/".$file)) {
+		if(file_exists($_SERVER['DOCUMENT_ROOT'] . "/logs/" . $file)) {
 			$i = "a";
 		} else {
 			$i = "w";
 		}
 
 		if(isset($_SESSION['id']) and isset($_SESSION['login'])) {
-			$user = $_SESSION['login'].' - '.$_SESSION['id'];
+			$user = $_SESSION['login'] . ' - ' . $_SESSION['id'];
 		} else {
 			$user = 'Админ Центр';
 		}
 
-		$file = fopen($_SERVER['DOCUMENT_ROOT']."/logs/".$file, $i);
-		fwrite($file, "[".date("Y-m-d H:i:s")." | Пользователь: ".$user."] : [Команда: ".$command."] \r\n");
+		$file = fopen($_SERVER['DOCUMENT_ROOT'] . "/logs/" . $file, $i);
+		fwrite(
+			$file,
+			"[" . date("Y-m-d H:i:s") . " | Пользователь: " . $user . "] : [Команда: " . clean($command, null) . "] \r\n"
+		);
 		fclose($file);
 	}
 }

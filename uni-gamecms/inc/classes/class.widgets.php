@@ -85,7 +85,7 @@
 
 			$this->tpl->result['local_content'] = '';
 
-			$STH = $this->pdo->query("SELECT `id`, `login`, `avatar`, `reit`, `thanks`, `answers`, `rights` FROM `users` ORDER BY `reit` DESC LIMIT $limit");
+			$STH = $this->pdo->query("SELECT `id`, `login`, `avatar`, `reit`, `thanks`, `answers`, `rights` FROM `users` WHERE active = '1' ORDER BY `reit` DESC LIMIT $limit");
 			$STH->setFetchMode(PDO::FETCH_OBJ);
 			while ($row = $STH->fetch()) {
 				$gp = $users_groups[$row->rights];
@@ -108,48 +108,53 @@
 			return $this->tpl->result['local_content'];
 		}
 
-		public function top_donaters($limit = 10) {
+		public function top_donators($limit = 10) {
 			$limit = check($limit, "int");
 			global $users_groups;
 			global $messages;
+			global $conf;
 
 			$this->tpl->result['local_content'] = '';
 
-			$donaters = array();
+			$donators = array();
 			$STH = $this->pdo->prepare("SELECT `author`, `shilings` FROM `money__actions` WHERE `type`=:type");
 			$STH->setFetchMode(PDO::FETCH_OBJ);
 			$STH->execute(array(':type' => '1'));
 			while ($row = $STH->fetch()) {
-				if (isset($donaters[$row->author])) {
-					$donaters[$row->author] += $row->shilings;
+				if (isset($donators[$row->author])) {
+					$donators[$row->author] += $row->shilings;
 				} else {
-					$donaters[$row->author] = $row->shilings;
+					$donators[$row->author] = $row->shilings;
 				}
 			}
 
-			arsort($donaters);
+			arsort($donators);
 
 			$i = 0;
-			foreach ($donaters as $key => $value) {
+			foreach ($donators as $key => $value) {
 				$i++;
 				if ($limit < $i) {
 					continue;
 				}
+
 				$STH = $this->pdo->prepare("SELECT `id`, `login`, `avatar`, `rights` FROM `users` WHERE `id`=:id LIMIT 1");
 				$STH->setFetchMode(PDO::FETCH_OBJ);
 				$STH->execute(array(':id' => $key));
 				$row = $STH->fetch();
 				$gp = $users_groups[$row->rights];
 
-				$this->tpl->load_template('elements/online_user.tpl');
+				$this->tpl->load_template('elements/top_donator.tpl');
 				$this->tpl->set("{avatar}", $row->avatar);
 				$this->tpl->set("{user_id}", $row->id);
 				$this->tpl->set("{login}", $row->login);
-				$this->tpl->set("{gp_name}", $value . $messages['RUB']);
+				$this->tpl->set("{sum}", $value . $messages['RUB']);
+				$this->tpl->set("{gp_name}", $gp['name']);
 				$this->tpl->set("{gp_color}", $gp['color']);
+				$this->tpl->set("{showSum}", $conf->top_donators_show_sum);
 				$this->tpl->compile('local_content');
 				$this->tpl->clear();
 			}
+
 			if ($this->tpl->result['local_content'] == '') {
 				$this->tpl->result['local_content'] = '<span class="empty-element">Пользователей нет</span>';
 			}
@@ -332,8 +337,8 @@
 				}
 				if ($row->type == 5) {
 					$STH2 = $this->pdo->prepare("SELECT `forums__topics`.`name` AS 'topic_name', `forums__topics`.`img` AS 'topic_img', `forums`.`name` AS 'forum_name', `forums`.`img` AS 'forum_img' FROM `forums__messages` 
-					LEFT JOIN `forums__topics` ON `forums__messages`.`topic`=`forums__topics`.`id` 
-					LEFT JOIN `forums` ON `forums`.`id`=`forums__topics`.`forum_id` 
+					INNER JOIN `forums__topics` ON `forums__messages`.`topic`=`forums__topics`.`id` 
+					INNER JOIN `forums` ON `forums`.`id`=`forums__topics`.`forum_id` 
 					WHERE `forums__messages`.`id`=:id LIMIT 1");
 					$STH2->setFetchMode(PDO::FETCH_OBJ);
 					$STH2->execute(array(':id' => $row->data_id));
@@ -363,6 +368,8 @@
 		}
 
 		public function user_bans($id = 1, $limit = 5) {
+			global $messages;
+
 			$id = check($id, "int");
 			$limit = check($limit, "int");
 
@@ -372,15 +379,15 @@
 			$STH->setFetchMode(PDO::FETCH_OBJ);
 			while ($row = $STH->fetch()) {
 				if ($row->status == 0) {
-					$status = "Не рассмотрена";
-					$color = "";
+					$status = $messages['Not_reviewed'];
+					$color = "warning";
 				}
 				if ($row->status == 1) {
-					$status = "Разбанен";
+					$status = $messages['Unbaned'];
 					$color = "success";
 				}
 				if ($row->status == 2) {
-					$status = "Не разбанен";
+					$status = $messages['Do_not_unbaned'];
 					$color = "danger";
 				}
 				$this->tpl->load_template('elements/last_bans.tpl');
@@ -403,59 +410,24 @@
 		public function user_admins($id = 1) {
 			$id = check($id, "int");
 
-			$j = 0;
-
+			$i = 0;
 			$this->tpl->result['local_content'] = '';
+			$admins = (new GetData($this->pdo, $this->tpl))->getAdmins(0, $id);
 
-			$STH = $this->pdo->prepare("SELECT `admins`.`id`, `admins`.`type`, `admins`.`name`, `admins`.`cause`, `admins`.`pirce`, `admins`.`link`, `admins`.`active`, `servers`.`name` AS `server_name` FROM `admins`
-			LEFT JOIN servers ON `servers`.`id` = `admins`.`server`
-			WHERE `admins`.`user_id`=:user_id AND `servers`.`united` = '0' ORDER BY `admins`.`server`");
-			$STH->setFetchMode(PDO::FETCH_OBJ);
-			$STH->execute(array(':user_id' => $id));
-			while ($row = $STH->fetch()) {
-				$j++;
-				$services = '';
-				$STH2 = $this->pdo->prepare("SELECT `services`.`name`, `services`.`show_adm` FROM `admins__services` LEFT JOIN `services` ON `admins__services`.`service` = `services`.`id` WHERE `admins__services`.`admin_id`=:admin_id LIMIT 10");
-				$STH2->setFetchMode(PDO::FETCH_OBJ);
-				$STH2->execute(array(':admin_id' => $row->id));
-				while ($row2 = $STH2->fetch()) {
-					if (empty($row2->name)) {
-						$row2->name = 'Неизвестно';
-					}
-					if ($services == '') {
-						$services .= $row2->name;
-					} else {
-						$services .= ' + ' . $row2->name;
-					}
-				}
+			foreach($admins as $admin) {
+				if($admin['show']) {
+					$i++;
 
-				$type = 'undefined';
-				if ($row->type == 'a') {
-					$type = 'Nick+Pass';
+					$admin['i'] = $i;
+					$this->tpl->load_template('elements/admin.tpl');
+					foreach($admin as $key => $value) {
+						$this->tpl->set('{' . $key . '}', $value);
+					}
+					$this->tpl->compile('local_content');
+					$this->tpl->clear();
 				}
-				if ($row->type == 'ce') {
-					$type = 'SteamID';
-				}
-				if ($row->type == 'ca') {
-					$type = 'SteamID+Pass';
-				}
-				$this->tpl->load_template('elements/admin.tpl');
-				$this->tpl->set("{id}", $row->id);
-				$this->tpl->set("{server}", $row->server_name);
-				$this->tpl->set("{active}", $row->active);
-				$this->tpl->set("{cause}", $row->cause);
-				$this->tpl->set("{pirce}", $row->pirce);
-				$this->tpl->set("{link}", $row->link);
-				$this->tpl->set("{user_id}", $id);
-				$this->tpl->set("{login}", '');
-				$this->tpl->set("{name}", $row->name);
-				$this->tpl->set("{services}", $services);
-				$this->tpl->set("{avatar}", '');
-				$this->tpl->set("{type}", $type);
-				$this->tpl->set("{i}", $j);
-				$this->tpl->compile('local_content');
-				$this->tpl->clear();
 			}
+
 			if ($this->tpl->result['local_content'] == '') {
 				$this->tpl->result['local_content'] = '<tr><td colspan="10">Привилегий нет</td></tr>';
 			}

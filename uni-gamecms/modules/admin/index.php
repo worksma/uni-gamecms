@@ -17,11 +17,8 @@ $tpl->compile( 'content' );
 $tpl->clear();
 
 if(!is_admin()){
-	$tpl->load_template('index.tpl');
-	$tpl->set("{site_name}", $conf->name);
-	$tpl->set("{host}", $host);
-	$tpl->compile( 'content' );
-	$tpl->clear();
+	header("Location: /");
+	exit;
 } else {
 	$tpl->load_template('top.tpl');
 	$tpl->set("{token}", $token);
@@ -100,6 +97,7 @@ if(!is_admin()){
 	$tpl->set("{bans_lim2}", $conf2->bans_lim2);
 	$tpl->set("{news_lim}", $conf2->news_lim);
 	$tpl->set("{stats_lim}", $conf2->stats_lim);
+	$tpl->set("{complaints_lim}", $conf2->complaints_lim);
 	$tpl->set("{admins_ids}", $conf2->admins_ids);
 	$tpl->set("{off_message}", $conf2->off_message);
 
@@ -122,6 +120,9 @@ if(!is_admin()){
 	$act = get_active($conf2->steam_api, 2);
 	$tpl->set("{sact}", $act[0]);
 	$tpl->set("{sact2}", $act[1]);
+
+	$tpl->set("{auto_steam_id_fill}", $conf2->auto_steam_id_fill);
+	$tpl->set("{steam_id_format}", $conf2->steam_id_format);
 
 	$act = get_active($conf->cote, 2);
 	$tpl->set("{cote_act}", $act[0]);
@@ -181,10 +182,11 @@ if(!is_admin()){
 	$tpl->set("{token_act}", $act[0]);
 	$tpl->set("{token_act2}", $act[1]);
 
-	$act = get_active($conf->captcha, 4);
-	$tpl->set("{captcha_active}", $act[0]);
-	$tpl->set("{captcha_active2}", $act[1]);
-	$tpl->set("{captcha}", $act[2]);
+	$act = get_active($conf->captcha, 2);
+	$tpl->set("{captcha_client_key}", $conf->captcha_client_key);
+	$tpl->set("{captcha_secret}", $conf->captcha_secret);
+	$tpl->set("{captcha_inactive}", $act[0]);
+	$tpl->set("{captcha_active}", $act[1]);
 
 	$act = get_active($conf->show_news, 3);
 	$tpl->set("{nact}", $act[0]);
@@ -195,6 +197,12 @@ if(!is_admin()){
 	$tpl->set("{eact}", $act[0]);
 	$tpl->set("{eact2}", $act[1]);
 	$tpl->set("{show_events}", $act[2]);
+
+	$act = get_active($conf->top_donators, 2);
+	$tpl->set("{topDonatorsWidgetIsOn}", $act[0]);
+	$tpl->set("{topDonatorsWidgetIsOff}", $act[1]);
+	$tpl->set("{top_donators_count}", $conf->top_donators_count);
+	$tpl->set("{top_donators_show_sum}", $conf->top_donators_show_sum);
 
 	$tpl->set("{violations_number}", $conf->violations_number);
 	$tpl->set("{violations_delta}", $conf->violations_delta);
@@ -212,11 +220,8 @@ if(!is_admin()){
 	$tpl->set("{message}", $message);
 	$tpl->set("{chat_number}", $chat['count']);
 	$tpl->set("{protocol}", $conf->protocol);
-	
-	/* Сервер обновления */
+	$tpl->set("{hidePlayersId}", $conf->hide_players_id);
 	$tpl->set("{update_servers}", get_update_servers($pdo));
-	
-	
 	$tpl->compile( 'content' );
 	$tpl->clear();
 

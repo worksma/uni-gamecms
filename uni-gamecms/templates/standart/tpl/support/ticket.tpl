@@ -48,9 +48,9 @@
 		</div>
 		<div id="add_ticket_answer">
 			{if('{status}' == '1')}
-				<textarea id="text" maxlenght="1000"></textarea>
+				<textarea id="text" maxlength="1000"></textarea>
 				<div class="smile_input_forum mt-3">
-					<input id="send_btn" class="btn btn-primary" type="button" onclick="send_ticket_answer({id});" value="Отправить"></input>
+					<input id="send_btn" class="btn btn-primary" type="button" onclick="send_ticket_answer({id});" value="Отправить">
 					<div id="smile_btn" class="smile_btn" data-container="body" data-toggle="popover" data-placement="top" data-content="empty"></div>
 				</div>
 			{/if}
