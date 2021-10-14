@@ -317,12 +317,6 @@
 		$tpl->set("{site_name}", $conf->name);
 		
 		if(empty($conf->copyright_key) || $conf->copyright_key != md5($host . "_uniCopyright")):
-			$tpl_file = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/templates/' . $conf->template . '/tpl/bottom.tpl');
-			
-			if(!strripos($tpl_file, '{unigamecms_copyright}' === false)):
-				die("Внесите {unigamecms_copyright} снизу Вашего сайта по пути: /templates/{$conf->template}/tpl/bottom.tpl");
-			endif;
-			
 			/*
 				Я не стал скрывать или кодировать копирайт как в предыдущих версиях,
 				однако покупка на стятие копирайта стоит всего 20 рублей.
@@ -333,7 +327,7 @@
 			*/
 			$tpl->set("{unigamecms_copyright}", "<div id=\"copyright\"><br>Powered by <a title=\"Сайт разработан на движке UNI GameCMS\" href=\"https://worksma.ru/uni-gamecms\" target=\"_blank\">UNI GameCMS</a> © 2018-" . date("Y") . "</div>");
 		else:
-			$tpl->set("{unigamecms_copyright}", "Copyright &copy; " . date("Y") . ". Все права сохранены!");
+			$tpl->set("{unigamecms_copyright}", "");
 		endif;
 		
 		$tpl->compile("content");
