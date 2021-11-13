@@ -32,8 +32,8 @@
 			<?$playground = new Playground($pdo, $conf);?>
 			
 			{if($fmimage = $playground->get_resource_active(3, {author}))}
-				<div class="div-frame mb-4">
-					<div class="div-avatar-frame">
+				<div class="profile-frame mb-4">
+					<div class="profile-avatar-frame">
 						<img src="../files/playground/<?echo $fmimage;?>">
 					</div>
 					{if($avaimage = $playground->get_resource_active(2, {author}))}

@@ -49,6 +49,8 @@
 	$tpl->set("{site_host}", $site_host);
 	$tpl->set("{currency}", $playground->get_configs()->currency);
 	$tpl->set("{course}", $playground->get_configs()->course);
+	$tpl->set("{secret}", $playground->get_configs()->secret);
+	$tpl->set("{limit_product}", $playground->get_configs()->limit_product);
 	$tpl->compile( 'content' );
 	$tpl->clear();
 

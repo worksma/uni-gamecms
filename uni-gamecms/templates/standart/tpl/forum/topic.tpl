@@ -8,9 +8,11 @@
 			<div id="answer_0">
 				<div class="top-area">
 					<div class="left-side">
-						<a href="../profile?id={author_id}">
-							{author_login}
-						</a>
+						{if($very = new Verification($pdo) and $very->is_very('{author_id}'))}
+							<a href="../profile?id={author_id}">{author_login}</a> <?echo $very->get_very_style('standart');?>
+						{else}
+							<a href="../profile?id={author_id}">{author_login}</a>
+						{/if}
 					</div>
 					<div class="right-side">
 						<a href="#answer_0">
@@ -21,7 +23,26 @@
 
 				<div class="center-area">
 					<div class="left-side">
-						<img src="../{author_avatar}" alt="{author_login}">
+						<?$playground = new Playground($pdo, $conf);?>
+						
+						{if($fmimage = $playground->get_resource_active(3, {author_id}))}
+							<div class="profile-frame mb-4">
+								<div class="profile-avatar-frame">
+									<img src="../files/playground/<?echo $fmimage;?>">
+								</div>
+								{if($avaimage = $playground->get_resource_active(2, {author_id}))}
+									<img src="../files/playground/<?echo $avaimage;?>">
+								{else}
+									<img src="../{author_avatar}">
+								{/if}
+							</div>
+						{else}
+							{if($avaimage = $playground->get_resource_active(2, {author_id}))}
+								<img src="../files/playground/<?echo $avaimage;?>">
+							{else}
+								<img src="../{author_avatar}">
+							{/if}
+						{/if}
 
 						<p style="color: {group_color}">{group_name}</p><br>
 						<p>Рейтинг: {reit}</p><br>

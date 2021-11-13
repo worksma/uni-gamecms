@@ -1897,6 +1897,18 @@ if(isset($_POST['setTheAccused'])) {
 	}
 }
 
+if(isset($_POST['save_user_status'])):
+	if(isset($_POST['message'])):
+		$message = strip_tags($_POST['message']);
+	else:
+		$message = 'none';
+	endif;
+
+	if(pdo()->query("UPDATE `users` SET `status_message`='{$message}' WHERE `id`='{$_SESSION['id']}'")):
+		exit(json_encode(['alert' => 'success', 'message' => $message]));
+	endif;
+endif;
+
 if (isset($_POST['addComplaint'])) {
 	$accusedId = check($_POST['accusedId'], 'int');
 	$screens   = check($_POST['screens'], null);

@@ -45,21 +45,30 @@
 		Получение товаров на продажу
 	*/
 	if(isset($_POST['load_product_sell'])) {
+		if(isset($_POST['page'])):
+			$n_page = $_POST['page'];
+		else:
+			$n_page = 1;
+		endif;
+
+		$playground = new Playground($pdo, $conf);
+		$limit = $playground->get_configs()->limit_product;
+
 		if(isset($_POST['category'])) {
-			$sth_category = $pdo->query("SELECT * FROM `playground__category` WHERE `code_name`='{$_POST['category']}' ORDER BY `id` DESC");
+			$sth_category = $pdo->query("SELECT * FROM `playground__category` WHERE `code_name`='{$_POST['category']}' ORDER BY `id` DESC LIMIT ".(($n_page * $limit) - $limit).", $limit");
 			
 			if($sth_category->rowCount()) {
 				$sth_category->setFetchMode(PDO::FETCH_OBJ);
 				$category = $sth_category->fetch();
 				
-				$sth = $pdo->query("SELECT * FROM `playground__product` WHERE `id_category`='{$category->id}' ORDER BY `id` DESC");
+				$sth = $pdo->query("SELECT * FROM `playground__product` WHERE `id_category`='{$category->id}' ORDER BY `id` DESC LIMIT ".(($n_page * $limit) - $limit).", $limit");
 			}
 			else {
-				$sth = $pdo->query("SELECT * FROM `playground__product` WHERE 1 ORDER BY `id` DESC");
+				$sth = $pdo->query("SELECT * FROM `playground__product` WHERE 1 ORDER BY `id` DESC LIMIT ".(($n_page * $limit) - $limit).", $limit");
 			}
 		}
 		else {
-			$sth = $pdo->query("SELECT * FROM `playground__product` WHERE 1 ORDER BY `id` DESC");
+			$sth = $pdo->query("SELECT * FROM `playground__product` WHERE 1 ORDER BY `id` DESC LIMIT ".(($n_page * $limit) - $limit).", $limit");
 		}
 		
 		if($sth->rowCount()) {
@@ -121,6 +130,15 @@
 						$playground->add_balance($se->id_seller, $row->price);
 					}
 					
+					if(isset($row->executor) && $row->executor != 'none'):
+						$playground->notification($row->executor, [
+							'type' => 'pay',
+							'id_user' => $_SESSION['id'],
+							'id_product' => $row->id,
+							'price' => $row->price
+						]);
+					endif;
+
 					exit(json_encode([
 						'status' => '1',
 						'message' => 'Успешная покупка!'

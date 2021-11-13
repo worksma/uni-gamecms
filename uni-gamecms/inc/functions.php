@@ -2331,3 +2331,11 @@ function isMobile()
 		return false;
 	}
 }
+
+function get_user_status($id_user = null) {
+	if(empty($id_user)):
+		return null;
+	endif;
+
+	return pdo()->query("SELECT * FROM `users` WHERE `id`='{$id_user}'")->fetch(PDO::FETCH_OBJ)->status_message;
+}

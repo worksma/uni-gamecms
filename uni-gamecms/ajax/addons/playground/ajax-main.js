@@ -33,6 +33,7 @@ function load_product_sell() {
 	form_data.append("phpaction", "1");
 	form_data.append("token", $("#token").val());
 	form_data.append("load_product_sell", "1");
+	form_data.append("page", $("#page_index").val());
 	
 	var category = $("#search_category").val();
 	if(category && category != '') {

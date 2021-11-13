@@ -45,3 +45,17 @@
 		
 		exit(json_encode(['status' => '2']));
 	}
+
+	if(isset($_POST['edit_very'])):
+		$very = new Verification($pdo);
+
+		if($very->set_very($_POST['user_id'], $_POST['value'])):
+			incNotifications();
+			send_noty(pdo(), "Администрация проекта " . ($_POST['value'] ? "выдала" : "изъяла") . " Верификацию.", $_POST['user_id'], ($_POST['value'] ? 2 : 3));
+
+			exit(json_encode([
+				'alert' => 'success',
+				'message' => 'Вы успешно изменили статус верификации пользователя!'
+			]));
+		endif;
+	endif;

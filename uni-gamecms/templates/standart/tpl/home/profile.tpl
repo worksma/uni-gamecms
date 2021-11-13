@@ -163,6 +163,12 @@
                         {/if}
 
                         {if(is_worthy("f"))}
+							<li onclick="edit_very({profile_id});">
+								<a>
+									<span class="m-icon icon-check"></span> Установить верификацию
+								</a>
+							</li>
+							
 							<li>
 								<a href="../edit_user?id={profile_id}">
 									<span class="m-icon icon-pencil"></span> Редактировать пользователя
@@ -218,6 +224,19 @@
 					<small style="position: unset; float:right;">
 						{last_activity}
 					</small>
+
+					<br>
+					{if($_SESSION['id'] == '{profile_id}')}
+						{if(get_user_status('{profile_id}') == 'none' || get_user_status('{profile_id}') == '')}
+							<div id="status_user"><small id="ti_status" style="position: unset; float:left; cursor:pointer;" onclick="edit_user_status();">Изменить статус</small></div>
+						{else}
+							<div id="status_user"><small id="ti_status" style="position: unset; float:left; cursor:pointer;" onclick="edit_user_status();"><?=get_user_status('{profile_id}');?></small></div>
+						{/if}
+					{else}
+						{if(get_user_status('{profile_id}') != 'none')}
+							<small id="ti_status" style="position: unset; float:left;"><?=get_user_status('{profile_id}');?></small>
+						{/if}
+					{/if}
 				</div>
 
 				<table class="table mb-0">

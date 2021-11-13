@@ -5,6 +5,38 @@
 </style>
 <div class="page">
 	<div class="row">
+		<?
+			if((int)ini_get("upload_max_filesize") < 100):
+				$danger_filesize = true;
+			endif;
+
+			$sth = pdo()->query("SELECT * FROM `playground__category` WHERE 1");
+			if($sth->rowCount()):
+				while($row = $sth->fetch(PDO::FETCH_OBJ)):
+					if(!file_exists($_SERVER['DOCUMENT_ROOT'] . '/files/playground/' . $row->code_name)):
+						$danger_directions .= '/files/playground/' . $row->code_name . '<br>';
+					endif;
+				endwhile;
+			endif;
+
+			if(isset($danger_filesize) || isset($danger_directions)):
+		?>
+		<div class="col-md-12">
+			<div class="bs-callout bs-callout-error">
+				<h5>Важно!</h5>
+				<p>
+					<?if(isset($danger_filesize)):?>
+						У Вас установлено <?=(int)ini_get("upload_max_filesize");?> мегабайт в настройках PHP (upload_max_filesize). Рекомендуем установить данное значение не менее 100М.<br><br>
+					<?endif;?>
+
+					<?if(isset($danger_directions)):?>
+						Отсутствуют следующие дирекции:<br><?print_r($danger_directions);?>
+					<?endif;?>
+				</p>
+			</div><br>
+		</div>
+		<?endif;?>
+
 		<div class="col-md-8">
 			<div class="block">
 				<div class="block_head">Действующие товары</div>
@@ -50,6 +82,22 @@
 						<button class="btn btn-default" type="button" onclick="edit_course();">Изменить</button>
 					</span>
 					<input type="text" class="form-control" id="course" maxlength="32" autocomplete="off" value="{course}">
+				</div>
+
+				<label class="mb-0 mt-4">Секретный ключ</label>
+				<div class="input-group">
+					<span class="input-group-btn">
+						<button class="btn btn-default" type="button" onclick="edit_secret();">Изменить</button>
+					</span>
+					<input type="text" class="form-control" id="secret" maxlength="255" autocomplete="off" value="{secret}">
+				</div>
+
+				<label class="mb-0 mt-4">Сколько выводить товаров на страницу?</label>
+				<div class="input-group">
+					<span class="input-group-btn">
+						<button class="btn btn-default" type="button" onclick="edit_limit_product();">Изменить</button>
+					</span>
+					<input type="text" class="form-control" id="limit_product" maxlength="255" autocomplete="off" value="{limit_product}">
 				</div>
 			</div>
 		

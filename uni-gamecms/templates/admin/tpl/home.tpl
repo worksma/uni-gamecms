@@ -745,3 +745,5 @@
 		</div>
 	</div>
 </div>
+<link href="{site_host}files/toasts/toasty.min.css?v={cache}" rel="stylesheet">
+<script src="{site_host}files/toasts/toasty.min.js?v={cache}" type="text/javascript"></script>

@@ -6728,63 +6728,48 @@ if(isset($_POST['saveServerCommandParam'])) {
 	exit(json_encode(['status' => 1]));
 }
 
-if(isset($_POST['editCaptcha'])) {
+if(isset($_POST['editCaptcha'])):
 	$captchaClientKey = clean($_POST['captcha_client_key']);
 	$captchaSecret = clean($_POST['captcha_secret']);
 
-	if(empty($captchaClientKey)) {
-		$AjaxResponse
-			->error('captcha_client_key', 'Укажите ключ')
-			->send();
-	}
+	if(empty($captchaClientKey)):
+		exit(json_encode([
+			'alert' => 'error',
+			'message' => 'Укажите ключ'
+		]));
+	endif;
 
-	if(empty($captchaSecret)) {
-		$AjaxResponse
-			->error('captcha_secret', 'Укажите ключ')
-			->send();
-	}
+	if(empty($captchaSecret)):
+		exit(json_encode([
+			'alert' => 'error',
+			'message' => 'Укажите ключ'
+		]));
+	endif;
 
-	$STH = pdo()->prepare(
-		"UPDATE config SET captcha_client_key=:captcha_client_key, captcha_secret=:captcha_secret LIMIT 1"
-	);
-	$STH->execute(
-		[
-			':captcha_client_key' => $captchaClientKey,
-			':captcha_secret'     => $captchaSecret
-		]
-	);
+	$sth = pdo()->prepare("UPDATE config SET captcha_client_key=:captcha_client_key, captcha_secret=:captcha_secret LIMIT 1");
+	$sth->execute([
+		':captcha_client_key' => $captchaClientKey,
+		':captcha_secret' => $captchaSecret
+	]);
 
-	$AjaxResponse->send();
-}
+	exit(json_encode([
+		'alert' => 'success'
+	]));
+endif;
 
-if(isset($_POST['onCaptcha'])) {
-	if(
-			empty(configs()->captcha_client_key)
-			|| empty(configs()->captcha_secret)
-	) {
-		$AjaxResponse
-			->status(false)
-			->alert('Укажите ключи')
-			->send();
-	}
+if(isset($_POST['onCaptcha'])):
+	$pdo->prepare("UPDATE `config` SET `captcha`=:captcha LIMIT 1")->execute([':captcha' => '1']);
+	exit(json_encode(['alert' => 'success', 'message' => 'Защита включена']));
+endif;
 
-	$STH = pdo()->prepare("UPDATE config SET captcha=:captcha LIMIT 1");
-	$STH->execute([':captcha' => 1]);
+if(isset($_POST['offCaptcha'])):
+	if(configs()->protect == 1):
+		exit(json_encode([
+			'alert' => 'error',
+			'message' => 'Сначала отключите защиту от флуда'
+		]));
+	endif;
 
-	$AjaxResponse->send();
-}
-
-if(isset($_POST['offCaptcha'])) {
-	if(configs()->protect == 1) {
-		$AjaxResponse
-			->status(false)
-			->alert('Сначала выключите защиту от флуда')
-			->send();
-	}
-
-	pdo()
-		->prepare("UPDATE config SET captcha=:captcha LIMIT 1")
-		->execute([':captcha' => 2]);
-
-	$AjaxResponse->send();
-}
+	$pdo->prepare("UPDATE `config` SET `captcha`=:captcha LIMIT 1")->execute([':captcha' => '2']);
+	exit(json_encode(['alert' => 'warning', 'message' => 'Защита отключена']));
+endif;

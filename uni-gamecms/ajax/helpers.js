@@ -1,3 +1,6 @@
+function toasty(alert = "success", message = "") {var toast = new Toasty({classname: "toast",transition: "slideLeftRightFade",insertBefore: false,progressBar: true,enableSounds: true});switch(alert) {case "success": toast.success(message); break;case "error": toast.error(message); break;case "info": toast.info(message); break;case "warning": toast.warning(message); break;}}
+function get_url() {return "https://" + location.host + "/";}
+function send_post(website, form_data, callback, method = "POST") {form_data.append("phpaction", "1"); form_data.append("token", $("#token").val());$.ajax({type: method, url: website, processData: false, contentType: false, data: form_data, dataType: "json", success: function(result) { callback(result); }});}
 function show_input_error(input_name,text,time){if(time==null){time=2000;}
 if(text==null){text='';}
 let input=$("#"+input_name);input.next(".error_message").remove();input.addClass("input_error");input.after("<div class='error_message'>"+text+"</div>");if(time===99999){input.attr("disabled","");}else{setTimeout(function(){input.removeClass("input_error");input.next(".error_message").fadeOut(0);},time);}}

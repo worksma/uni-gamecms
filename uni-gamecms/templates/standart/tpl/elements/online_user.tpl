@@ -20,36 +20,34 @@
 	}
 </style>
 <hr>
-<div class="row" style="cursor:pointer;" OnClick="window.location.href = '/profile?id={user_id}';" data-placement="bottom" tooltip="yes" data-original-title="Посетить профиль пользователя">
-	<div class="col-md-3">
-		<?$playground = new Playground($pdo, $conf);?>
+<div class="row ml-2" style="cursor:pointer;" OnClick="window.location.href = '/profile?id={user_id}';" data-placement="bottom" tooltip="yes" data-original-title="Посетить профиль пользователя">
+	<?$playground = new Playground($pdo, $conf);?>
 		
-		{if($fmimage = $playground->get_resource_active(3, {user_id}))}
-			<div class="top-users-frame">
-				<div class="top-users-avatar-frame">
-					<img src="../files/playground/<?echo $fmimage;?>" width="40px">
-				</div>
-				{if($avaimage = $playground->get_resource_active(2, {user_id}))}
-					<img src="../files/playground/<?echo $avaimage;?>" alt="{login}" width="40px">
-				{else}
-					<img src="{avatar}" alt="{login}" width="40px">
-				{/if}
+	{if($fmimage = $playground->get_resource_active(3, {user_id}))}
+		<div class="top-users-frame">
+			<div class="top-users-avatar-frame">
+				<img src="../files/playground/<?=$fmimage;?>" width="40px" height="40px">
 			</div>
-		{else}
 			{if($avaimage = $playground->get_resource_active(2, {user_id}))}
-				<img src="../files/playground/<?echo $avaimage;?>" alt="{login}" width="40px">
+				<img src="../files/playground/<?=$avaimage;?>" alt="{login}" width="40px" height="40px">
 			{else}
-				<img src="../{avatar}" alt="{login}" width="40px">
+				<img src="../{avatar}" alt="{login}" width="40px" height="40px">
 			{/if}
-		{/if}
-	</div>
-	<div class="col">
-		{if($very = new Verification($pdo) and $very->is_very('{user_id}'))}
-			<span style="color: {gp_color}">{login}</span> <?echo $very->get_very_style('standart');?>
+		</div>
+	{else}
+		{if($avaimage = $playground->get_resource_active(2, {user_id}))}
+			<img src="../files/playground/<?=$avaimage;?>" alt="{login}" width="40px" height="40px">
 		{else}
-			<span style="color: {gp_color}">{login}</span>
+			<img src="../{avatar}" alt="{login}" width="40px" height="40px">
+		{/if}
+	{/if}
+	<div>
+		{if($very = new Verification($pdo) and $very->is_very('{user_id}'))}
+			<span class="ml-2 mb-0" style="color: {gp_color}">{login}</span> <?=$very->get_very_style('standart');?>
+		{else}
+			<span class="ml-2 mb-0" style="color: {gp_color}">{login}</span>
 		{/if}
 		<br>
-		<span>{gp_name}</span>
+		<span class="ml-2">{gp_name}</span>
 	</div>
 </div>

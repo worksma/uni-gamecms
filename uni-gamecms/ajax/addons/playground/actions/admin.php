@@ -164,3 +164,13 @@
 		$pdo->query("UPDATE `playground` SET `course`='{$_POST['course']}' WHERE 1 LIMIT 1");
 		exit(json_encode(['status' => '1']));
 	}
+
+	if(isset($_POST['edit_secret'])):
+		$pdo->query("UPDATE `playground` SET `secret`='{$_POST['secret']}' WHERE 1 LIMIT 1");
+		exit(json_encode(['status' => '1']));
+	endif;
+
+	if(isset($_POST['edit_limit_product'])):
+		$pdo->query("UPDATE `playground` SET `limit_product`='{$_POST['limit_product']}' WHERE 1 LIMIT 1");
+		exit(json_encode(['status' => '1']));
+	endif;

@@ -41,6 +41,7 @@
 
 	
 	<div class="block">
+		<input type="hidden" id="page_index" value="{page_index}">
 		<div id="result_playground_buy"></div>
 		<table class="table">
 			<thead>
@@ -51,8 +52,16 @@
 				</tr>
 			</thead>
 			
-			<tbody class="playground-tbody" id="product_sell"></tbody>
+			<tbody class="playground-tbody" id="product_sell">{product}</tbody>
 		</table>
+	</div>
+
+	<div class="col-lg-12 text-center">
+		<nav>
+			<ul class="pagination justify-content-center">
+				{pagination}
+			</ul>
+		</nav>
 	</div>
 </div>
 
