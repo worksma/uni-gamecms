@@ -847,7 +847,7 @@ function getMonitoringUrl() {
 	) {
 		$monitoringUrl = $config_additional['monitoring_url'];
 	} else {
-		$monitoringUrl = 'http://monitoring-api.gamecms.ru/';
+		$monitoringUrl = 'https://analytics.worksma.ru/';
 	}
 
 	return $monitoringUrl;
@@ -863,11 +863,12 @@ function update_monitoring($pdo) {
 			$STH = $pdo->query("SELECT `ip`, `port` FROM `servers` WHERE `show`='1' ORDER BY `trim`");
 			$STH->execute();
 			$servers = serialize($STH->fetchAll());
-			$servers = @file_get_contents(
-				getMonitoringUrl() . 'servers-info.php?key=' . $conf2->mon_key
-					. '&servers=' . $servers
-					. '&version=2'
-			);
+
+			$servers = curl_get_process([
+				'website' => getMonitoringUrl(). 'handler.php',
+				'data' => '&key=' . $conf2->mon_key . '&servers=' . $servers
+			]);
+
 			if($servers != '403') {
 				$servers = unserialize($servers);
 			}
@@ -887,29 +888,29 @@ function update_monitoring($pdo) {
 			}
 
 			for($i = 0; $i < $count; $i++) {
-				if(empty($servers[$i]['name'])) {
+				if(empty($servers[$i]['info']['HostName'])) {
 					$servers_name = 0;
 				} else {
-					$servers_name = $servers[$i]['name'];
+					$servers_name = $servers[$i]['info']['HostName'];
 				}
-				if(empty($servers[$i]['map'])) {
+				if(empty($servers[$i]['info']['Map'])) {
 					$servers_map = 0;
 				} else {
-					$servers_map = $servers[$i]['map'];
+					$servers_map = $servers[$i]['info']['Map'];
 					if(strpos($servers_map, '/') !== false) {
 						$servers_map = explode("/", $servers_map);
 						$servers_map = end($servers_map);
 					}
 				}
-				if(empty($servers[$i]['max'])) {
+				if(empty($servers[$i]['info']['MaxPlayers'])) {
 					$servers_max = 0;
 				} else {
-					$servers_max = $servers[$i]['max'];
+					$servers_max = $servers[$i]['info']['MaxPlayers'];
 				}
-				if(empty($servers[$i]['now'])) {
+				if(empty($servers[$i]['info']['Players'])) {
 					$servers_now = 0;
 				} else {
-					$servers_now = $servers[$i]['now'];
+					$servers_now = $servers[$i]['info']['Players'];
 				}
 
 				$STH = $pdo->prepare("INSERT INTO `monitoring` (address,sid,ip,port,name,game,players_now,players_max,map,type) values (:address, :sid, :ip, :port, :name, :game, :players_now, :players_max, :map, :type)");

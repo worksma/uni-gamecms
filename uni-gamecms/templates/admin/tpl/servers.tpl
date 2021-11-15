@@ -33,9 +33,20 @@
 					</div>
 					<input type="text" class="form-control" id="mon_key" maxlength="15" autocomplete="off" value="{mon_key}" placeholder="Введите ключ">
 				</div>
+
+					<div class="bs-callout bs-callout-info mt-10">
+						<p>
+							<a target="_blank" href="https://worksma.ru/service-gamecms-monitor">
+								<span class="glyphicon glyphicon-link"></span> Получить ключ Внешнего мониторинга
+							</a>
+						</p>
+					</div>
+
 				<div class="bs-callout bs-callout-info mt-10">
 					<h5>Важная информация</h5>
-					<p>Данный пункт следует использовать, если на Вашем web-хостинге не работает стандартный мониторинг. Для получения ключа обратитесь к разработчику.</p>
+					<p>
+						Данный пункт следует использовать, если на Вашем web-хостинге не работает стандартный мониторинг.
+					</p>
 				</div>
 			</div>
 		</div>

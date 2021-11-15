@@ -369,28 +369,27 @@ if(isset($_POST['get_players'])) {
 	}
 
 	$STH = $pdo->query("SELECT `id`, `ip`, `port`, `rcon` FROM `servers` WHERE `id`='$id' LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$row = $STH->fetch();
+	$STH->execute();
+	$row = $STH->fetchAll();
 
 	$STH = $pdo->query("SELECT `mon_api`, `mon_key` FROM `config__secondary` LIMIT 1");
 	$STH->setFetchMode(PDO::FETCH_OBJ);
 	$conf2 = $STH->fetch();
 	if($conf2->mon_api == 1) {
-		$players = @file_get_contents(
-			getMonitoringUrl() . 'players-info.php?key=' . $conf2->mon_key
-				. '&ip=' . $row->ip
-				. '&port=' . $row->port
-				. '&version=2'
-		);
+		$players = curl_get_process([
+			'website' => getMonitoringUrl(). 'handler.php',
+			'data' => '&key=' . $conf2->mon_key . '&servers=' . serialize($row)
+		]);
+
 		if(isset($players) and ($players != '403')) {
-			$players = unserialize($players);
+			$players = (unserialize($players))[0]['players'];
 		} else {
 			$players = 0;
 		}
 	} else {
 		try {
 			$SourceQuery = new SourceQuery;
-			$SourceQuery->Connect($row->ip, $row->port);
+			$SourceQuery->Connect($row['ip'], $row['port']);
 			$players = $SourceQuery->GetPlayers();
 			$SourceQuery->Disconnect();
 		} catch(Exception $e) {
@@ -406,7 +405,7 @@ if(isset($_POST['get_players'])) {
 		$tpl->dir = '../templates/'.$conf->template.'/tpl/';
 
 		$ServerCommands = new ServerCommands();
-		$commands = $ServerCommands->getActionOnPlayersCommands($row->id);
+		$commands = $ServerCommands->getActionOnPlayersCommands($row['id']);
 
 		if(!empty($commands)) {
 			foreach($commands as $command) {
@@ -430,8 +429,8 @@ if(isset($_POST['get_players'])) {
 			$tpl->set("{name}", $playerName);
 			$tpl->set("{frags}", intval($player['Frags']));
 			$tpl->set("{time}", ($player['Time'] == 0) ? $player['Time'] : expand_seconds2($player['Time']));
-			$tpl->set("{server_rcon}", $row->rcon);
-			$tpl->set("{server_id}", $row->id);
+			$tpl->set("{server_rcon}", $row['rcon']);
+			$tpl->set("{server_id}", $row['id']);
 			$tpl->set("{coded_nick}", json_encode($player['Name']));
 			$tpl->compile('content');
 			$tpl->clear();
