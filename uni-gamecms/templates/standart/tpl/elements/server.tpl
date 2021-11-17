@@ -1,5 +1,8 @@
 {include file="config.tpl"}
-
+<?
+	$ServerCommands = new ServerCommands();
+	$commands = $ServerCommands->getCommands('{id}');
+?>
 {if($monitoringType == 0)}
 	<div class="server">
 		<h3>

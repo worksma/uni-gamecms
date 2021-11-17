@@ -325,7 +325,6 @@ if(isset($_POST['get_servers'])) {
 		}
 
 		$i++;
-
 		$tpl->load_template('elements/server.tpl');
 		$tpl->set("{rcon}", $row->rcon);
 		$tpl->set("{name}", $row->name);
@@ -362,89 +361,85 @@ if(isset($_POST['get_servers'])) {
 if(isset($_POST['get_md5'])) {
 	exit(json_encode(array('answer' => md5($_POST['val']))));
 }
-if(isset($_POST['get_players'])) {
+
+if(isset($_POST['get_players'])):
 	$id = checkJs($_POST['id'], "int");
-	if(empty($id)) {
-		exit ();
-	}
 
-	$STH = $pdo->query("SELECT `id`, `ip`, `port`, `rcon` FROM `servers` WHERE `id`='$id' LIMIT 1");
-	$STH->execute();
-	$row = $STH->fetchAll();
+	if(empty($id)):
+		exit();
+	endif;
 
-	$STH = $pdo->query("SELECT `mon_api`, `mon_key` FROM `config__secondary` LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$conf2 = $STH->fetch();
-	if($conf2->mon_api == 1) {
-		$players = curl_get_process([
-			'website' => getMonitoringUrl(). 'handler.php',
-			'data' => '&key=' . $conf2->mon_key . '&servers=' . serialize($row)
-		]);
+	$confServer = pdo()->query("SELECT * FROM `servers` WHERE `id`='$id' LIMIT 1")->fetch(PDO::FETCH_OBJ);
+	$conf2 = pdo()->query("SELECT `mon_api`, `mon_key` FROM `config__secondary` LIMIT 1")->fetch(PDO::FETCH_OBJ);
 
-		if(isset($players) and ($players != '403')) {
-			$players = (unserialize($players))[0]['players'];
-		} else {
-			$players = 0;
-		}
-	} else {
-		try {
-			$SourceQuery = new SourceQuery;
-			$SourceQuery->Connect($row['ip'], $row['port']);
-			$players = $SourceQuery->GetPlayers();
-			$SourceQuery->Disconnect();
-		} catch(Exception $e) {
-			$players = 0;
-		}
-	}
+	switch($conf2->mon_api):
+		case 1:
+			$players = curl_get_process([
+				'website' =>getMonitoringUrl() . 'handler.php',
+				'data' => '&key=' . $conf2->mon_key . '&servers=' . serialize([['ip' => $confServer->ip, 'port' => $confServer->port]])
+			]);
 
-	$i = 0;
-	if ($players) {
-		$GD = new GetData($pdo);
+			if(isset($players) && ($players != '403')):
+				$players = unserialize($players)[0]['players'];
+			else:
+				$players = 0;
+			endif;
+		break;
 
-		$tpl      = new Template;
-		$tpl->dir = '../templates/'.$conf->template.'/tpl/';
+		default:
+			SourceQuery()->Connect($confServer->ip, $confServer->port, 1);
+			$players = SourceQuery()->GetPlayers();
+			SourceQuery()->Disconnect();
+		break;
+	endswitch;
 
-		$ServerCommands = new ServerCommands();
-		$commands = $ServerCommands->getActionOnPlayersCommands($row['id']);
+	$GD = new GetData($pdo);
 
-		if(!empty($commands)) {
-			foreach($commands as $command) {
-				$command->params = json_encode($ServerCommands->getCommandParams($command->id));
-			}
-		} else {
-			$commands = [];
-		}
+	tpl()->dir = "../templates/" . $conf->template . '/tpl/';
 
-		foreach($players as $player) {
+	$ServerCommands = new ServerCommands();
+	$commands = $ServerCommands->getActionOnPlayersCommands($confServer->id);
+
+	if(empty($commands)):
+		$commands = [];
+	else:
+		foreach($commands as $command):
+			$command->params = json_encode($ServerCommands->getCommandParams($command->id));
+		endforeach;
+	endif;
+	
+	if($players):
+		$i = 0;
+		foreach($players as $player):
 			$i++;
 
 			$playerName = clean($player['Name'], null);
 
-			if($playerProfile = $GD->get_gamer_profile($player['Name'], '', 1)) {
+			if($playerProfile = $GD->get_gamer_profile($player['Name'], '', 1)):
 				$playerName = $playerProfile;
-			}
+			endif;
 
-			$tpl->load_template('elements/server_player.tpl');
-			$tpl->set("{i}", $i);
-			$tpl->set("{name}", $playerName);
-			$tpl->set("{frags}", intval($player['Frags']));
-			$tpl->set("{time}", ($player['Time'] == 0) ? $player['Time'] : expand_seconds2($player['Time']));
-			$tpl->set("{server_rcon}", $row['rcon']);
-			$tpl->set("{server_id}", $row['id']);
-			$tpl->set("{coded_nick}", json_encode($player['Name']));
-			$tpl->compile('content');
-			$tpl->clear();
+			tpl()->load_template("elements/server_player.tpl");
+			tpl()->set("{i}", $i);
+			tpl()->set("{name}", $playerName);
+			tpl()->set("{frags}", intval($player['Frags']));
+			tpl()->set("{time}", ($player['Time'] == 0) ? $player['Time'] : expand_seconds2($player['Time']));
+			tpl()->set("{server_rcon}", $confServer->rcon);
+			tpl()->set("{server_id}", $confServer->id);
+			tpl()->set("{coded_nick}", json_encode($player['Name']));
+			tpl()->compile("content");
+			tpl()->clear();
 
-			$tpl->show($tpl->result['content']);
-			$tpl->result['content'] = '';
-		}
+			tpl()->show($tpl->result['content']);
+			tpl()->result['content'] = '';
+		endforeach;
 
 		$tpl->global_clear();
-	} else {
+	else:
 		exit('<tr><td colspan="10">Нет игроков онлайн</td></tr>');
-	}
-	exit();
-}
+	endif;
+endif;
+
 /* Услуги пользователя
 =========================================*/
 if(isset($_POST['get_admin_info'])) {

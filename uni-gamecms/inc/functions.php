@@ -853,148 +853,123 @@ function getMonitoringUrl() {
 	return $monitoringUrl;
 }
 
-function update_monitoring($pdo) {
-	$STH = $pdo->query("SELECT `mon_gap`, `mon_time`, `mon_api`, `mon_key` FROM `config__secondary` LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$conf2 = $STH->fetch();
+function update_monitoring($pdo = null) {
+	if(empty($pdo)):
+		return null;
+	endif;
 
-	if((time() - $conf2->mon_time) > $conf2->mon_gap) {
-		if($conf2->mon_api == 1) {
-			$STH = $pdo->query("SELECT `ip`, `port` FROM `servers` WHERE `show`='1' ORDER BY `trim`");
-			$STH->execute();
-			$servers = serialize($STH->fetchAll());
+	$conf2 = pdo()->query("SELECT `mon_gap`, `mon_time`, `mon_api`, `mon_key` FROM `config__secondary` LIMIT 1")->fetch(PDO::FETCH_OBJ);
+	
+	if((time() - $conf2->mon_time) > $conf2->mon_gap):
+		switch($conf2->mon_api):
+			case 1:
+				$servers = pdo()->query("SELECT `ip`, `port` FROM `servers` WHERE `show`='1' ORDER BY `trim`")->fetchAll();
 
-			$servers = curl_get_process([
-				'website' => getMonitoringUrl(). 'handler.php',
-				'data' => '&key=' . $conf2->mon_key . '&servers=' . $servers
-			]);
+				if(isset($servers)):
+					$servers = curl_get_process([
+						'website' => getMonitoringUrl() . 'handler.php',
+						'data' => '&key=' . $conf2->mon_key . '&servers=' . serialize($servers)
+					]);
+				else:
+					$servers = null;
+				endif;
 
-			if($servers != '403') {
-				$servers = unserialize($servers);
-			}
+				if($servers != '403'):
+					$servers = unserialize($servers);
+				endif;
 
-			$pdo->exec("DELETE FROM `monitoring`");
+				pdo()->exec("DELETE FROM `monitoring`");
 
-			$STH = $pdo->query("SELECT `address`, `id`, `ip`, `port`, `type`, `game` FROM `servers` WHERE `show`='1' ORDER BY `trim`");
-			$STH->execute();
-			$servers_sec = $STH->fetchAll();
-			$count = count($servers_sec);
+				$servers_sec = pdo()->query("SELECT `address`, `id`, `ip`, `port`, `type`, `game` FROM `servers` WHERE `show`='1' ORDER BY `trim`")->fetchAll();
 
-			$STH = $pdo->query("SELECT `id` FROM `monitoring` LIMIT 1");
-			$STH->setFetchMode(PDO::FETCH_OBJ);
-			$temp = $STH->fetch();
-			if(isset($temp->id)) {
-				$pdo->exec("DELETE FROM `monitoring`");
-			}
+				$count = count($servers_sec);
 
-			for($i = 0; $i < $count; $i++) {
-				if(empty($servers[$i]['info']['HostName'])) {
-					$servers_name = 0;
-				} else {
-					$servers_name = $servers[$i]['info']['HostName'];
-				}
-				if(empty($servers[$i]['info']['Map'])) {
-					$servers_map = 0;
-				} else {
-					$servers_map = $servers[$i]['info']['Map'];
-					if(strpos($servers_map, '/') !== false) {
-						$servers_map = explode("/", $servers_map);
-						$servers_map = end($servers_map);
-					}
-				}
-				if(empty($servers[$i]['info']['MaxPlayers'])) {
-					$servers_max = 0;
-				} else {
-					$servers_max = $servers[$i]['info']['MaxPlayers'];
-				}
-				if(empty($servers[$i]['info']['Players'])) {
-					$servers_now = 0;
-				} else {
-					$servers_now = $servers[$i]['info']['Players'];
-				}
+				$temp = pdo()->query("SELECT `id` FROM `monitoring` LIMIT 1")->fetch(PDO::FETCH_OBJ);
 
-				$STH = $pdo->prepare("INSERT INTO `monitoring` (address,sid,ip,port,name,game,players_now,players_max,map,type) values (:address, :sid, :ip, :port, :name, :game, :players_now, :players_max, :map, :type)");
-				$STH->execute(array('address'     => $servers_sec[$i]['address'],
-				                    'sid'         => $servers_sec[$i]['id'],
-				                    'ip'          => $servers_sec[$i]['ip'],
-				                    'port'        => $servers_sec[$i]['port'],
-				                    'name'        => $servers_name,
-				                    'game'        => $servers_sec[$i]['game'],
-				                    'players_now' => $servers_now,
-				                    'players_max' => $servers_max,
-				                    'map'         => $servers_map,
-				                    'type'        => $servers_sec[$i]['type']));
-			}
-		} else {
-			$pdo->exec("DELETE FROM `monitoring`");
+				if(isset($temp->id)):
+					pdo()->exec("DELETE FROM `monitoring`");
+				endif;
 
-			$STH = $pdo->query("SELECT `address`, `id`, `ip`, `port`, `type`, `game` FROM `servers` WHERE `show`='1' ORDER BY `trim`");
-			$STH->execute();
-			$row = $STH->fetchAll();
-			$count = count($row);
+				for($i = 0; $i < $count; $i++):
+					if(empty($servers[$i]['info']['HostName'])):
+						$servers_name = 0;
+					else:
+						$servers_name = $servers[$i]['info']['HostName'];
+					endif;
 
-			$STH = $pdo->query("SELECT `id` FROM `monitoring` LIMIT 1");
-			$STH->setFetchMode(PDO::FETCH_OBJ);
-			$temp = $STH->fetch();
-			if(isset($temp->id)) {
-				$pdo->exec("DELETE FROM `monitoring`");
-			}
+					if(empty($servers[$i]['info']['Map'])):
+						$servers_map = 0;
+					else:
+						$servers_map = $servers[$i]['info']['Map'];
 
-			for($i = 0; $i < $count; $i++) {
-				try {
-					$SourceQuery = new SourceQuery;
-					$SourceQuery->Connect($row[$i]['ip'], $row[$i]['port']);
-					$temp = $SourceQuery->GetInfo();
-					$SourceQuery->Disconnect();
-					unset($SourceQuery);
+						if(strpos($servers_map, '/') !== false):
+							$servers_map = explode("/", $servers_map);
+							$servers_map = end($servers_map);
+						endif;
+					endif;
 
-					if(empty($temp['HostName'])) {
-						$server['name'] = 0;
-					} else {
-						$server['name'] = $temp['HostName'];
-					}
-					if(empty($temp['Map'])) {
-						$server['map'] = 0;
-					} else {
-						$server['map'] = $temp['Map'];
-						if(strpos($server['map'], '/') !== false) {
-							$server['map'] = explode("/", $server['map']);
-							$server['map'] = end($server['map']);
-						}
-					}
-					if(empty($temp['MaxPlayers'])) {
-						$server['max'] = 0;
-					} else {
-						$server['max'] = check($temp['MaxPlayers'], "int");
-					}
-					if(empty($temp['Players'])) {
-						$server['now'] = 0;
-					} else {
-						$server['now'] = check($temp['Players'], "int");
-					}
-				} catch(Exception $e) {
-					$server['name'] = 0;
-					$server['map'] = 0;
-					$server['max'] = 0;
-					$server['now'] = 0;
-				}
+					if(empty($servers[$i]['info']['MaxPlayers'])):
+						$players_max = 0;
+					else:
+						$players_max = $servers[$i]['info']['MaxPlayers'];
+					endif;
 
-				$STH = $pdo->prepare("INSERT INTO `monitoring` (address,sid,ip,port,name,game,players_now,players_max,map,type) values (:address, :sid, :ip, :port, :name, :game, :players_now, :players_max, :map, :type)");
-				$STH->execute(array('address'     => $row[$i]['address'],
-				                    'sid'         => $row[$i]['id'],
-				                    'ip'          => $row[$i]['ip'],
-				                    'port'        => $row[$i]['port'],
-				                    'name'        => $server['name'],
-				                    'game'        => $row[$i]['game'],
-				                    'players_now' => $server['now'],
-				                    'players_max' => $server['max'],
-				                    'map'         => $server['map'],
-				                    'type'        => $row[$i]['type']));
-			}
-		}
-		$STH = $pdo->prepare("UPDATE `config__secondary` SET `mon_time` =:mon_time WHERE `id`='1' LIMIT 1");
-		$STH->execute(array('mon_time' => time()));
-	}
+					if(empty($servers[$i]['info']['Players'])):
+						$players_now = 0;
+					else:
+						$players_now = $servers[$i]['info']['Players'];
+					endif;
+
+					pdo()->prepare("INSERT INTO `monitoring` (`address`, `sid`, `ip`, `port`, `name`, `game`, `players_now`, `players_max`, `map`, `type`) VALUES (:address, :sid, :ip, :port, :name, :game, :players_now, :players_max, :map, :type)")->execute([
+						'address' => $servers_sec[$i]['address'],
+						'sid' => $servers_sec[$i]['id'],
+						'ip' => $servers_sec[$i]['ip'],
+						'port' => $servers_sec[$i]['port'],
+						'name' => $servers_name,
+						'game' => $servers_sec[$i]['game'],
+						'players_now' => $players_now,
+						'players_max' => $players_max,
+						'map' => $servers_map,
+						'type' => $servers_sec[$i]['type']
+					]);
+				endfor;
+			break;
+
+			default:
+				pdo()->exec("DELETE FROM `monitoring`");
+				$temp = pdo()->query("SELECT `id` FROM `monitoring` LIMIT 1")->fetch(PDO::FETCH_OBJ);
+
+				if(isset($temp->id)):
+					pdo()->exec("DELETE FROM `monitoring`");
+				endif;
+
+				$sth = pdo()->query("SELECT * FROM `servers` WHERE `show`='1' ORDER BY `trim`");
+
+				while($row = $sth->fetch(PDO::FETCH_OBJ)):
+					SourceQuery()->Connect($row->ip, $row->port, 1);
+					$GetInfo = SourceQuery()->GetInfo();
+					SourceQuery()->Disconnect();
+
+					pdo()->prepare("INSERT INTO `monitoring` (`address`, `sid`, `ip`, `port`, `name`, `game`, `players_now`, `players_max`, `map`, `type`) VALUES (:address, :sid, :ip, :port, :name, :game, :players_now, :players_max, :map, :type)")->execute([
+						'address' => $row->address,
+						'sid' => $row->id,
+						'ip' => $row->ip,
+						'port' => $row->port,
+						'name' => isset($GetInfo['HostName']) ? clean($GetInfo['HostName'], null) : 0,
+						'game' => $row->game,
+						'players_now' => isset($GetInfo['Players']) ? $GetInfo['Players'] : 0,
+						'players_max' => isset($GetInfo['MaxPlayers']) ? $GetInfo['MaxPlayers'] : 0,
+						'map' => isset($GetInfo['Map']) ? $GetInfo['Map'] : 0,
+						'type' => $row->type
+					]);
+				endwhile;
+			break;
+		endswitch;
+
+		pdo()->prepare("UPDATE `config__secondary` SET `mon_time` =:mon_time WHERE `id`='1' LIMIT 1")->execute([
+			'mon_time' => time()
+		]);
+	endif;
 }
 
 function removeDirectory($dir, $remove_dir = 1) {
@@ -2339,4 +2314,10 @@ function get_user_status($id_user = null) {
 	endif;
 
 	return pdo()->query("SELECT * FROM `users` WHERE `id`='{$id_user}'")->fetch(PDO::FETCH_OBJ)->status_message;
+}
+
+function SourceQuery() {
+	global $SourceQuery;
+
+	return isset($SourceQuery) ? $SourceQuery : null;
 }

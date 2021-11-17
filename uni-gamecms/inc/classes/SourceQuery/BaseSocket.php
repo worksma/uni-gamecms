@@ -1,6 +1,6 @@
 <?php
 	/**
-	 * @author Pavel Djundik <sourcequery@xpaw.me>
+	 * @author Pavel Djundik
 	 *
 	 * @link https://xpaw.me
 	 * @link https://github.com/xPaw/PHP-Source-Query
@@ -9,6 +9,11 @@
 	 *
 	 * @internal
 	 */
+	
+	namespace xPaw\SourceQuery;
+	
+	use xPaw\SourceQuery\Exception\InvalidPacketException;
+	use xPaw\SourceQuery\Exception\SocketException;
 
 	/**
 	 * Base socket interface
@@ -16,27 +21,29 @@
 	 * @package xPaw\SourceQuery
 	 *
 	 * @uses xPaw\SourceQuery\Exception\InvalidPacketException
+	 * @uses xPaw\SourceQuery\Exception\SocketException
 	 */
 	abstract class BaseSocket
 	{
+		/** @var resource */
 		public $Socket;
-		public $Engine;
+		public int $Engine;
 		
-		public $Address;
-		public $Port;
-		public $Timeout;
+		public string $Address;
+		public int $Port;
+		public int $Timeout;
 		
 		public function __destruct( )
 		{
 			$this->Close( );
 		}
 		
-		abstract public function Close( );
-		abstract public function Open( $Address, $Port, $Timeout, $Engine );
-		abstract public function Write( $Header, $String = '' );
-		abstract public function Read( $Length = 1400 );
+		abstract public function Close( ) : void;
+		abstract public function Open( string $Address, int $Port, int $Timeout, int $Engine ) : void;
+		abstract public function Write( int $Header, string $String = '' ) : bool;
+		abstract public function Read( int $Length = 1400 ) : Buffer;
 		
-		protected function ReadInternal( $Buffer, $Length, $SherlockFunction )
+		protected function ReadInternal( Buffer $Buffer, int $Length, callable $SherlockFunction ) : Buffer
 		{
 			if( $Buffer->Remaining( ) === 0 )
 			{
@@ -51,9 +58,10 @@
 			}
 			else if( $Header === -2 ) // Split packet
 			{
-				$Packets      = array();
+				$Packets      = [];
 				$IsCompressed = false;
 				$ReadMore     = false;
+				$PacketChecksum = null;
 				
 				do
 				{
@@ -88,6 +96,10 @@
 							
 							break;
 						}
+						default:
+						{
+							throw new SocketException( 'Unknown engine.', SocketException::INVALID_ENGINE );
+						}
 					}
 					
 					$Packets[ $PacketNumber ] = $Buffer->Get( );
@@ -109,7 +121,7 @@
 					
 					$Data = bzdecompress( $Data );
 					
-					if( CRC32( $Data ) !== $PacketChecksum )
+					if( !is_string( $Data ) || CRC32( $Data ) !== $PacketChecksum )
 					{
 						throw new InvalidPacketException( 'CRC32 checksum mismatch of uncompressed packet data.', InvalidPacketException::CHECKSUM_MISMATCH );
 					}

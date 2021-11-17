@@ -1,6 +1,6 @@
 <?php
 	/**
-	 * @author Pavel Djundik <sourcequery@xpaw.me>
+	 * @author Pavel Djundik
 	 *
 	 * @link https://xpaw.me
 	 * @link https://github.com/xPaw/PHP-Source-Query
@@ -9,6 +9,12 @@
 	 *
 	 * @internal
 	 */
+
+	namespace xPaw\SourceQuery;
+	
+	use xPaw\SourceQuery\Exception\AuthenticationException;
+	use xPaw\SourceQuery\Exception\InvalidPacketException;
+	use xPaw\SourceQuery\Exception\SocketException;
 
 	/**
 	 * Class SourceRcon
@@ -23,20 +29,19 @@
 	{
 		/**
 		 * Points to socket class
-		 * 
-		 * @var Socket
 		 */
-		private $Socket;
+		private BaseSocket $Socket;
 		
+		/** @var resource */
 		private $RconSocket;
-		private $RconRequestId;
+		private int $RconRequestId = 0;
 		
-		public function __construct( $Socket )
+		public function __construct( BaseSocket $Socket )
 		{
 			$this->Socket = $Socket;
 		}
 		
-		public function Close( )
+		public function Close( ) : void
 		{
 			if( $this->RconSocket )
 			{
@@ -48,7 +53,7 @@
 			$this->RconRequestId = 0;
 		}
 		
-		public function Open( )
+		public function Open( ) : void
 		{
 			if( !$this->RconSocket )
 			{
@@ -64,7 +69,7 @@
 			}
 		}
 		
-		public function Write( $Header, $String = '' )
+		public function Write( int $Header, string $String = '' ) : bool
 		{
 			// Pack the packet together
 			$Command = Pack( 'VV', ++$this->RconRequestId, $Header ) . $String . "\x00\x00"; 
@@ -76,7 +81,7 @@
 			return $Length === FWrite( $this->RconSocket, $Command, $Length );
 		}
 		
-		public function Read( )
+		public function Read( ) : Buffer
 		{
 			$Buffer = new Buffer( );
 			$Buffer->Set( FRead( $this->RconSocket, 4 ) );
@@ -116,7 +121,7 @@
 			return $Buffer;
 		}
 		
-		public function Command( $Command )
+		public function Command( string $Command ) : string
 		{
 			$this->Write( SourceQuery::SERVERDATA_EXECCOMMAND, $Command );
 			$Buffer = $this->Read( );
@@ -140,10 +145,10 @@
 			// See https://developer.valvesoftware.com/wiki/Source_RCON_Protocol#Multiple-packet_Responses
 			if( StrLen( $Data ) >= 4000 )
 			{
+				$this->Write( SourceQuery::SERVERDATA_RESPONSE_VALUE );
+				
 				do
-				{
-					$this->Write( SourceQuery::SERVERDATA_RESPONSE_VALUE );
-					
+				{	
 					$Buffer = $this->Read( );
 					
 					$Buffer->GetLong( ); // RequestID
@@ -168,7 +173,7 @@
 			return rtrim( $Data, "\0" );
 		}
 		
-		public function Authorize( $Password )
+		public function Authorize( string $Password ) : void
 		{
 			$this->Write( SourceQuery::SERVERDATA_AUTH, $Password );
 			$Buffer = $this->Read( );

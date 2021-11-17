@@ -1,6 +1,6 @@
 <?php
 	/**
-	 * @author Pavel Djundik <sourcequery@xpaw.me>
+	 * @author Pavel Djundik
 	 *
 	 * @link https://xpaw.me
 	 * @link https://github.com/xPaw/PHP-Source-Query
@@ -10,7 +10,9 @@
 	 * @internal
 	 */
 
-	class InvalidArgumentException extends SourceQueryException
+	namespace xPaw\SourceQuery\Exception;
+
+	abstract class SourceQueryException extends \Exception
 	{
-		const TIMEOUT_NOT_INTEGER = 1;
+		// Base exception class
 	}
