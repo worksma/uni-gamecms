@@ -313,6 +313,15 @@
 			<div class="panel-heading">Уголок разработчика</div>
 			<div class="panel-body">
 				<div id="update_server_status"></div>
+				<?
+					if(!extension_loaded("zip")):
+						?>
+						<div class="bs-callout bs-callout-error">
+							<p>У Вас отключено расширение ZIP, настройте его в своём PHP</p>
+						</div><br>
+						<?
+					endif;
+				?>
 				<b class="f-l">Версия движка: </b> <div id="version"><img src="{site_host}templates/admin/img/loader.gif"></div>
 				<div class="claerfix"></div><br>
 				<hr>
