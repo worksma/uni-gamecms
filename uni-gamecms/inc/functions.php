@@ -953,8 +953,10 @@ function update_monitoring($pdo = null) {
 					$server_map = 0;
 
 					if(strpos($GetInfo['Map'], '/') !== false):
-						$server_map = explode("/", $server_map);
+						$server_map = explode("/", $GetInfo['Map']);
 						$server_map = end($server_map);
+					else:
+						$server_map = $GetInfo['Map'];
 					endif;
 
 					pdo()->prepare("INSERT INTO `monitoring` (`address`, `sid`, `ip`, `port`, `name`, `game`, `players_now`, `players_max`, `map`, `type`) VALUES (:address, :sid, :ip, :port, :name, :game, :players_now, :players_max, :map, :type)")->execute([
