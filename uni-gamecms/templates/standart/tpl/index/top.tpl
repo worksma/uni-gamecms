@@ -104,7 +104,7 @@
 								{/if}
 
 								{if($conf->captcha != '2')}
-									<div style="transform:scale(0.75);-webkit-transform:scale(0.75);transform-origin:0 0;-webkit-transform-origin:0 0;" data-theme="light" class="g-recaptcha clearfix" data-sitekey="{{$conf->captcha}}"></div>
+									<div style="transform:scale(0.75);-webkit-transform:scale(0.75);transform-origin:0 0;-webkit-transform-origin:0 0;" data-theme="light" class="g-recaptcha clearfix" data-sitekey="{{$conf->captcha_client_key}}"></div>
 									<script src='https://www.google.com/recaptcha/api.js?hl=ru'></script>
 								{/if}
 

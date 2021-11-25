@@ -18,6 +18,27 @@
 			$this->configs = $ath->fetch();
 		}
 		
+		public function is_bonuses() {
+			if($this->get_configs()->bonuses > 0):
+				return true;
+			endif;
+
+			return false;
+		}
+
+		public function add_bonuses($id_user = null, $rub = null) {
+			if(empty($id_user) || empty($rub)):
+				return null;
+			endif;
+			
+			$bonuses = round($rub/100*$this->get_configs()->bonuses);
+
+			include_once($_SERVER['DOCUMENT_ROOT'] . '/inc/notifications.php');
+			send_noty($this->pdo, "Вы получили: бонус " . $bonuses . ' ' . $this->get_configs()->currency . ' за пополнение баланса на ' . $rub . ' руб.', $id_user, 1);
+
+			return $this->add_balance($id_user, $bonuses);
+		}
+
 		public function get_resource_active($id_category, $id_user) {
 			$sth = $this->pdo->query("SELECT * FROM `playground__purchases` WHERE `id_category`='{$id_category}' and `id_user`='{$id_user}' and `active`='1'");
 			$sth->setFetchMode(PDO::FETCH_OBJ);

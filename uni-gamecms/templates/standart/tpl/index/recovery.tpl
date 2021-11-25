@@ -20,7 +20,7 @@
 
 					<script>
 						var recaptcha_2;
-						var onloadReCaptcha = function() { recaptcha_2 = grecaptcha.render('recaptcha_2', {"sitekey":"{{$conf->captcha}}"}); }
+						var onloadReCaptcha = function() { recaptcha_2 = grecaptcha.render('recaptcha_2', {"sitekey":"{{$conf->captcha_client_key}}"}); }
 					</script>
 				{/if}
 				<div id="result3" class="mt-3"></div>

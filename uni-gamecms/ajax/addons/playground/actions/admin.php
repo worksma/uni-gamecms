@@ -174,3 +174,11 @@
 		$pdo->query("UPDATE `playground` SET `limit_product`='{$_POST['limit_product']}' WHERE 1 LIMIT 1");
 		exit(json_encode(['status' => '1']));
 	endif;
+
+	if(isset($_POST['edit_bonuses'])):
+		if(pdo()->query("UPDATE `playground` SET `bonuses`='{$_POST['value']}' LIMIT 1")):
+			exit(json_encode(['alert' => 'success']));
+		endif;
+
+		exit(json_encode(['alert' => 'error']));
+	endif;

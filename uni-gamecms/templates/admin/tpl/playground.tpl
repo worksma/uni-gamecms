@@ -99,6 +99,14 @@
 					</span>
 					<input type="text" class="form-control" id="limit_product" maxlength="255" autocomplete="off" value="{limit_product}">
 				</div>
+
+				<label class="mb-0 mt-4">Бонус при пополнение баланса</label>
+				<div class="input-group">
+					<span class="input-group-btn">
+						<button class="btn btn-default" type="button" onclick="edit_bonuses();">Изменить</button>
+					</span>
+					<input type="text" class="form-control" id="bonuses" maxlength="9" autocomplete="off" value="{bonuses}" placeholder="В процентах">
+				</div>
 			</div>
 		
 			<div class="block">

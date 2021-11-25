@@ -47,6 +47,12 @@ if(isset($_GET['result_qw']) && $_GET['result_qw'] == 'get') {
 				exit('OK');
 			}
 
+			$playground = new Playground(pdo(), $conf);
+
+			if($playground->is_bonuses()):
+				$playground->add_bonuses($userInfo->id, $amount);
+			endif;
+
 			$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
 			exit('OK');
 		}
@@ -89,6 +95,12 @@ if(isset($_GET['result_ya']) && $_GET['result_ya'] == 'get') {
 			if($Pm->issetPay($pdo, $payMethod, $payNumber)) {
 				exit('OK');
 			}
+
+			$playground = new Playground(pdo(), $conf);
+
+			if($playground->is_bonuses()):
+				$playground->add_bonuses($userInfo->id, $amount);
+			endif;
 
 			$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
 			exit('OK');
@@ -140,6 +152,12 @@ if(isset($_GET['result_wo']) && $_GET['result_wo'] == 'get') {
 				if($Pm->issetPay($pdo, $payMethod, $payNumber)) {
 					exit("WMI_RESULT=OK");
 				}
+
+				$playground = new Playground(pdo(), $conf);
+
+				if($playground->is_bonuses()):
+					$playground->add_bonuses($userInfo->id, $amount);
+				endif;
 
 				$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
 			}
@@ -199,6 +217,12 @@ if(isset($_GET['result_ik']) && $_GET['result_ik'] == 'get') {
 				exit('OK');
 			}
 
+			$playground = new Playground(pdo(), $conf);
+
+			if($playground->is_bonuses()):
+				$playground->add_bonuses($userInfo->id, $amount);
+			endif;
+
 			$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
 			exit('OK');
 		}
@@ -236,6 +260,12 @@ if(isset($_GET['result']) && $_GET['result'] == 'get') {
 			exit('YES');
 		}
 
+		$playground = new Playground(pdo(), $conf);
+
+		if($playground->is_bonuses()):
+			$playground->add_bonuses($userInfo->id, $amount);
+		endif;
+
 		$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
 		exit('YES');
 	}
@@ -263,6 +293,12 @@ if(isset($_GET['result_fk']) && $_GET['result_fk'] == 'get') {
 		if($Pm->issetPay($pdo, $payMethod, $payNumber)) {
 			exit('YES');
 		}
+
+		$playground = new Playground(pdo(), $conf);
+
+		if($playground->is_bonuses()):
+			$playground->add_bonuses($userInfo->id, $amount);
+		endif;
 
 		$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
 		exit('YES');
@@ -308,6 +344,12 @@ if(isset($_GET['result_wb']) && $_GET['result_wb'] == 'get') {
 					exit('OK');
 				}
 
+				$playground = new Playground(pdo(), $conf);
+
+				if($playground->is_bonuses()):
+					$playground->add_bonuses($userInfo->id, $amount);
+				endif;
+
 				$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
 				exit('OK');
 			}
@@ -343,13 +385,18 @@ if(isset($_GET['result_rb']) && $_GET['result_rb'] == 'get') {
 			exit('OK');
 		}
 
+		$playground = new Playground(pdo(), $conf);
+
+		if($playground->is_bonuses()):
+			$playground->add_bonuses($userInfo->id, $amount);
+		endif;
+
 		$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
 		exit('OK');
 	}
 }
 
 if(isset($_GET) && array_key_exists('method', $_GET)) {
-
 	$payMethod = 'up';
 	$currentCurrency = Payments::getCashierCurrency($payMethod);
 
@@ -392,6 +439,12 @@ if(isset($_GET) && array_key_exists('method', $_GET)) {
 					echo $unitPay->getSuccessHandlerResponse('Pay Success');
 					break;
 				}
+
+				$playground = new Playground(pdo(), $conf);
+
+				if($playground->is_bonuses()):
+					$playground->add_bonuses($userInfo->id, $amount);
+				endif;
 
 				$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
 				echo $unitPay->getSuccessHandlerResponse('Pay Success');
@@ -437,6 +490,12 @@ if(isset($_GET['result_ps']) && $_GET['result_ps'] == 'get') {
 		if($Pm->issetPay($pdo, $payMethod, $payNumber)) {
 			exit('OK');
 		}
+
+		$playground = new Playground(pdo(), $conf);
+
+		if($playground->is_bonuses()):
+			$playground->add_bonuses($userInfo->id, $amount);
+		endif;
 
 		$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
 		exit('OK');
@@ -497,6 +556,12 @@ if(isset($_GET['result_lp']) && $_GET['result_lp'] == 'get') {
 			if($Pm->issetPay($pdo, $payMethod, $payNumber)) {
 				exit('OK');
 			}
+
+			$playground = new Playground(pdo(), $conf);
+
+			if($playground->is_bonuses()):
+				$playground->add_bonuses($userInfo->id, $amount);
+			endif;
 
 			$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
 			exit('OK');
@@ -565,6 +630,12 @@ if(isset($_GET['result_ap']) && $_GET['result_ap'] == 'get') {
 				exit('OK');
 			}
 
+			$playground = new Playground(pdo(), $conf);
+
+			if($playground->is_bonuses()):
+				$playground->add_bonuses($userInfo->id, $amount);
+			endif;
+
 			$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
 			exit('OK');
 		}
@@ -618,6 +689,12 @@ if(isset($_GET['enot']) && $_GET['enot'] == 'pay') {
 			if($Pm->issetPay($pdo, $payMethod, $payNumber)) {
 				exit('OK');
 			}
+
+			$playground = new Playground(pdo(), $conf);
+
+			if($playground->is_bonuses()):
+				$playground->add_bonuses($userInfo->id, $amount);
+			endif;
 
 			$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
 			exit('OK');
