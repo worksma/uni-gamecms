@@ -1,7 +1,11 @@
 {include file="config.tpl"}
 <?
 	$ServerCommands = new ServerCommands();
-	$commands = $ServerCommands->getCommands('{id}');
+	$commands = $ServerCommands->getServerManagementCommands('{id}');
+
+	foreach($commands as $command) {
+		$command->params = json_encode($ServerCommands->getCommandParams($command->id));
+	}
 ?>
 {if($monitoringType == 0)}
 	<div class="server">
@@ -125,15 +129,7 @@
 							<div class="modal-body">
 								<div class="input-group input-group-sm">
 									<div class="input-group-prepend">
-										<button
-												class="btn btn-outline-primary"
-												type="button"
-												onclick='doRconCommandOnServer(
-														$("#server-management-command-id{id}").val(),
-														$("#server-management-command-id{id} option:selected").attr("data-command-params"),
-												{id}
-														);'
-										>
+										<button class="btn btn-outline-primary" type="button" onclick='doRconCommandOnServer($("#server-management-command-id{id}").val(), $("#server-management-command-id{id} option:selected").attr("data-command-params"), {id});'>
 											Выполнить
 										</button>
 									</div>
