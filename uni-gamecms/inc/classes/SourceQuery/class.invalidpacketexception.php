@@ -10,8 +10,6 @@
 	 * @internal
 	 */
 
-	namespace xPaw\SourceQuery\Exception;
-
 	class InvalidPacketException extends SourceQueryException
 	{
 		const PACKET_HEADER_MISMATCH = 1;

@@ -946,7 +946,7 @@ function update_monitoring($pdo = null) {
 				$sth = pdo()->query("SELECT * FROM `servers` WHERE `show`='1' ORDER BY `trim`");
 
 				while($row = $sth->fetch(PDO::FETCH_OBJ)):
-					SourceQuery()->Connect($row->ip, $row->port, 1, (($row->game == 'Counter-Strike: 1.6') ? 0 : 1));
+					SourceQuery()->Connect($row->ip, $row->port, 1, (($row->game == 'Counter-Strike: 1.6') ? SourceQuery::GOLDSOURCE : SourceQuery::SOURCE));
 					$GetInfo = SourceQuery()->GetInfo();
 					SourceQuery()->Disconnect();
 

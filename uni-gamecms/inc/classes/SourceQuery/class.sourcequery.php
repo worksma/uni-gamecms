@@ -9,14 +9,7 @@
 	 *
 	 * @license GNU Lesser General Public License, version 2.1
 	 */
-
-	namespace xPaw\SourceQuery;
-
-	use xPaw\SourceQuery\Exception\AuthenticationException;
-	use xPaw\SourceQuery\Exception\InvalidArgumentException;
-	use xPaw\SourceQuery\Exception\InvalidPacketException;
-	use xPaw\SourceQuery\Exception\SocketException;
-
+	
 	/**
 	 * Class SourceQuery
 	 *

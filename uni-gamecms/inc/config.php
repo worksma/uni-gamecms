@@ -36,3 +36,5 @@
 	$full_site_host = $protocol . '://' . $host . '/';
 
 	require_once __DIR__ . '/autoloader.php';
+
+	$SourceQuery = new SourceQuery;

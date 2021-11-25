@@ -10,8 +10,6 @@
 	 * @internal
 	 */
 
-	namespace xPaw\SourceQuery\Exception;
-
 	class SocketException extends SourceQueryException
 	{
 		const COULD_NOT_CREATE_SOCKET = 1;

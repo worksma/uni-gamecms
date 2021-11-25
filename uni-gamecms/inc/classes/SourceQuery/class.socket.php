@@ -9,12 +9,7 @@
 	 *
 	 * @internal
 	 */
-
-	namespace xPaw\SourceQuery;
 	
-	use xPaw\SourceQuery\Exception\InvalidPacketException;
-	use xPaw\SourceQuery\Exception\SocketException;
-
 	/**
 	 * Class Socket
 	 *

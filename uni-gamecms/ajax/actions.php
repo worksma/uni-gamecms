@@ -387,7 +387,7 @@ if(isset($_POST['get_players'])):
 		break;
 
 		default:
-			SourceQuery()->Connect($confServer->ip, $confServer->port, 1, (($confServer->game == 'Counter-Strike: 1.6') ? 0 : 1));
+			SourceQuery()->Connect($confServer->ip, $confServer->port, 1, (($confServer->game == 'Counter-Strike: 1.6') ? SourceQuery::GOLDSOURCE : SourceQuery::SOURCE));
 			$players = SourceQuery()->GetPlayers();
 			SourceQuery()->Disconnect();
 		break;

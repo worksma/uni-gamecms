@@ -10,10 +10,6 @@
 	 * @internal
 	 */
 
-	namespace xPaw\SourceQuery;
-
-	use xPaw\SourceQuery\Exception\InvalidPacketException;
-
 	/**
 	 * Class Buffer
 	 *

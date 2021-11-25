@@ -10,10 +10,7 @@
 	 * @internal
 	 */
 
-	namespace xPaw\SourceQuery\Exception;
-
-	class AuthenticationException extends SourceQueryException
+	class InvalidArgumentException extends SourceQueryException
 	{
-		const BAD_PASSWORD = 1;
-		const BANNED = 2;
+		const TIMEOUT_NOT_INTEGER = 1;
 	}
