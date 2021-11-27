@@ -6773,3 +6773,150 @@ if(isset($_POST['offCaptcha'])):
 	$pdo->prepare("UPDATE `config` SET `captcha`=:captcha LIMIT 1")->execute([':captcha' => '2']);
 	exit(json_encode(['alert' => 'warning', 'message' => 'Защита отключена']));
 endif;
+
+if(isset($_POST['addTerm'])):
+	$id_server = clean($_POST['id_server'], "int");
+
+	if(empty($id_server) || $id_server == 'Выберите сервер.'):
+		exit(json_encode(['alert' => 'error', 'message' => 'Сначала выберите сервер.']));
+	endif;
+
+	$time = clean($_POST['time'], "int");
+	$price = clean($_POST['price'], "int");
+	$discount = clean($_POST['discount'], "int");
+	$rcon = clean($_POST['rcon'], null);
+
+	(new Prefixes(pdo()))
+	->addTerm((object)[
+		'id_server' => $id_server,
+		'price' => $price,
+		'time' => $time,
+		'discount' => $discount,
+		'rcon' => $rcon
+	]);
+
+	exit(json_encode(['alert' => 'success']));
+endif;
+
+if(isset($_POST['getTerm'])):
+	$id_server = clean($_POST['id_server'], "int");
+
+	if(empty($id_server) || $id_server == 'Выберите сервер.'):
+		exit(json_encode('<tr class="text-center"><td colspan="6">Нет тарифов</td></tr>'));
+	endif;
+
+	$prefixes = new Prefixes(pdo());
+
+	$sth = pdo()->query("SELECT * FROM `servers__prefixes_term` WHERE `id_server`='$id_server'");
+
+	if(!$sth->rowCount()):
+		exit(json_encode('<tr class="text-center"><td colspan="6">Нет тарифов</td></tr>'));
+	endif;
+
+	while($row = $sth->fetch(PDO::FETCH_OBJ)):
+		$prefixes
+		->addTemp("templates/admin/tpl/elements/table_prefixes.tpl")
+		->setTemp("{id}", $row->id)
+		->setTemp("{time}", $row->time)
+		->setTemp("{price}", $row->price)
+		->setTemp("{discount}", $row->discount)
+		->setTemp("{rcon}", $row->rcon);
+	endwhile;
+
+	exit(json_encode($prefixes->endTemp()));
+endif;
+
+if(isset($_POST['editTerm'])):
+	$index = clean($_POST['index'], "int");
+
+	$time = clean($_POST['time'], "int");
+	$price = clean($_POST['price'], "int");
+	$discount = clean($_POST['discount'], "int");
+	$rcon = clean($_POST['rcon'], null);
+
+	(new Prefixes(pdo()))
+	->editTerm((object)[
+		'index' => $index,
+		'price' => $price,
+		'time' => $time,
+		'discount' => $discount,
+		'rcon' => $rcon
+	]);
+
+	exit(json_encode(['alert' => 'success']));
+endif;
+
+if(isset($_POST['delTerm'])):
+	$index = clean($_POST['index'], "int");
+
+	pdo()
+	->prepare("DELETE FROM `servers__prefixes_term` WHERE `id`=:id")
+	->execute([
+		':id' => $index
+	]);
+
+	exit(json_encode(['alert' => 'success']));
+endif;
+
+if(isset($_POST['getSpeech'])):
+	$id_server = clean($_POST['id_server'], "int");
+
+	if(empty($id_server) || $id_server == 'Выберите сервер.'):
+		exit(json_encode('<tr class="text-center"><td colspan="3">Список чист</td></tr>'));
+	endif;
+
+	$prefixes = new Prefixes(pdo());
+
+	$sth = pdo()->query("SELECT * FROM `servers__prefixes_ban` WHERE `id_server`='$id_server'");
+
+	if(!$sth->rowCount()):
+		exit(json_encode('<tr class="text-center"><td colspan="3">Список чист</td></tr>'));
+	endif;
+
+	while($row = $sth->fetch(PDO::FETCH_OBJ)):
+		$prefixes
+		->addTemp("templates/admin/tpl/elements/table_prefixes_ban.tpl")
+		->setTemp("{id}", $row->id)
+		->setTemp("{speech}", $row->speech);
+	endwhile;
+
+	exit(json_encode($prefixes->endTemp()));
+endif;
+
+if(isset($_POST['addSpeech'])):
+	$id_server = clean($_POST['id_server'], "int");
+	$speech = clean($_POST['speech'], null);
+
+	(new Prefixes(pdo()))
+	->addSpeech((object)[
+		'id_server' => $id_server,
+		'speech' => $speech
+	]);
+
+	exit(json_encode(['alert' => 'success']));
+endif;
+
+if(isset($_POST['editSpeech'])):
+	$index = clean($_POST['index'], "int");
+	$speech = clean($_POST['speech'], null);
+
+	(new Prefixes(pdo()))
+	->editSpeech((object)[
+		'index' => $index,
+		'speech' => $speech
+	]);
+
+	exit(json_encode(['alert' => 'success']));
+endif;
+
+if(isset($_POST['delSpeech'])):
+	$index = clean($_POST['index'], "int");
+
+	pdo()
+	->prepare("DELETE FROM `servers__prefixes_ban` WHERE `id`=:id")
+	->execute([
+		':id' => $index
+	]);
+
+	exit(json_encode(['alert' => 'success']));
+endif;

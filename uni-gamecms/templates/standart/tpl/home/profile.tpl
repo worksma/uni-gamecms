@@ -411,9 +411,28 @@
 						</tr>
 						</thead>
 						<tbody id="admins">
-                        {func Widgets:user_admins('{profile_id}')}
+							{func Widgets:user_admins('{profile_id}')}
 						</tbody>
 					</table>
+				</div>
+
+				<div class="block block-table">
+					<div class="block_head">Префиксы</div>
+					<div class="table-responsive mb-0">
+						<table class="table table-condensed table-bordered">
+							<thead>
+								<tr>
+									<td>#</td>
+									<td>Сервер</td>
+									<td>Идентификатор</td>
+									<td>Префикс</td>
+								</tr>
+							</thead>
+							<tbody>
+								<?=(new Prefixes(pdo()))->user_prefixes('{profile_id}');?>
+							</tbody>
+						</table>
+					</div>
 				</div>
 			</div>
 

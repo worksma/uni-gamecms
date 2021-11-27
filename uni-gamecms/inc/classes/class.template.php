@@ -49,7 +49,9 @@ class Template {
 			}
 		} else {
 			$this->data[$name] = $var;
-		} 
+		}
+
+		return $this;
 	}
 
 	public function setCoreDir() {
@@ -140,7 +142,7 @@ class Template {
 		}
 
 		$this->copy_template = $this->template;
-		return true; 
+		return $this; 
 	}
 
 	public function _clear() { 
@@ -153,6 +155,8 @@ class Template {
 		$this->copy_template = null; 
 		$this->template = null; 
 		$this->using_tpl = '';
+
+		return $this;
 	}
 	
 	public function global_clear() { 
@@ -215,6 +219,8 @@ class Template {
 			$this->result[$tpl] = $result; 
 		}
 		$this->_clear();
+
+		return $this;
 	}
 
 	public function show($tpl_data_) {

@@ -2114,4 +2114,104 @@ if(isset($_POST['loadImages'])) {
 	}
 }
 
+if(isset($_POST['getTermPrefixes'])):
+	exit(json_encode(['alert' => 'success', 'message' => (new Prefixes(pdo()))->get_term($_POST['id_server'])]));
+endif;
+
+if(isset($_POST['buyPrefix'])):
+	$id_server = clean($_POST['id_server'], "int");
+
+	if(empty($id_server) || $id_server == 'Выберите сервер.'):
+		exit(json_encode(['alert' => 'error', 'message' => 'Сначала выберите сервер.']));
+	endif;
+
+	$id_term = clean($_POST['id_term'], "int");
+
+	if(empty($id_term) || $id_term == 'Выберите тариф.'):
+		exit(json_encode(['alert' => 'error', 'message' => 'Сначала выберите тариф.']));
+	endif;
+
+	$type_bind = clean($_POST['type_bind'], "int");
+
+	$nickname = clean($_POST['nickname'], null);
+	$steamid = clean($_POST['steamid'], null);
+	$password = clean($_POST['password'], null);
+
+	$prefix = clean($_POST['prefix'], null);
+
+	switch($type_bind):
+		case 1:
+			if(empty($nickname) || empty($password)):
+				exit(json_encode(['alert' => 'error', 'message' => 'Сначала заполните все данные!']));
+			endif;
+		break;
+		case 2:
+			if(empty($steamid)):
+				exit(json_encode(['alert' => 'error', 'message' => 'Сначала заполните все данные!']));
+			endif;
+		break;
+		case 3:
+			if(empty($steamid) || empty($password)):
+				exit(json_encode(['alert' => 'error', 'message' => 'Сначала заполните все данные!']));
+			endif;
+		break;
+		default:
+			exit(json_encode(['alert' => 'error', 'message' => 'Выберите метод привязки']));
+		break;
+	endswitch;
+
+	$prefixes = new Prefixes(pdo());
+
+	if($prefixes->is_speech($id_server, $prefix)):
+		exit(json_encode(['alert' => 'error', 'message' => 'Префикс имеет запрещенное слово!']));
+	endif;
+
+	$user = pdo()->query("SELECT * FROM `users` WHERE `id`='{$_SESSION['id']}'")->fetch(PDO::FETCH_OBJ);
+
+	if($user->shilings >= $prefixes->get_term_price($id_term)):
+		$end_shiling = $user->shilings - $prefixes->get_term_price($id_term);
+		
+		if(pdo()->query("UPDATE `users` SET `shilings`='{$end_shiling}' WHERE `id`='{$_SESSION['id']}'")):
+			if($prefixes->setPrefix((object)[
+				'id_server' => $id_server,
+				'id_user' => $_SESSION['id'],
+				'term' => $id_term,
+
+				'steamid' => (($type_bind == 2 || $type_bind == 3) ? $steamid : 'none'),
+				'nickname' => (($type_bind == 1) ? $nickname : 'none'),
+				'password' => (($type_bind == 1 || $type_bind == 3) ? $password : 'none'),
+				'prefix' => $prefix
+			])):
+				$server = pdo()->query("SELECT * FROM `servers` WHERE `id`='$id_server' LIMIT 1")->fetch(PDO::FETCH_OBJ);
+
+				$prefixes
+				->getTemp("templates/{$conf->template}/tpl/elements/area/buy_prefixes.tpl")
+				->setTemp("{index}", (($type_bind == 1) ? $nickname : $steamid))
+				->setTemp("{password}", (($type_bind == 2) ? "Не требуется" : $password))
+				->setTemp("{term}", ($prefixes->term($id_term)->time == 0) ? "Неограниченное время" : ($prefixes->term($id_term)->time . ' дня(ей)'))
+				->setTemp("{server}", $server->name . ' - ' . $server->address);
+
+				$term = $prefixes->term($id_term);
+
+				if($server->rcon == '1' && $term->rcon != 'none'):
+					$query = str_replace("{identifier}", ($type_bind == 1) ? $nickname : $steamid, $term->rcon);
+					$query = str_replace("{password}", $type_bind == 2 ? "" : $password, $query);
+					$query = str_replace("{time}", $term->time, $query);
+					$query = str_replace("{prefix}", $prefix, $query);
+
+					SourceQuery()->Connect($server->ip, $server->port, 1, (($server->game == 'Counter-Strike: 1.6') ? SourceQuery::GOLDSOURCE : SourceQuery::SOURCE));
+					SourceQuery()->SetRconPassword($server->rcon_password);
+					SourceQuery()->Rcon($query);
+				endif;
+
+				exit(json_encode($prefixes->endTemp()));
+			endif;
+		endif;
+	else:
+		exit(json_encode(['alert' => 'error', 'message' => 'Недостаточно средств, <a href="../purse">нажмите для пополнить баланс</a>.']));
+	endif;
+
+	exit(json_encode(['alert' => 'error', 'message' => 'Ошибка запроса..']));
+endif;
+
 exit(json_encode(['status' => 2]));

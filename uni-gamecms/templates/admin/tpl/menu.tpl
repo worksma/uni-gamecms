@@ -31,6 +31,12 @@
             </a>
         </li>
         <li>
+            <a href="{site_host}admin/prefixes">
+                <span class="glyphicon glyphicon-barcode"></span>
+                Настройка префиксов
+            </a>
+        </li>
+        <li>
             <a href="{site_host}admin/users_groups">
                 <span class="glyphicon glyphicon-fire"></span>
                 Группы пользователей

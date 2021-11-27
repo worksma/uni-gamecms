@@ -289,37 +289,14 @@ function send_post(website, form_data, callback) {form_data.append("phpaction", 
 function edit_update_server() {NProgress.start();var token = $("#token").val();var server = $("#update_servers").val();$.ajax({type: "POST",url: "../ajax/actions_panel.php",data: "phpaction=1&token=" + token + "&edit_update_server=1&server_id=" + server,dataType: "json",success: function(result) {NProgress.done();if(result.status == 1) {$("#update_servers").html(result.body);if(result.enable == 1) {$("#update_server_status").html("<div class='alert alert-success text-center'>Сервер доступен</div>");}else {$("#update_server_status").html("<div class='alert alert-danger text-center'>Сервер недоступен</div>");}}}});}
 function edit_amarapay() {var form_data = new FormData;form_data.append("edit_amarapay", "1");form_data.append("amarapay_id", $("#amarapay_id").val());form_data.append("amarapay_public", $("#amarapay_public").val());form_data.append("amarapay_secret", $("#amarapay_secret").val());send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {$("#result_amarapay").html("<p class=\"text-" + result.alert + "\">" + result.message + "</p>");});}
 function edit_freekassa_new() {var form_data = new FormData;form_data.append("edit_freekassa_new", "1");form_data.append("freekassa_id", $("#freekassa_id").val());form_data.append("freekassa_secret1", $("#freekassa_secret1").val());form_data.append("freekassa_secret2", $("#freekassa_secret2").val());send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {$("#result_freekassa").html("<p class=\"text-" + result.alert + "\">" + result.message + "</p>");});}
-
-function editCaptcha() {
-	var form_data = new FormData;
-	form_data.append("editCaptcha", "1");
-	form_data.append("captcha_client_key", $("#captcha_client_key").val());
-	form_data.append("captcha_secret", $("#captcha_secret").val());
-
-	send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {
-		if(result.alert == 'success') {
-			toasty(result.alert, "Настройки сохранены!");
-		}
-		else {
-			toasty(result.alert, result.message);
-		}
-	});
-}
-
-function onCaptcha() {
-	var form_data = new FormData;
-	form_data.append("onCaptcha", "1");
-
-	send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {
-		toasty(result.alert, result.message);
-	});
-}
-
-function offCaptcha() {
-	var form_data = new FormData;
-	form_data.append("offCaptcha", "1");
-
-	send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {
-		toasty(result.alert, result.message);
-	});
-}
+function editCaptcha() {var form_data = new FormData;form_data.append("editCaptcha", "1");form_data.append("captcha_client_key", $("#captcha_client_key").val());form_data.append("captcha_secret", $("#captcha_secret").val());send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {if(result.alert == 'success') {toasty(result.alert, "Настройки сохранены!");}else {toasty(result.alert, result.message);}});}
+function onCaptcha() {var form_data = new FormData;form_data.append("onCaptcha", "1");send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {toasty(result.alert, result.message);});}
+function offCaptcha() {var form_data = new FormData;form_data.append("offCaptcha", "1");send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {toasty(result.alert, result.message);});}
+function addTerm() {var form_data = new FormData;form_data.append("addTerm", "1");form_data.append("id_server", $("#id_serv option:selected").val());form_data.append("time", $("#time").val());form_data.append("price", $("#price").val());form_data.append("discount", $("#discount").val());form_data.append("rcon", $("#rcon").val());send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {getTerm();});}
+function getTerm() {var form_data = new FormData;form_data.append("getTerm", "1");form_data.append("id_server", $("#id_serv option:selected").val());send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {$("#term_list").html(result);});}
+function editTerm(index) {var form_data = new FormData;form_data.append("editTerm", "1");form_data.append("index", index);form_data.append("time", $("#time" + index).val());form_data.append("price", $("#price" + index).val());form_data.append("discount", $("#discount" + index).val());form_data.append("rcon", $("#rcon" + index).val());send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {getTerm();});}
+function delTerm(index) {var form_data = new FormData;form_data.append("delTerm", "1");form_data.append("index", index);send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {getTerm();});}
+function getSpeech() {var form_data = new FormData;form_data.append("getSpeech", "1");form_data.append("id_server", $("#id_serv option:selected").val());send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {$("#speech_ban").html(result);});}
+function addSpeech() {var form_data = new FormData;form_data.append("addSpeech", "1");form_data.append("id_server", $("#id_serv option:selected").val());form_data.append("speech", $("#speech").val());send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {$("#speech").val("");getSpeech();});}
+function editSpeech(index) {var form_data = new FormData;form_data.append("editSpeech", "1");form_data.append("index", index);form_data.append("speech", $("#speech" + index).val());send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {getSpeech();});}
+function delSpeech(index) {var form_data = new FormData;form_data.append("delSpeech", "1");form_data.append("index", index);send_post(get_url() + "ajax/actions_panel.php", form_data, function(result) {getSpeech();});}

@@ -295,7 +295,7 @@ CREATE TABLE IF NOT EXISTS `config__secondary` (
   `complaints_lim` int NOT NULL DEFAULT '30',
   `stand_rights` int NOT NULL DEFAULT '1',
   `stand_balance` float NOT NULL DEFAULT '0',
-  `version` varchar(10) NOT NULL DEFAULT '5.0.8.7',
+  `version` varchar(10) NOT NULL DEFAULT '5.0.8.8',
   `col_login` int NOT NULL DEFAULT '30',
   `admins_ids` varchar(80) NOT NULL DEFAULT '1',
   `off_message` varchar(250) NOT NULL DEFAULT 'Сайт находится в стадии разработки',
@@ -310,7 +310,7 @@ CREATE TABLE IF NOT EXISTS `config__secondary` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 INSERT INTO `config__secondary` (`id`, `vk_api`, `vk_id`, `vk_key`, `vk_service_key`, `steam_api`, `steam_key`, `fb_api`, `fb_id`, `fb_key`, `mon_gap`, `mon_time`, `mon_api`, `mon_key`, `bans_lim`, `muts_lim`, `users_lim`, `bans_lim2`, `news_lim`, `stats_lim`, `complaints_lim`, `stand_rights`, `stand_balance`, `version`, `col_login`, `admins_ids`, `off_message`, `update_link`, `return_services`, `bad_nicks_act`, `min_amount`, `bonuses`, `auto_steam_id_fill`, `steam_id_format`) VALUES
-(1, 2, NULL, NULL, NULL, 2, NULL, 2, NULL, NULL, 120, 1634158027, 2, '', 30, 30, 12, 30, 10, 30, 30, 2, 0, '5.0.8.7', 30, '1', 'Ведутся технические работы', '', 2, 2, 10, 2, 2, 1);
+(1, 2, NULL, NULL, NULL, 2, NULL, 2, NULL, NULL, 120, 1634158027, 2, '', 30, 30, 12, 30, 10, 30, 30, 2, 0, '5.0.8.8', 30, '1', 'Ведутся технические работы', '', 2, 2, 10, 2, 2, 1);
 
 CREATE TABLE IF NOT EXISTS `config__strings` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -473,7 +473,7 @@ CREATE TABLE IF NOT EXISTS `menu__sub` (
   `poz` int NOT NULL,
   `for_all` int NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
 
 INSERT INTO `menu__sub` (`id`, `name`, `link`, `menu`, `poz`, `for_all`) VALUES
 (1, 'Уведомления', '../notifications', 5, 6, 1),
@@ -485,8 +485,9 @@ INSERT INTO `menu__sub` (`id`, `name`, `link`, `menu`, `poz`, `for_all`) VALUES
 (7, 'Выход', '../exit', 5, 9, 1),
 (8, 'Услуги', '../my_stores', 5, 8, 1),
 (9, 'Магазин привилегий', '../store', 4, 1, 1),
-(10, 'Торговая площадка', '/market', 4, 2, 1),
-(11, 'Инвентарь', '/inventory', 5, 7, 1);
+(10, 'Магазин префиксов', '../store/prefixes', 4, 2, 1),
+(11, 'Торговая площадка', '/market', 4, 3, 1),
+(12, 'Инвентарь', '/inventory', 5, 7, 1);
 
 CREATE TABLE IF NOT EXISTS `modules` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -682,7 +683,9 @@ INSERT INTO `pages` (`id`, `file`, `url`, `name`, `title`, `description`, `keywo
 (78, 'modules/admin/playground.php', 'admin/market', 'admin_market', 'Маркет', 'none', 'none', 1, 'files/miniatures/standart.jpg', 0, 0, 2, 1, 0, 0, 0),
 (79, 'modules/complaints/index.php', 'complaints', 'complaints', 'Жалобы', 'Жалобы', 'Жалобы', 1, 'files/miniatures/standart.jpg', 1, 2, 1, 1, 0, 0, 0),
 (80, 'modules/complaints/complaint.php', 'complaints/complaint', 'complaints_complaint', 'Жалоба на {value}', 'Жалоба на {value}', 'Жалоба на {value}', 1, 'files/miniatures/standart.jpg', 1, 2, 1, 1, 0, 0, 0),
-(81, 'modules/complaints/add.php', 'complaints/add', 'complaints_add', 'Добавление жалобы', 'Добавление жалобы', 'Добавление жалобы', 1, 'files/miniatures/standart.jpg', 2, 0, 1, 1, 0, 0, 0);
+(81, 'modules/complaints/add.php', 'complaints/add', 'complaints_add', 'Добавление жалобы', 'Добавление жалобы', 'Добавление жалобы', 1, 'files/miniatures/standart.jpg', 2, 0, 1, 1, 0, 0, 0),
+(82, 'modules/prefixes/index.php', 'store/prefixes', 'prefixes', 'Префиксы', 'Префиксы', 'Префиксы', 1, 'files/miniatures/standart.jpg', 1, 2, 1, 1, 0, 0, 0),
+(83, 'modules/admin/prefixes.php', 'admin/prefixes', 'admin_prefixes', 'Префиксы', 'none', 'none', 1, 'files/miniatures/standart.jpg', 0, 0, 2, 1, 0, 0, 0);
 
 CREATE TABLE IF NOT EXISTS `pages__classes` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -843,6 +846,37 @@ CREATE TABLE IF NOT EXISTS `servers__commands_params` (
   `name` varchar(32) NOT NULL,
   `title` varchar(512) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `servers__prefixes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `id_server` int NOT NULL, 
+  `id_user` int NOT NULL, 
+  `steamid` varchar(64) NOT NULL DEFAULT 'none', 
+  `nickname` varchar(32) NOT NULL, 
+  `password` varchar(32) NOT NULL DEFAULT 'none', 
+  `prefix` varchar(32) NOT NULL, 
+  `date_start` varchar(64) NOT NULL DEFAULT '0000-00-00 00:00:00', 
+  `date_end` varchar(64) NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `servers__prefixes_ban` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `id_server` int NOT NULL,
+  `speech` varchar(64) NOT NULL,
+  PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `servers__prefixes_term` (
+  `id` int NOT NULL, 
+  `id_server` int NOT NULL, 
+  `price` int NOT NULL, 
+  `time` int NOT NULL, 
+  `discount` int NOT NULL, 
+  `rcon` varchar(128) NOT NULL DEFAULT 'none',
+  PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `services` (
   `id` int NOT NULL AUTO_INCREMENT,
