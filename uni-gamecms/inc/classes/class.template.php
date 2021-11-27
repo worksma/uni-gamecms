@@ -125,7 +125,7 @@ class Template {
 			if(file_exists($cache_file)) {
 				$cache_time = filemtime($cache_file);
 				if($cache_time > $orig_time) {
-					return true; 
+					return $this; 
 				}
 			}
 		}
