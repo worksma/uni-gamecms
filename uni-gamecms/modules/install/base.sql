@@ -728,7 +728,7 @@ CREATE TABLE IF NOT EXISTS `playground` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
-INSERT INTO `playground` (`id`, `currency`, `course`) VALUES
+INSERT INTO `playground` (`id`, `currency`, `course`, `bonuses`) VALUES
 (1, 'поинт', 0.1, '0');
 
 CREATE TABLE IF NOT EXISTS `playground__category` (
