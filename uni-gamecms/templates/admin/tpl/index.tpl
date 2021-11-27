@@ -8,6 +8,7 @@
 	<div class="central-block-body">
 		<div class="form-horizontal">
 			<form id="admin_login">
+				<input id="login" type="text" maxlength="15" class="form-control" placeholder="Логин">
 				<input id="password" type="password" maxlength="15" class="form-control" placeholder="Пароль">
 				
 				{if($conf->captcha != '2')}

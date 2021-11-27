@@ -1,25 +1,35 @@
 <?php
-$tpl->load_template('elements/title.tpl');
-$tpl->set("{title}", $page->title);
-$tpl->set("{name}", $conf->name);
-$tpl->compile( 'title' );
-$tpl->clear();
+	if($conf->off == '2' && !is_admin()):
+		show_error_page("not_adm");
+	endif;
 
-$tpl->load_template('head.tpl');
-$tpl->set("{title}", $tpl->result['title']);
-$tpl->set("{image}", $page->image);
-$tpl->set("{other}", '');
-$tpl->set("{token}", $token);
-$tpl->set("{cache}", $conf->cache);
-$tpl->set("{template}", $conf->template);
-$tpl->set("{site_host}", $site_host);
-$tpl->compile( 'content' );
-$tpl->clear();
+	$tpl->load_template('elements/title.tpl');
+	$tpl->set("{title}", $page->title);
+	$tpl->set("{name}", $conf->name);
+	$tpl->compile( 'title' );
+	$tpl->clear();
 
-if(!is_admin()){
-	header("Location: /");
-	exit;
-} else {
+	$tpl->load_template('head.tpl');
+	$tpl->set("{title}", $tpl->result['title']);
+	$tpl->set("{image}", $page->image);
+	$tpl->set("{other}", '');
+	$tpl->set("{token}", $token);
+	$tpl->set("{cache}", $conf->cache);
+	$tpl->set("{template}", $conf->template);
+	$tpl->set("{site_host}", $site_host);
+	$tpl->compile( 'content' );
+	$tpl->clear();
+
+	if($conf->off == '1' && !is_admin()):
+		tpl()
+		->load_template("index.tpl")
+		->set("{site_host}", $site_host)
+		->set("{template}", $conf->template)
+		->compile("content")
+		->clear();
+		return;
+	endif;
+
 	$tpl->load_template('top.tpl');
 	$tpl->set("{token}", $token);
 	$tpl->set("{site_host}", $site_host);
@@ -229,5 +239,3 @@ if(!is_admin()){
 	$tpl->set("{site_host}", $site_host);
 	$tpl->compile( 'content' );
 	$tpl->clear();
-}
-?>
