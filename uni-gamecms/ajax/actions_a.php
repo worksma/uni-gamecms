@@ -1898,8 +1898,10 @@ if(isset($_POST['setTheAccused'])) {
 }
 
 if(isset($_POST['save_user_status'])):
-	if(isset($_POST['message'])):
-		$message = strip_tags($_POST['message']);
+	$message = clean($_POST['message'], null);
+
+	if(isset($message)):
+		$message = strip_tags($message);
 	else:
 		$message = 'none';
 	endif;
