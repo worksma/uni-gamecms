@@ -869,7 +869,7 @@ CREATE TABLE `servers__prefixes_ban` (
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `servers__prefixes_term` (
-  `id` int NOT NULL, 
+  `id` int NOT NULL AUTO_INCREMENT,
   `id_server` int NOT NULL, 
   `price` int NOT NULL, 
   `time` int NOT NULL, 
