@@ -2047,6 +2047,27 @@ function check_update_version($pdo, $version) {
 	return ['status' => '1', 'versions' => $remoteVersions, 'index' => $index];
 }
 
+/*
+	new
+*/
+
+
+function curl($site, $postfiels) {
+	$ch = curl_init($site);
+	curl_setopt($ch, CURLOPT_POST, 1);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $postfiels);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($ch, CURLOPT_HEADER, false);
+	$result = curl_exec($ch);
+	curl_close($ch);
+
+	return $result;
+}
+/*
+	new
+*/
+
 function curl_get_process($data = []) {
 	$ch = curl_init($data['website']);
 	curl_setopt($ch, CURLOPT_POST, 1);

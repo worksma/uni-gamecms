@@ -329,11 +329,10 @@ CREATE TABLE IF NOT EXISTS `config__updates` (
   `name` varchar(64) NOT NULL,
   `url` varchar(64) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 INSERT INTO `config__updates` (`id`, `name`, `url`) VALUES
-(1, 'Германия', 'worksma.ru'),
-(2, 'Россия', 's1.worksma.ru');
+(1, 'OVH SAS', 'worksma.ru');
 
 CREATE TABLE IF NOT EXISTS `events` (
   `id` int NOT NULL AUTO_INCREMENT,

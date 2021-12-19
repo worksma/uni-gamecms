@@ -5086,57 +5086,29 @@ if(isset($_POST['search_login'])) {
 		echo '<p class="text-danger pd-15">Пользователь с данным логином не найден.</p>';
 	}
 }
+
+if(isset($_POST['install_template_by_key'])):
+	$key = checkJs($_POST['key'], null);
+	(new Addons)->install_template($_POST['key']);
+endif;
+
+if(isset($_POST['install_module_by_key'])):
+	$key = checkJs($_POST['key'], null);
+	(new Addons)->install_module($key);
+endif;
+
 if(isset($_POST['dell_module'])) {
-	$id = checkJs($_POST['id'], "int");
-	if(empty($id)) {
-		exit (json_encode(['status' => '2']));
-	}
-
-	$STH = $pdo->prepare("SELECT name FROM modules WHERE id=:id LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$STH->execute([':id' => $id]);
-	$row = $STH->fetch();
-
-	$base_path = '../modules_extra/' . $row->name . "/settings/base_dell.sql";
-	if(file_exists($base_path)) {
-		$pdo->exec(trim(file_get_contents($base_path)));
-		unlink($base_path);
-	};
-	removeDirectory('../modules_extra/' . $row->name . '/');
-
-	$pdo->exec("DELETE FROM `modules` WHERE id='$id'");
-	$pdo->exec("DELETE FROM `pages` WHERE module='$id'");
-
-	exit(json_encode(['status' => '1']));
+	(new Addons)->delete_module($_POST['id']);
 }
-if(isset($_POST['off_module'])) {
-	$id = checkJs($_POST['id'], "int");
-	if(empty($id)) {
-		exit (json_encode(['status' => '2']));
-	}
 
-	$STH = $pdo->prepare("UPDATE modules SET active=:active WHERE id=:id LIMIT 1");
-	$STH->execute([':active' => '2', ':id' => $id]);
+if(isset($_POST['off_module'])):
+	(new Addons)->enable_module($_POST['id'], false);
+endif;
 
-	$STH = $pdo->prepare("UPDATE pages SET active=:active WHERE module=:module AND type='1'");
-	$STH->execute([':active' => '2', ':module' => $id]);
+if(isset($_POST['on_module'])):
+	(new Addons)->enable_module($_POST['id']);
+endif;
 
-	exit(json_encode(['status' => '1']));
-}
-if(isset($_POST['on_module'])) {
-	$id = checkJs($_POST['id'], "int");
-	if(empty($id)) {
-		exit (json_encode(['status' => '2']));
-	}
-
-	$STH = $pdo->prepare("UPDATE modules SET active=:active WHERE id=:id LIMIT 1");
-	$STH->execute([':active' => '1', ':id' => $id]);
-
-	$STH = $pdo->prepare("UPDATE pages SET active=:active WHERE module=:module AND type='1'");
-	$STH->execute([':active' => '1', ':module' => $id]);
-
-	exit(json_encode(['status' => '1']));
-}
 if(isset($_POST['load_modules'])) {
 	$i   = 0;
 	$STH = $pdo->prepare("SELECT `id`, `name`, `info`, `active` FROM `modules` ORDER BY `id` DESC");
@@ -5173,322 +5145,8 @@ if(isset($_POST['load_modules'])) {
 	}
 	exit();
 }
-if(isset($_POST['install_module'])) {
-	if($safe_mode == 1) {
-		exit('<p class="text-danger">Установка собственных модулей режиме безопасной эксплуатации запрещена!</p>');
-	}
 
-	if(empty($_FILES['zip_file']['name'])) {
-		exit('<p class="text-danger">Выберите архив с модулем!</p>');
-	} else {
-		$path = '../modules_extra/';
 
-		if(if_zip($_FILES['zip_file']['name'])) {
-			$filename    = $_FILES['zip_file']['name'];
-			$module_name = substr($_FILES['zip_file']['name'], 0, -4);
-			$source      = $_FILES['zip_file']['tmp_name'];
-			$target      = $path.$filename;
-			if(!move_uploaded_file($source, $target)) {
-				exit('<p class="text-danger">Ошибка загрузки архива</p>');
-			}
-
-			$STH = $pdo->prepare("SELECT `id` FROM `modules` WHERE `name`=:name LIMIT 1");
-			$STH->setFetchMode(PDO::FETCH_OBJ);
-			$STH->execute(array(':name' => $module_name));
-			$row = $STH->fetch();
-			if(isset($row->id)) {
-				unlink($target);
-				exit('<p class="text-danger">Данный модуль уже установлен</p>');
-			}
-
-			$archive = new PclZip($target);
-			$result  = $archive->extract(PCLZIP_OPT_PATH, $path);
-			unlink($target);
-		} else {
-			exit('<p class="text-danger">Модуль должен быть расширения ZIP</p>');
-		}
-
-		$tpls_path  = $path.$module_name."/settings/tpls.txt";
-		$pages_path = $path.$module_name."/settings/pages.txt";
-		$base_path  = $path.$module_name."/settings/base.sql";
-		$info_path  = $path.$module_name."/settings/info.txt";
-		$files_path = $path.$module_name."/settings/files.txt";
-		if(file_exists($tpls_path)) {
-			$tpls = file_get_contents(trim($tpls_path));
-			unlink($tpls_path);
-		} else {
-			$tpls = 'none';
-		}
-		if(file_exists($pages_path)) {
-			$pages = file_get_contents(trim($pages_path));
-			eval('$pages = '.$pages);
-			unlink($pages_path);
-		} else {
-			$pages = 'none';
-		}
-		if(file_exists($base_path)) {
-			$pdo->exec(trim(file_get_contents($base_path)));
-			unlink($base_path);
-		}
-		if(file_exists($info_path)) {
-			$info = file_get_contents(trim($info_path));
-			unlink($info_path);
-		}
-		if(file_exists($files_path)) {
-			$files = file_get_contents(trim($files_path));
-			unlink($files_path);
-		} else {
-			$files = '';
-		}
-
-		$STH = $pdo->prepare("INSERT INTO `modules` (`name`,`tpls`,`info`,`files`) values (:name, :tpls, :info, :files)");
-		$STH->execute(array(':name' => $module_name, ':tpls' => $tpls, ':info' => $info, ':files' => $files));
-
-		if(is_array($pages)) {
-			$module_id = get_ai($pdo, "modules");
-			$module_id--;
-
-			for($i = 0; $i < count($pages); $i++) {
-				$STH = $pdo->prepare("INSERT INTO pages (file,url,name,title,description,keywords,kind,image,robots,privacy,type,active,module,page,class) VALUES (:file, :url, :name, :title, :description, :keywords, :kind, :image, :robots, :privacy, :type, :active, :module, :page, :class)");
-				$STH->execute(array(':file'        => $pages[$i]['file'],
-									':url'         => $pages[$i]['url'],
-									':name'        => $pages[$i]['name'],
-									':title'       => $pages[$i]['title'],
-									':description' => $pages[$i]['description'],
-									':keywords'    => $pages[$i]['keywords'],
-									':kind'        => $pages[$i]['kind'],
-									':image'       => $pages[$i]['image'],
-									':robots'      => $pages[$i]['robots'],
-									':privacy'     => $pages[$i]['privacy'],
-									':type'        => $pages[$i]['type'],
-									':active'      => $pages[$i]['active'],
-									':module'      => $module_id,
-									':page'        => '0',
-									':class'       => '0'));
-			}
-		}
-
-		echo '<p class="text-success">Модуль успешно установлен</p>';
-	}
-	exit("<script>load_modules();</script>");
-}
-if(isset($_POST['install_module_by_key'])) {
-	ini_set('error_reporting', E_ALL);
-	ini_set('display_errors', 1);
-	ini_set('display_startup_errors', 1);
-	
-	$key = checkJs($_POST['key'], null);
-	if(empty($key)) {
-		exit(json_encode(['status' => '2', 'message' => 'Введите ключ.']));
-	}
-	
-	$STH = $pdo->prepare("SELECT id FROM modules WHERE client_key=:client_key LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$STH->execute([':client_key' => $key]);
-	$row = $STH->fetch();
-	if(isset($row->id)) {
-		exit(json_encode(['status' => '2', 'message' => 'Ключ уже использован.']));
-	}
-
-	$STH = $pdo->query("SELECT version FROM config__secondary LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$row = $STH->fetch();
-	
-	if(check_update_server($pdo, $conf->update_server)) {
-		$r_versions = check_update_version($pdo, $row->version);
-		if(!$r_versions['status']) {
-			exit(json_encode(array('status' => '2', 'message' => 'Обновите движок, используется устаревшая версия.')));
-		}
-		else {
-			ignore_user_abort(1);
-			set_time_limit(0);
-			
-			$result = curl_get_process([
-				'website' => "https://" . get_update_url($pdo) . "/api?type=downloads",
-				'data' => "&product=gamecms&server_name={$_SERVER['SERVER_NAME']}&code={$_POST['key']}"
-			]);
-			
-			$result = json_decode(gzdecode($result), true);
-			
-			if($result['status'] == 2) {
-				exit(json_encode(array('status' => '2', 'message' => $result['message'])));
-			}
-		}
-	}
-	else {
-		exit(json_encode(array('status' => '2', 'message' => 'Главный сервер не доступен')));
-	}
-	
-	$link        = $result['file'];
-	$arr         = explode("/", $link);
-	$zip_file    = $arr[count($arr) - 1];
-	$module_name = $result['name'];
-
-	$STH = $pdo->prepare("SELECT id FROM modules WHERE name=:name LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$STH->execute([':name' => $module_name]);
-	$row = $STH->fetch();
-	
-	if(isset($row->id)) {
-		exit(json_encode(['status' => '2', 'message' => 'Данный модуль уже установлен']));
-	}
-
-	$path = $_SERVER['DOCUMENT_ROOT'] . '/modules_extra/';
-	if(!file_exists($path)) {
-		mkdir($path, 0777);
-	}
-	
-	$update_file = $path.$zip_file;
-	
-	$cInit = curl_init($link);
-	$fOpen = fopen($update_file, "wb");
-	curl_setopt($cInit, CURLOPT_FILE, $fOpen);
-	curl_setopt($cInit, CURLOPT_HEADER, 0);
-	curl_exec($cInit);
-	curl_close($cInit);
-	fclose($fOpen);
-	
-	$archive = new PclZip($update_file);
-	$result  = $archive->extract(PCLZIP_OPT_PATH, $path);
-	unlink($update_file);
-
-	$tpls_path  = $path . $module_name . "/settings/tpls.txt";
-	$pages_path = $path . $module_name . "/settings/pages.txt";
-	$base_path  = $path . $module_name . "/settings/base.sql";
-	$info_path  = $path . $module_name . "/settings/info.txt";
-	$files_path = $path . $module_name . "/settings/files.txt";
-	if(file_exists($tpls_path)) {
-		$tpls = file_get_contents(trim($tpls_path));
-		unlink($tpls_path);
-	} else {
-		$tpls = 'none';
-	}
-	if(file_exists($pages_path)) {
-		$pages = file_get_contents(trim($pages_path));
-		eval('$pages = ' . $pages);
-		unlink($pages_path);
-	} else {
-		$pages = 'none';
-	}
-	if(file_exists($base_path)) {
-		$pdo->exec(trim(file_get_contents($base_path)));
-		unlink($base_path);
-	}
-	
-	if(file_exists($info_path)) {
-		$info = file_get_contents(trim($info_path));
-		unlink($info_path);
-	}
-	else {
-		$info = "";
-	}
-	
-	if(file_exists($files_path)) {
-		$files = file_get_contents(trim($files_path));
-		unlink($files_path);
-	} else {
-		$files = '';
-	}
-
-	$STH = $pdo->prepare(
-		"INSERT INTO modules (name,tpls,info,files,client_key) values (:name, :tpls, :info, :files, :client_key)"
-	);
-	$STH->execute(
-		[':name' => $module_name, ':tpls' => $tpls, ':info' => $info, ':files' => $files, ':client_key' => $key]
-	);
-	
-	if(is_array($pages)) {
-		$module_id = get_ai($pdo, "modules");
-		$module_id--;
-
-		for($i = 0; $i < count($pages); $i++) {
-			$STH = $pdo->prepare(
-				"INSERT INTO pages (file,url,name,title,description,keywords,kind,image,robots,privacy,type,active,module,page,class) values (:file, :url, :name, :title, :description, :keywords, :kind, :image, :robots, :privacy, :type, :active, :module, :page, :class)"
-			);
-			$STH->execute(
-				[
-					':file'        => $pages[$i]['file'],
-					':url'         => $pages[$i]['url'],
-					':name'        => $pages[$i]['name'],
-					':title'       => $pages[$i]['title'],
-					':description' => $pages[$i]['description'],
-					':keywords'    => $pages[$i]['keywords'],
-					':kind'        => $pages[$i]['kind'],
-					':image'       => $pages[$i]['image'],
-					':robots'      => $pages[$i]['robots'],
-					':privacy'     => $pages[$i]['privacy'],
-					':type'        => $pages[$i]['type'],
-					':active'      => $pages[$i]['active'],
-					':module'      => $module_id,
-					':page'        => '0',
-					':class'       => '0'
-				]
-			);
-		}
-	}
-
-	exit(json_encode(['status' => '1', 'message' => 'Модуль успешно установлен']));
-}
-
-if(isset($_POST['install_template_by_key'])) {
-	$key = checkJs($_POST['key'], null);
-	if(empty($key)) {
-		exit(json_encode(array('status' => '2', 'message' => 'Введите ключ.')));
-	}
-
-	$STH = $pdo->query("SELECT version FROM config__secondary LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$row = $STH->fetch();
-	
-	if(check_update_server($pdo, $conf->update_server)) {
-		$r_versions = check_update_version($pdo, $row->version);
-		if(!$r_versions['status']) {
-			exit(json_encode(array('status' => '2', 'message' => 'Обновите движок, используется устаревшая версия.')));
-		}
-		else {
-			ignore_user_abort(1);
-			set_time_limit(0);
-			
-			$result = curl_get_process([
-				'website' => "https://" . get_update_url($pdo) . "/api?type=downloads",
-				'data' => "&product=gamecms&server_name={$_SERVER['SERVER_NAME']}&code={$_POST['key']}"
-			]);
-			
-			$result = json_decode(gzdecode($result), true);
-			
-			if($result['status'] == 2) {
-				exit(json_encode(array('status' => '2', 'message' => $result['message'])));
-			}
-		}
-	}
-	else {
-		exit(json_encode(array('status' => '2', 'message' => 'Главный сервер не доступен')));
-	}
-
-	$link          = $result['file'];
-	$arr           = explode("/", $link);
-	$zip_file      = $arr[count($arr) - 1];
-	$template_name = $result['name'];
-
-	$path = '../templates/';
-	mkdir($path, 0777);
-
-	$update_file = $path.$zip_file;
-	
-	$cInit = curl_init($link);
-	$fOpen = fopen($update_file, "wb");
-	curl_setopt($cInit, CURLOPT_FILE, $fOpen);
-	curl_setopt($cInit, CURLOPT_HEADER, 0);
-	curl_exec($cInit);
-	curl_close($cInit);
-	fclose($fOpen);
-
-	$archive = new PclZip($update_file);
-	$result  = $archive->extract(PCLZIP_OPT_PATH, $path);
-	unlink($update_file);
-
-	exit(json_encode(array('status' => '1', 'message' => $template_name)));
-}
 if(isset($_POST['replace_tpl_img'])) {
 	$folderId = clean($_POST['data'], null);
 
@@ -5869,71 +5527,56 @@ if(isset($_POST['edit_update_server'])) {
 	exit(json_encode(['status' => '2']));
 }
 
-if(isset($_POST['get_main_info'])) {
-	$STH = $pdo->query("SELECT version, update_link FROM config__secondary LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$row = $STH->fetch();
+if(isset($_POST['get_main_info'])):
+	$api = new System;
 
-	if(check_update_server($pdo, $conf->update_server)) {
-		$r_versions = check_update_version($pdo, $row->version);
-		if(!$r_versions['status']) {
-			$remoteVersions = $r_versions['versions'];
-			
-			exit(json_encode([
-				'version' => "<font class=\"text-danger\">{$row->version}</font> (Доступно обновление <font class=\"text-success\">{$remoteVersions[$r_versions['index'] + 1]['version']}</font>: <a class='c-p' onclick='getFeedback({$remoteVersions[$r_versions['index'] + 1]['id']});' data-toggle='modal' data-target='#feedback'>отзывы</a> | <a class='c-p' onclick='get_update();'>получить</a>)",
-				'message' => $remoteVersions[$r_versions['index'] + 1]['description']
-			]));
-		}
-		else {
-			exit(json_encode([
-				'version' => "{$row->version} (Используется актуальная версия)"
-			]));
-		}
-	}
-	else {
+	if($api->is_site_valid($api->server(true))):
+		switch($api->is_update()):
+			case "last":
+				exit(json_encode([
+					'version' => $api->secondary()->version . " (Используется актуальная версия)"
+				]));
+			break;
+
+			case "old":
+				exit(json_encode([
+					'version' => '<font class="text-danger">' . $api->secondary()->version . '</font> (Доступно новое обновление) <a href="#getUpdate" type="button" onclick="get_update();">Обновить</a>',
+					'message' => $api->get_version_description()
+				]));
+			break;
+
+			default:
+				exit(json_encode([
+					'version' => $api->secondary()->version . " <font class='text-muted'>(Неизвестная версия)</font>"
+				]));
+			break;
+		endswitch;
+	else:
 		exit(json_encode([
-			'version' => "{$row->version} <font class=\"text-muted\">(Сервер не доступен)</font>"
+			'version' => $api->secondary()->version . " <font class='text-muted'>(сервер не доступен)</font>"
 		]));
-	}
-}
+	endif;
+endif;
 
-if(isset($_POST['get_update'])) {
-	$pdo->query("UPDATE `config__secondary` SET `update_link`='' LIMIT 1");
-	
-	$STH = $pdo->query("SELECT version, update_link FROM config__secondary LIMIT 1");
-	$STH->setFetchMode(PDO::FETCH_OBJ);
-	$row = $STH->fetch();
-	
-	if(check_update_server($pdo, $conf->update_server)) {
-		$r_versions = check_update_version($pdo, $row->version);
-		if(r_versions['status']) {
-			$remoteVersions = $r_versions['versions'];
-			
-			if(empty($row->update_link)) {
-				ignore_user_abort(1);
-				set_time_limit(0);
-				
-				$gz = json_encode([
-					'version' => $remoteVersions[$r_versions['index'] + 1]['version'],
-					'file' => $remoteVersions[$r_versions['index'] + 1]['file'],
-					'request' => base64_encode($remoteVersions[$r_versions['index'] + 1]['request'])
-				]);
-				
-				if($pdo->query("UPDATE `config__secondary` SET `update_link`='{$gz}' LIMIT 1")) {
-					exit(json_encode(array('status' => '1')));
-				}
-					
-				exit(json_encode(array('status' => '2', 'message' => "Ошибка внесения ссылки на обновление!")));
-			}
-		}
-		else {
-			exit(json_encode(array('status' => '2', 'message' => 'Используется актуальная версия')));
-		}
-	}
-	else {
-		exit(json_encode(array('status' => '2', 'message' => 'Главный сервер не доступен')));
-	}
-}
+if(isset($_POST['get_update'])):
+	pdo()->exec("UPDATE `config__secondary` SET `update_link`='' LIMIT 1");
+	$api = new System;
+
+	if($api->is_site_valid($api->server(true))):
+		if(empty($api->secondary)):
+			$file = $api->link_update();
+
+			if(pdo()->exec("UPDATE `config__secondary` SET `update_link`='$file' LIMIT 1")):
+				exit(json_encode(['status' => '1']));
+			endif;
+		endif;
+
+		exit(json_encode(['status' => '2', 'message' => 'Попробуйте еще раз']));
+	endif;
+
+	exit(json_encode(['status' => '2', 'message' => 'Сервер не доступен']));
+endif;
+
 if(isset($_POST['clear_banlist'])) {
 	$id = checkJs($_POST['id'], "int");
 	$clearType = checkJs($_POST['type'], "int");

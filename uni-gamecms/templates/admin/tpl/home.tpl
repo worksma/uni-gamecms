@@ -9,7 +9,6 @@
 	{/if}
 
 	<div id="message" class="disp-n"></div>
-
 	<div class="col-md-6">
 		<div class="panel panel-default">
 			<div class="panel-heading">Основные настройки</div>
