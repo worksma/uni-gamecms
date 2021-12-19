@@ -332,7 +332,7 @@ CREATE TABLE IF NOT EXISTS `config__updates` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 INSERT INTO `config__updates` (`id`, `name`, `url`) VALUES
-(1, 'OVH SAS', 'worksma.ru');
+(1, 'OVH SAS', 'api.worksma.ru');
 
 CREATE TABLE IF NOT EXISTS `events` (
   `id` int NOT NULL AUTO_INCREMENT,
