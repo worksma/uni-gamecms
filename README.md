@@ -7,10 +7,10 @@
 </details>
 
 # Системные требования
-1. Сервер Nginx или Apache;
-2. Установленная версия PHP (не ниже 7.0, не CGI);
+1. Сервер nginx или apache;
+2. Установленная версия PHP не ниже 7.4 (не CGI);
 3. База данных MySQL или её аналог;
-4. Пару прямых рук <3
+4. Включенный модуль ZipArchive.
 
 # Платёжные системы (Payment systems)
 1. Free-Kassa
@@ -24,8 +24,6 @@
 9. Qiwi
 10. LiqPay
 11. AnyPay
-12. AmaraPay
-13. FreeKassa
 
 # Навигация по сайту (Site Navigation)
 1. Главная страница (Home page) ([адрес сайта]);
