@@ -60,6 +60,7 @@ $qwact  = get_active($bank_conf->qw, 2);
 $lpact  = get_active($bank_conf->lp, 2);
 $apact  = get_active($bank_conf->ap, 2);
 $enotact  = get_active($bank_conf->enot, 2);
+$amarapayact = get_active($bank_conf->amarapay, 2);
 $psRUB  = '';
 $psEUR  = '';
 $psUSD  = '';
@@ -138,6 +139,14 @@ $tpl->set("{apact}", $apact[0]);
 $tpl->set("{apact2}", $apact[1]);
 $tpl->set("{enotact}", $enotact[0]);
 $tpl->set("{enotact2}", $enotact[1]);
+
+$tpl
+->set("{amarapay_act}", $amarapayact[0])
+->set("{amarapay_act2}", $amarapayact[1])
+->set("{amarapay_id}", $bank_conf->amarapay_id)
+->set("{amarapay_public}", $bank_conf->amarapay_public)
+->set("{amarapay_secret}", $bank_conf->amarapay_secret);
+
 $tpl->compile('content');
 $tpl->clear();
 

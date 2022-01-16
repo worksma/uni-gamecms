@@ -838,146 +838,12 @@ function dell_last_string($history_file) {
 	return true;
 }
 
-function getMonitoringUrl() {
-	global $config_additional;
-
-	if(
-		!empty($config_additional)
-		&& array_key_exists('monitoring_url', $config_additional)
-	) {
-		$monitoringUrl = $config_additional['monitoring_url'];
-	} else {
-		$monitoringUrl = 'https://analytics.worksma.ru/';
-	}
-
-	return $monitoringUrl;
-}
-
 function update_monitoring($pdo = null) {
-	if(empty($pdo)):
-		return null;
-	endif;
+	$api = new System;
+	$secondary = $api->secondary();
 
-	$conf2 = pdo()->query("SELECT `mon_gap`, `mon_time`, `mon_api`, `mon_key` FROM `config__secondary` LIMIT 1")->fetch(PDO::FETCH_OBJ);
-	
-	if((time() - $conf2->mon_time) > $conf2->mon_gap):
-		switch($conf2->mon_api):
-			case 1:
-				$servers = pdo()->query("SELECT `ip`, `port` FROM `servers` WHERE `show`='1' ORDER BY `trim`")->fetchAll();
-
-				if(isset($servers)):
-					$servers = curl_get_process([
-						'website' => getMonitoringUrl() . 'handler.php',
-						'data' => '&key=' . $conf2->mon_key . '&servers=' . serialize($servers)
-					]);
-				else:
-					$servers = null;
-				endif;
-
-				if($servers != '403'):
-					$servers = unserialize($servers);
-				endif;
-
-				pdo()->exec("DELETE FROM `monitoring`");
-
-				$servers_sec = pdo()->query("SELECT `address`, `id`, `ip`, `port`, `type`, `game` FROM `servers` WHERE `show`='1' ORDER BY `trim`")->fetchAll();
-
-				$count = count($servers_sec);
-
-				$temp = pdo()->query("SELECT `id` FROM `monitoring` LIMIT 1")->fetch(PDO::FETCH_OBJ);
-
-				if(isset($temp->id)):
-					pdo()->exec("DELETE FROM `monitoring`");
-				endif;
-
-				for($i = 0; $i < $count; $i++):
-					if(empty($servers[$i]['info']['HostName'])):
-						$servers_name = 0;
-					else:
-						$servers_name = $servers[$i]['info']['HostName'];
-					endif;
-
-					if(empty($servers[$i]['info']['Map'])):
-						$servers_map = 0;
-					else:
-						$servers_map = $servers[$i]['info']['Map'];
-
-						if(strpos($servers_map, '/') !== false):
-							$servers_map = explode("/", $servers_map);
-							$servers_map = end($servers_map);
-						endif;
-					endif;
-
-					if(empty($servers[$i]['info']['MaxPlayers'])):
-						$players_max = 0;
-					else:
-						$players_max = $servers[$i]['info']['MaxPlayers'];
-					endif;
-
-					if(empty($servers[$i]['info']['Players'])):
-						$players_now = 0;
-					else:
-						$players_now = $servers[$i]['info']['Players'];
-					endif;
-
-					pdo()->prepare("INSERT INTO `monitoring` (`address`, `sid`, `ip`, `port`, `name`, `game`, `players_now`, `players_max`, `map`, `type`) VALUES (:address, :sid, :ip, :port, :name, :game, :players_now, :players_max, :map, :type)")->execute([
-						'address' => $servers_sec[$i]['address'],
-						'sid' => $servers_sec[$i]['id'],
-						'ip' => $servers_sec[$i]['ip'],
-						'port' => $servers_sec[$i]['port'],
-						'name' => $servers_name,
-						'game' => $servers_sec[$i]['game'],
-						'players_now' => $players_now,
-						'players_max' => $players_max,
-						'map' => $servers_map,
-						'type' => $servers_sec[$i]['type']
-					]);
-				endfor;
-			break;
-
-			default:
-				pdo()->exec("DELETE FROM `monitoring`");
-				$temp = pdo()->query("SELECT `id` FROM `monitoring` LIMIT 1")->fetch(PDO::FETCH_OBJ);
-
-				if(isset($temp->id)):
-					pdo()->exec("DELETE FROM `monitoring`");
-				endif;
-
-				$sth = pdo()->query("SELECT * FROM `servers` WHERE `show`='1' ORDER BY `trim`");
-
-				while($row = $sth->fetch(PDO::FETCH_OBJ)):
-					SourceQuery()->Connect($row->ip, $row->port, 1, (($row->game == 'Counter-Strike: 1.6') ? SourceQuery::GOLDSOURCE : SourceQuery::SOURCE));
-					$GetInfo = SourceQuery()->GetInfo();
-					SourceQuery()->Disconnect();
-
-					$server_map = 0;
-
-					if(strpos($GetInfo['Map'], '/') !== false):
-						$server_map = explode("/", $GetInfo['Map']);
-						$server_map = end($server_map);
-					else:
-						$server_map = $GetInfo['Map'];
-					endif;
-
-					pdo()->prepare("INSERT INTO `monitoring` (`address`, `sid`, `ip`, `port`, `name`, `game`, `players_now`, `players_max`, `map`, `type`) VALUES (:address, :sid, :ip, :port, :name, :game, :players_now, :players_max, :map, :type)")->execute([
-						'address' => $row->address,
-						'sid' => $row->id,
-						'ip' => $row->ip,
-						'port' => $row->port,
-						'name' => isset($GetInfo['HostName']) ? clean($GetInfo['HostName'], null) : 0,
-						'game' => $row->game,
-						'players_now' => isset($GetInfo['Players']) ? $GetInfo['Players'] : 0,
-						'players_max' => isset($GetInfo['MaxPlayers']) ? $GetInfo['MaxPlayers'] : 0,
-						'map' => $server_map,
-						'type' => $row->type
-					]);
-				endwhile;
-			break;
-		endswitch;
-
-		pdo()->prepare("UPDATE `config__secondary` SET `mon_time` =:mon_time WHERE `id`='1' LIMIT 1")->execute([
-			'mon_time' => time()
-		]);
+	if((time() - $secondary->mon_time) > $secondary->mon_gap):
+		$api->update_monitoring(($secondary->mon_api == 1));
 	endif;
 }
 
@@ -2050,8 +1916,6 @@ function check_update_version($pdo, $version) {
 /*
 	new
 */
-
-
 function curl($site, $postfiels) {
 	$ch = curl_init($site);
 	curl_setopt($ch, CURLOPT_POST, 1);
@@ -2350,4 +2214,95 @@ function SourceQuery() {
 	global $SourceQuery;
 
 	return isset($SourceQuery) ? $SourceQuery : null;
+}
+
+function trading() {
+	global $Playground;
+
+	return isset($Playground) ? $Playground : (new Playground(pdo(), configs()));
+}
+
+function usr($uid = null) {
+	$uid = clean($uid, "int");
+
+	if(empty($uid)):
+		return null;
+	endif;
+
+	$sth = pdo()->query("SELECT * FROM `users` WHERE `id`='$uid' LIMIT 1");
+
+	if(!$sth->rowCount()):
+		return null;
+	endif;
+
+	return $sth->fetch(PDO::FETCH_OBJ);
+}
+
+function convert_avatar($uid = null, $trading = true) {
+	$udata = usr($uid);
+
+	if(empty($udata)):
+		return "/files/avatars/no_avatar.jpg";
+	endif;
+
+	if($trading):
+		$playground = new Playground(pdo(), configs());
+		$avatar = $playground->get_resource_active(2, $uid);
+
+		if(isset($avatar)):
+			return "/files/playground/$avatar";
+		endif;
+	endif;
+
+	return "/" . usr($uid)->avatar;
+}
+
+function generation_name($name = null) {
+	if(empty($name)):
+		return md5(date("YmdHis") . time());
+	endif;
+
+	return (md5(date("YmdHis") . time() . $name) . '_' . $name);
+}
+
+function file_uploads($dir = null, $file = null) {
+	if(empty($dir) || empty($file)):
+		return ['alert' => 'error', 'message' => 'Не указаны параметры'];
+	endif;
+
+	if(0 < $file['error']):
+		return ['alert' => 'error', 'message' => 'Ошибка файла', 'code' => $file['error']];
+	endif;
+
+	$name = generation_name($file['name']);
+	$full_dir = "$dir/$name";
+
+	if(!move_uploaded_file($file['tmp_name'], $_SERVER['DOCUMENT_ROOT'] . $full_dir)):
+		return false;
+	endif;
+
+	return ['alert' => 'success', 'name' => $name, 'full_dir' => $full_dir];
+}
+
+function get_user_cover($uid = null) {
+	$uid = clean($uid, "int");
+
+	if(empty($uid)):
+		return "/files/cover/standart.jpg";
+	endif;
+
+	return pdo()
+	->query("SELECT `cover` FROM `users` WHERE `id`='$uid' LIMIT 1")
+	->fetch(PDO::FETCH_OBJ)
+	->cover;
+}
+
+function sys() {
+	global $system;
+	
+	if(empty($system)):
+		return (new System);
+	endif;
+	
+	return $system;
 }

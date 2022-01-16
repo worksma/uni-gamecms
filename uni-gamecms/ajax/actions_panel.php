@@ -1,10 +1,10 @@
 <?php
 include_once __DIR__ . '/../inc/start.php';
 
-$AjaxResponse = new AjaxResponse();
-
-if(!isPostRequest() || !isRightToken() || !is_admin()) {
-	$AjaxResponse->status(false)->alert('Ошибка')->send();
+if(!isRightToken() || !is_admin()) {
+	exit(json_encode([
+		'alert' => 'Ошибка'
+	]));
 }
 
 /* Выход админа
@@ -1200,9 +1200,9 @@ if(isset($_POST['edit_fb_api'])) {
 	AmaraPay
 */
 if(isset($_POST['edit_amarapay'])):
-	$shop_id = check($_POST['amarapay_id'], null);
-	$key_public = check($_POST['amarapay_public'], null);
-	$key_secret= check($_POST['amarapay_secret'], null);
+	$shop_id = check($_POST['id'], null);
+	$key_public = check($_POST['public'], null);
+	$key_secret= check($_POST['secret'], null);
 	
 	if(empty($shop_id) || empty($key_public) || empty($key_secret)):
 		exit(json_encode([
@@ -6562,4 +6562,12 @@ if(isset($_POST['delSpeech'])):
 	]);
 
 	exit(json_encode(['alert' => 'success']));
+endif;
+
+if(isset($_POST['send_prefixes_conf'])):
+	if(Prefixes::edit_conf($_POST['type'], $_POST['value'])):
+		exit(json_encode(['alert' => 'info', 'message' => 'Данные сохранены.']));
+	else:
+		exit(json_encode(['alert' => 'error', 'message' => 'Ошибка базы данных.']));
+	endif;
 endif;

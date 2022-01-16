@@ -1,3 +1,6 @@
+<?
+	$frame = trading()->get_resource_active(3, '{author}');
+?>
 <div id="answer_{id}">
 	<div class="top-area">
 		<div class="left-side">
@@ -29,25 +32,16 @@
 
 	<div class="center-area">
 		<div class="left-side">
-			<?$playground = new Playground($pdo, $conf);?>
-			
-			{if($fmimage = $playground->get_resource_active(3, {author}))}
-				<div class="profile-frame mb-4">
-					<div class="profile-avatar-frame">
-						<img src="../files/playground/<?echo $fmimage;?>">
-					</div>
-					{if($avaimage = $playground->get_resource_active(2, {author}))}
-						<img src="../files/playground/<?echo $avaimage;?>">
-					{else}
-						<img src="../{avatar}">
-					{/if}
+			{if(isset($frame))}
+			<div class="playground">
+				<div class="frame">
+					<img src="/files/playground/{{$frame}}">
 				</div>
+
+				<img src="<?=convert_avatar('{author}');?>">
+			</div>
 			{else}
-				{if($avaimage = $playground->get_resource_active(2, {author}))}
-					<img src="../files/playground/<?echo $avaimage;?>">
-				{else}
-					<img src="../{avatar}">
-				{/if}
+			<img src="<?=convert_avatar('{author}');?>">
 			{/if}
 
 			<p style="color: {gp_color}">{gp_name}</p><br>

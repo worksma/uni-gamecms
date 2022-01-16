@@ -7,33 +7,22 @@
 	$playground = new Playground($pdo, $conf);								// Система торговой площадки
 	$very = new Verification($pdo);											// Система верификации
 	
-	if(isset($playground)):
-		$fmimage = $playground->get_resource_active(3, '{profile_id}');		// Получение рамки
-		$avaimage = $playground->get_resource_active(2, '{profile_id}');	// Получение аватара
-	endif;
+	$frame = trading()->get_resource_active(3, '{profile_id}');
 ?>
-<div class="col-lg-9 order-is-first">
+<div class="col-lg-12">
 	<div class="row profile-page">
-		<div class="col-lg-4">
+		<div class="col-lg-3">
 			<div class="block profile">
-				{if(isset($fmimage))}
-					<div class="profile-frame mb-4">
-						<div class="profile-avatar-frame">
-							<img src="../files/playground/{{$fmimage}}">
-						</div>
-						
-						{if(($avaimage))}
-							<img src="../files/playground/{{$avaimage}}">
-						{else}
-							<img src="../{avatar}">
-						{/if}
+				{if(isset($frame))}
+				<div class="playground">
+					<div class="frame">
+						<img src="/files/playground/{{$frame}}">
 					</div>
+
+					<img class="avatar" src="<?=convert_avatar('{profile_id}');?>">
+				</div>
 				{else}
-					{if(($avaimage))}
-						<img src="../files/playground/{{$avaimage}}">
-					{else}
-						<img src="../{avatar}">
-					{/if}
+					<img class="avatar" src="<?=convert_avatar('{profile_id}');?>">
 				{/if}
 				
 				<div class="vertical-navigation">
@@ -193,7 +182,7 @@
 			</div>
 		</div>
 
-		<div class="col-lg-8">
+		<div class="col-lg-9">
 			{if(empty($_COOKIE['very_info_1']) and {profile_id} == $_SESSION['id'] and $very->is_very('{profile_id}', 0))}
 			<div class="alert alert-success" role="alert" id="very_info_1">
 				<button type="button" class="close" OnClick="close_event(1);">
@@ -243,38 +232,47 @@
 					<tbody>
                     {if('{dell}' != '1')}
 						<tr>
-							<td colspan="2">
+							<td colspan="4">
 								<h4>Общая информация</h4>
 							</td>
 						</tr>
 						<tr>
 							<td>ID</td>
-							<td>{profile_id}</td>
+							<td colspan="3">{profile_id}</td>
 						</tr>
 						<tr>
 							<td>Группа</td>
-							<td><span style="color: {group_color}">{group}</span></td>
+							<td colspan="3"><span style="color: {group_color}">{group}</span></td>
 						</tr>
 						<tr>
 							<td>Дата регистрации</td>
-							<td>{regdate}</td>
+							<td colspan="3">{regdate}</td>
 						</tr>
 						<tr>
 							<td>Ник на сервере</td>
-							<td>{nick}</td>
+							<td colspan="3">{nick}</td>
 						</tr>
 						<tr>
-							<td colspan="2">
+							<td colspan="4">
+								<button class="btn full_info" type="button" data-toggle="collapse" data-target="#full_info">
+									Показать подробную информацию
+								</button>
+							</td>
+						</tr>
+						</tbody>
+						<tbody class="collapse fade" id="full_info" style="border-color:transparent;">
+						<tr>
+							<td colspan="4">
 								<h4>Уровень профиля</h4>
 							</td>
 						</tr>
 						<tr>
 							<td>Уровень</td>
-							<td><?=$levels->get_info_level($levels->get_user_level('{profile_id}'))->name;?></td>
+							<td colspan="3"><?=$levels->get_info_level($levels->get_user_level('{profile_id}'))->name;?></td>
 						</tr>
 						<tr>
 							<td>Опыт</td>
-							<td>
+							<td colspan="3">
 								{if($levels->is_maximum($levels->get_user_level('{profile_id}')))}
 									Максимальный уровень!
 								{else}
@@ -283,48 +281,48 @@
 							</td>
 						</tr>
 						<tr>
-							<td colspan="2">
+							<td colspan="4">
 								<h4>Личные данные</h4>
 							</td>
 						</tr>
 						<tr>
 							<td>Имя</td>
-							<td>{name}</td>
+							<td colspan="3">{name}</td>
 						</tr>
 						<tr>
 							<td>Дата рождения</td>
-							<td>{birth}</td>
+							<td colspan="3">{birth}</td>
 						</tr>
                         {if(('{skype}' != '' && '{skype}' != '---') || '{telegram}' != '' || '{discord}' != '' || '{vk}' != '---' || '{steam_api}' != '0' || '{fb}' != '0')}
 							<tr>
-								<td colspan="2">
+								<td colspan="4">
 									<h4>Контактные данные</h4>
 								</td>
 							</tr>
                             {if('{skype}' != '' && '{skype}' != '---')}
 								<tr>
 									<td>Логин Skype</td>
-									<td><a title="Добавить в скайп" href="skype:{skype}?add">{skype}</a></td>
+									<td colspan="3"><a title="Добавить в скайп" href="skype:{skype}?add">{skype}</a></td>
 								</tr>
                             {/if}
                             {if('{telegram}' != '')}
 								<tr>
 									<td>Telegram</td>
-									<td>
+									<td colspan="3">
 										<a title="Написать в Telegram" target="_blank" href="https://telegram.me/{telegram}">@{telegram}</a>
 									</td>
 								</tr>
                             {/if}
                             {if('{discord}' != '')}
 								<tr>
-									<td>Discord</td>
+									<td colspan="3">Discord</td>
 									<td><a title="Написать в Discord">{discord}</a></td>
 								</tr>
                             {/if}
                             {if('{vk}' != '---')}
 								<tr>
 									<td>Вконтакте</td>
-									<td>
+									<td colspan="3">
 										<a title="Перейти в профиль Вконтакте" target="_blank" href="https://vk.com/{vk}" id="vk_user">
 											<img src="../files/avatars/no_avatar.jpg" alt="">
 											<span>Загрузка...</span>
@@ -337,7 +335,7 @@
                             {if('{steam_api}' != '0')}
 								<tr>
 									<td>Steam</td>
-									<td>
+									<td colspan="3">
 										<a title="Перейти в профиль Steam" target="_blank" href="https://steamcommunity.com/profiles/{steam_api}/" id="steam_user">
 											<img src="../files/avatars/no_avatar.jpg" alt="">
 											<span>Загрузка...</span>
@@ -349,91 +347,68 @@
                             {if('{fb}' != '0')}
 								<tr>
 									<td>Facebook</td>
-									<td>
+									<td colspan="3">
 										<a title="Профиль в Facebook" target="_blank" id="fb_user">
 											<img src="../files/avatars/no_avatar.jpg" alt="">
 											<span>Загрузка...</span>
 										</a>
-										<script> get_fb_profile_info(
-                                            '{fb_api}', '{fb}', '#fb_user', '#fb_user img', '#fb_user span'); </script>
+										<script> get_fb_profile_info('{fb_api}', '{fb}', '#fb_user', '#fb_user img', '#fb_user span'); </script>
 									</td>
 								</tr>
                             {/if}
                         {/if}
 						<tr>
-							<td colspan="2">
+							<td colspan="4">
 								<h4>Активность на форуме</h4>
 							</td>
 						</tr>
 						<tr>
 							<td>Сообщений</td>
-							<td>{answers}</td>
+							<td colspan="3">{answers}</td>
 						</tr>
 						<tr>
 							<td>Спасибок</td>
-							<td>{thanks}</td>
+							<td colspan="3">{thanks}</td>
 						</tr>
 						<tr>
 							<td>Последняя тема</td>
-							<td>{if('{topic_id}' == '0')}Пользователь не просматривал форум{else}
+							<td colspan="3">{if('{topic_id}' == '0')}Пользователь не просматривал форум{else}
 									<a title="Перейти в тему" href="../forum/topic?id={topic_id}">{topic_name}</a>{/if}
 							</td>
 						</tr>
 						<tr>
 							<td>Рейтинг</td>
-							<td>{reit}</td>
+							<td colspan="3">{reit}</td>
 						</tr>
                     {else}
 						<tr>
-							<td colspan="2">
+							<td colspan="4">
 								<h4>Пользователь удален</h4>
 							</td>
 						</tr>
                     {/if}
-					</tbody>
-				</table>
-			</div>
-		</div>
-
-		<div class="col-lg-12">
-			<div class="block block-table">
-				<div class="block_head">
-					Привилегии
-				</div>
-				<div class="table-responsive mb-0">
-					<table class="table table-condensed table-bordered admins">
-						<thead>
+            <tr>
+            	<td colspan="4"><h4>Привилегии</h4></td>
+            </tr>
 						<tr>
 							<td>#</td>
 							<td>Сервер</td>
 							<td>Идентификатор</td>
 							<td>Услуги</td>
 						</tr>
-						</thead>
-						<tbody id="admins">
-							{func Widgets:user_admins('{profile_id}')}
-						</tbody>
-					</table>
-				</div>
-
-				<div class="block block-table">
-					<div class="block_head">Префиксы</div>
-					<div class="table-responsive mb-0">
-						<table class="table table-condensed table-bordered">
-							<thead>
-								<tr>
-									<td>#</td>
-									<td>Сервер</td>
-									<td>Идентификатор</td>
-									<td>Префикс</td>
-								</tr>
-							</thead>
-							<tbody>
-								<?=(new Prefixes(pdo()))->user_prefixes('{profile_id}');?>
-							</tbody>
-						</table>
-					</div>
-				</div>
+						<tr>{func Widgets:user_admins('{profile_id}')}</tr>
+            <tr>
+            	<td colspan="4"><h4>Префиксы</h4></td>
+            </tr>
+						<tr>
+							<td>#</td>
+							<td>Сервер</td>
+							<td>Идентификатор</td>
+							<td>Префикс</td>
+						</tr>
+						<tr style="overflow-x:auto;"><?=(new Prefixes(pdo()))->user_prefixes('{profile_id}');?></tr>
+					</tbody>
+				</table>
 			</div>
 
             {if('{dell}' != '1')}
@@ -493,36 +468,5 @@
             {/if}
 		</div>
 	</div>
-</div>
-<div class="col-lg-3 order-is-last">
-    {if(is_auth())}
-        {include file="/home/navigation.tpl"}
-    {else}
-        {include file="/index/authorization.tpl"}
-    {/if}
-
-	<div class="block">
-		<div class="block_head">
-			Сообщения на форуме
-		</div>
-		<div id="last_activity">
-            {func Widgets:user_forum_activity('{profile_id}', '3')}
-		</div>
-	</div>
-
-	<div class="block">
-		<div class="block_head">
-			Заявки на разбан
-		</div>
-		<div id="mybans">
-            {func Widgets:user_bans('{profile_id}', '3')}
-		</div>
-	</div>
-
-    {if(is_auth())}
-        {include file="/home/sidebar_secondary.tpl"}
-    {else}
-        {include file="/index/sidebar_secondary.tpl"}
-    {/if}
 </div>
 <script src="/ajax/addons/verification/ajax-very.js?v={cache}"></script>

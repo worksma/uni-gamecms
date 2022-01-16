@@ -237,6 +237,38 @@ if(isset($_GET['result_ik']) && $_GET['result_ik'] == 'get') {
 	}
 }
 
+if(isset($_GET['amarapay']) && $_GET['amarapay'] == 'get'):
+	$payMethod			= "amarapay";
+	$amount				= $_POST['amount'];
+	$hash				= $_POST['hash'];
+	$userId 			= $_POST['label'];
+	$id					= $_POST['id'];
+	$apay 				= $bankConf->amarapay_id;
+	$secret 			= $bankConf->amarapay_secret;
+	$myhash 			= hash("sha256", $apay . $amount . $secret . $id);
+	
+	if($hash != $myhash):
+		$Pm->paymentLog($payMethod, "bad sign", pdo(), $userId, 2);
+		die("no hash");
+	endif;
+	
+	$userInfo = $Pm->getUser(pdo(), $userId);
+	$amount				= intval($amount);
+	
+	if(empty($userInfo->id)):
+		$Pm->paymentLog($payMethod, "unknown user", pdo(), $userId, 2);
+		die("unknown user");
+	else:
+		if(trading()->is_bonuses()):
+			trading()->add_bonuses($userId, $amount);
+		endif;
+		
+		$Pm->doPayAction(pdo(), $userInfo, $amount, $conf->bank, $payMethod, $userId, $messages['RUB']);
+	endif;
+	
+	die('200');
+endif;
+
 if(isset($_GET['result']) && $_GET['result'] == 'get') {
 	$payMethod = 'fk';
 
@@ -792,30 +824,32 @@ $bonuses = unserialize(
 		->data
 );
 
-$tpl->load_template('/home/purse.tpl');
-$tpl->set("{site_host}", $site_host);
-$tpl->set("{template}", $conf->template);
-$tpl->set("{profile_id}", $user->id);
-$tpl->set("{balance}", $user->shilings);
-$tpl->set("{proc}", $user->proc);
-$tpl->set("{price}", $price);
-$tpl->set("{fail}", $fail);
-$tpl->set("{success}", $success);
-$tpl->set("{login}", $_SESSION['login']);
-$tpl->set("{bonusesActivity}", $bonusesActivity);
-$tpl->set("{rb}", $bankConf->rb);
-$tpl->set("{wb}", $bankConf->wb);
-$tpl->set("{up}", $bankConf->up);
-$tpl->set("{enot}", $bankConf->enot);
-$tpl->set("{ps}", $bankConf->ps);
-$tpl->set("{fk}", $bankConf->fk);
-$tpl->set("{fk_new}", $bankConf->fk_new);
-$tpl->set("{ik}", $bankConf->ik);
-$tpl->set("{wo}", $bankConf->wo);
-$tpl->set("{ya}", $bankConf->ya);
-$tpl->set("{qw}", $bankConf->qw);
-$tpl->set("{lp}", $bankConf->lp);
-$tpl->set("{ap}", $bankConf->ap);
-$tpl->compile('content');
-$tpl->clear();
+	$tpl
+	->load_template("/home/purse.tpl")
+	->set("{site_host}", $site_host)
+	->set("{template}", $conf->template)
+	->set("{profile_id}", $user->id)
+	->set("{balance}", $user->shilings)
+	->set("{proc}", $user->proc)
+	->set("{price}", $price)
+	->set("{fail}", $fail)
+	->set("{success}", $success)
+	->set("{login}", $_SESSION['login'])
+	->set("{bonusesActivity}", $bonusesActivity)
+	->set("{rb}", $bankConf->rb)
+	->set("{wb}", $bankConf->wb)
+	->set("{up}", $bankConf->up)
+	->set("{enot}", $bankConf->enot)
+	->set("{ps}", $bankConf->ps)
+	->set("{fk}", $bankConf->fk)
+	->set("{fk_new}", $bankConf->fk_new)
+	->set("{ik}", $bankConf->ik)
+	->set("{wo}", $bankConf->wo)
+	->set("{ya}", $bankConf->ya)
+	->set("{qw}", $bankConf->qw)
+	->set("{lp}", $bankConf->lp)
+	->set("{ap}", $bankConf->ap)
+	->set("{amara}", $bankConf->amarapay)
+	->compile('content')
+	->clear();
 ?>

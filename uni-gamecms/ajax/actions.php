@@ -291,28 +291,15 @@ if(isset($_POST['get_players'])):
 	endif;
 
 	$confServer = pdo()->query("SELECT * FROM `servers` WHERE `id`='$id' LIMIT 1")->fetch(PDO::FETCH_OBJ);
-	$conf2 = pdo()->query("SELECT `mon_api`, `mon_key` FROM `config__secondary` LIMIT 1")->fetch(PDO::FETCH_OBJ);
 
-	switch($conf2->mon_api):
-		case 1:
-			$players = curl_get_process([
-				'website' =>getMonitoringUrl() . 'handler.php',
-				'data' => '&key=' . $conf2->mon_key . '&servers=' . serialize([['ip' => $confServer->ip, 'port' => $confServer->port]])
-			]);
+	$api = new System;
+	$secondary = $api->secondary();
 
-			if(isset($players) && ($players != '403')):
-				$players = unserialize($players)[0]['players'];
-			else:
-				$players = 0;
-			endif;
-		break;
-
-		default:
-			SourceQuery()->Connect($confServer->ip, $confServer->port, 1, (($confServer->game == 'Counter-Strike: 1.6') ? SourceQuery::GOLDSOURCE : SourceQuery::SOURCE));
-			$players = SourceQuery()->GetPlayers();
-			SourceQuery()->Disconnect();
-		break;
-	endswitch;
+	$players = $api->players_monitoring(($secondary->mon_api == 1), [
+		'ip'		=> $confServer->ip,
+		'port'		=> $confServer->port,
+		'game'		=> $confServer->game
+	]);
 
 	$GD = new GetData($pdo);
 

@@ -338,6 +338,7 @@ if(isset($_POST['load_dialogs'])){
 			$tpl->set("{date}", expand_date($row->date, 7));
 			$tpl->set("{login}", $row->login);
 			$tpl->set("{avatar}", $row->avatar);
+			$tpl->set("{user_id}", $user_id);
 			$tpl->set("{id}", $row->id);
 			$tpl->set("{new}", $new);
 			$tpl->compile( 'content' );

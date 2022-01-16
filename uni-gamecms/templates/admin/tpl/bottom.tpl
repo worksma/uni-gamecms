@@ -17,5 +17,6 @@
 		$('[tooltip="yes"]').tooltip();
 		$('[data-toggle="dropdown"]').dropdown();
 	};
-</script>	<link href="{site_host}files/toasts/toasty.min.css?v={cache}">
-	<script src="{site_host}files/toasts/toasty.min.js?v={cache}"></script>
+</script>
+
+<script src="{site_host}files/toasts/toasty.min.js"></script>

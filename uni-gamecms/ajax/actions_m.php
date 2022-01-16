@@ -52,6 +52,27 @@ if(isset($_POST['refill_balance'])) {
 		$cashierSettings = pdo()->query("SELECT * FROM config__bank LIMIT 1")->fetch(PDO::FETCH_OBJ);
 
 		switch($cashier['slug']) {
+			case 'amarapay':
+				if(empty($cashierSettings->amarapay_id) || empty($cashierSettings->amarapay_public)) {
+					throw new Exception('Способ оплаты не настроен');
+				}
+				
+				$id 			= $cashierSettings->amarapay_id;
+				$public			= $cashierSettings->amarapay_public;
+				$orderNumber	= substr($payId, 5);
+				
+				$parameters = [
+					'shop_id'			=> $id,
+					'amount'			=> $amount,
+					'label'				=> $_SESSION['id'],
+					'hash'				=> hash("sha256", $id.$amount.$public.$_SESSION['id'])
+				];
+
+				$url = 'https://amarapay.com/merchant';
+				Payments::showLink($url, $parameters);
+
+				break;
+			break;
 			case 'ik':
 				if(empty($cashierSettings->ik_login) || empty($cashierSettings->ik_pass1)) {
 					throw new Exception('Способ оплаты не настроен');

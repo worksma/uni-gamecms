@@ -49,7 +49,8 @@
 	/*
 		Загрузка класса Префиксов и работа с ним
 	*/
-	$prefixes = new Prefixes($pdo);
+	$prefixes	= new Prefixes();
+	$cnf 		= $prefixes->conf();
 
 	/*
 		Загрузка контента
@@ -62,5 +63,8 @@
 	->set("{term}", $prefixes->get_term(null))
 	->set("{nick}", ((empty($user->nick) || $user->nick == '---') ? "" : $user->nick))
 	->set("{steam_id}", ((empty($user->steam_id) || $user->steam_id == '---') ? "" : $user->steam_id))
+	->set("{bind_nick_pass}", $cnf->bind_nick_pass)
+	->set("{bind_steam}", $cnf->bind_steam)
+	->set("{bind_steam_pass}", $cnf->bind_steam_pass)
 	->compile("content")
 	->clear();

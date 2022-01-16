@@ -3,9 +3,11 @@
 		private $pdo;
 		
 		public function __construct($pdo = null) {
-			if(isset($pdo)) {
+			if(empty($pdo)):
+				$this->pdo = pdo();
+			else:
 				$this->pdo = $pdo;
-			}
+			endif;
 		}
 		
 		public function get_user_level($id = null) {
@@ -111,5 +113,20 @@
 				$this->set_user_level($id, $this->get_user_level($id) + 1);
 				$this->write_levels($id);
 			}
+		}
+
+		public function default_configs() {
+			file_put_contents($_SERVER['DOCUMENT_ROOT'] . '/ajax/addons/levels/configs.json', json_encode([
+				'send_new_comments'	=> '20',
+				'add_topic'			=> '20',
+				'send_answer'		=> '20',
+				'send_user_comment'	=> '20',
+				'chat_send_message'	=> '3'
+			]));
+		}
+
+		public function configs() {
+			$configs = file_get_contents($_SERVER['DOCUMENT_ROOT'] . '/ajax/addons/levels/configs.json');
+			return json_decode($configs, true);
 		}
 	}

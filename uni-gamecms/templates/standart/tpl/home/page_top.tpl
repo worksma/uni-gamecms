@@ -7,7 +7,7 @@
 				</ul>			
 			</div>
 		</div>
-	
+		
 		<div class="container">
 			{include file="parts/page_head.tpl"}
 

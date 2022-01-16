@@ -1,22 +1,17 @@
 <?PHP
 	class Prefixes {
-		private $pdo = null;
 		var $temp = "";
 
 		public function __construct($pdo = null) {
-			if(empty($pdo)):
-				return false;
-			endif;
-
-			$this->pdo = $pdo;
+			//
 		}
 
 		public function get_server($id_server = null) {
-			return $this->pdo->query("SELECT * FROM `servers` WHERE `id`='$id_server' LIMIT 1")->fetch(PDO::FETCH_OBJ);
+			return pdo()->query("SELECT * FROM `servers` WHERE `id`='$id_server' LIMIT 1")->fetch(PDO::FETCH_OBJ);
 		}
 
 		public function get_servers() {
-			$sth = $this->pdo->query("SELECT * FROM `servers` WHERE 1");
+			$sth = pdo()->query("SELECT * FROM `servers` WHERE 1");
 
 			if($sth->rowCount()):
 				$servers = "<option selected disabled>Выберите сервер.</option>";
@@ -32,7 +27,7 @@
 		}
 
 		public function get_term($id_server = null) {
-			$sth = $this->pdo->query("SELECT * FROM `servers__prefixes_term` WHERE `id_server`='$id_server'");
+			$sth = pdo()->query("SELECT * FROM `servers__prefixes_term` WHERE `id_server`='$id_server'");
 
 			if($sth->rowCount()):
 				$term = "<option selected disabled>Выберите тариф.</option>";
@@ -52,7 +47,7 @@
 				return null;
 			endif;
 
-			return $this->pdo->query("SELECT * FROM `servers__prefixes_term` WHERE `id`='$id_term'")->fetch(PDO::FETCH_OBJ);
+			return pdo()->query("SELECT * FROM `servers__prefixes_term` WHERE `id`='$id_term'")->fetch(PDO::FETCH_OBJ);
 		}
 
 		public function setPrefix($data = []) {
@@ -212,7 +207,7 @@
 				return null;
 			endif;
 
-			$sth = $this->pdo->query("SELECT * FROM `servers__prefixes` WHERE `id_user`='$id_user'");
+			$sth = pdo()->query("SELECT * FROM `servers__prefixes` WHERE `id_user`='$id_user'");
 
 			if(!$sth->rowCount()):
 				return "<tr class='text-center'><td colspan='4'>Префиксов нет.</td></tr>";
@@ -234,5 +229,14 @@
 			endwhile;
 
 			return $this->endTemp();
+		}
+		
+		public static function conf() {
+			return pdo()->query("SELECT * FROM `config__prefixes` WHERE `id`='1' LIMIT 1")->fetch(PDO::FETCH_OBJ);
+		}
+		
+		public static function edit_conf($type, $value) {
+			return pdo()
+			->query("UPDATE `config__prefixes` SET `$type`='$value' WHERE `id`='1' LIMIT 1");
 		}
 	}

@@ -780,7 +780,7 @@ div.buy-product-key-info {
   border-radius: 8px;
 }
 
-.profile-page .profile table tbody tr td[colspan="2"] h4 {
+.profile-page .profile table tbody tr td[colspan="4"] h4 {
   margin-left: -40px;
   background: #2a2931;
   border-top: 1px solid #2a2931;

@@ -29,7 +29,7 @@
 		<meta property="og:url" content="{url}">
 
 		<meta name="dc.title" content="{title}">
-		<meta name="dc.rights" content="Копирайт 2018, Торговая площадка WORKSMA. Все права сохранены.">
+		<meta name="dc.rights" content="Копирайт 2021, Торговая площадка WORKSMA. Все права сохранены.">
 		<meta name="dc.creator" content="worksma.ru">
 		<meta name="dc.language" content="RU">
 
@@ -38,9 +38,10 @@
 		<script src="{site_host}templates/{template}/js/noty.js?v={cache}"></script>
 		<script src="{site_host}templates/{template}/js/mix.js?v={cache}"></script>
 		<script src="{site_host}templates/{template}/js/bootstrap.js?v={cache}"></script>
+		<script src="{site_host}templates/{template}/js/primary.js?v={cache}"></script>
 
-		<script src="{site_host}ajax/helpers.js?v={cache}"></script>
-		<script src="{site_host}ajax/ajax-user.js?v={cache}"></script>
+		<script src="{site_host}ajax/performers/functions.min.js?v={cache}"></script>
+		<script src="{site_host}ajax/performers/main.min.js?v={cache}"></script>
 
 		{if($conf->new_year == 1 || $conf->win_day == 1)}
 		<link rel="stylesheet" href="{site_host}templates/{template}/css/holiday.css">

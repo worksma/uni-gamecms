@@ -1,9 +1,22 @@
+<?
+	$frame = trading()->get_resource_active(3, '{user_id}');
+?>
 <div class="event" id="event{id}">
 	<div>
 		<a href="../{link}">{content}</a>
 	</div>
 	<a href="../profile?id={user_id}" title="{gp_name}">
-		<img src="../{avatar}" alt="{login}">
+		{if(isset($frame))}
+		<div class="playground">
+			<div class="frame">
+				<img src="/files/playground/{{$frame}}" class="rounded-0">
+			</div>
+
+			<img src="<?=convert_avatar('{user_id}');?>" alt="{login}" class="rounded-0">
+		</div>
+		{else}
+			<img src="<?=convert_avatar('{user_id}');?>" alt="{login}">
+		{/if}
 		<span style="color: {gp_color}">{login}</span>
 	</a>
 	<span>

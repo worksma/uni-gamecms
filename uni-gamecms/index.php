@@ -15,4 +15,4 @@
 		endif;
 	endif;
 
-	require("inc/initiator.php");
+	require(__DIR__ . "/inc/initiator.php");

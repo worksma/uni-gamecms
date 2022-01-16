@@ -1,24 +1,19 @@
+<?
+	$frame = trading()->get_resource_active(3, '{user_id}');
+?>
+
 <div class="chat_message" id="message_id_{id}">
 	<a href="../profile?id={user_id}" title="{gp_name}">
-		<?$playground = new Playground($pdo, $conf);?>
-		
-		{if($fmimage = $playground->get_resource_active(3, {user_id}))}
-			<div class="profile-frame mb-4 ml-1">
-				<div class="profile-avatar-frame">
-					<img style="border-radius: 0px !important;" src="../files/playground/<?echo $fmimage;?>">
+		{if(isset($frame))}
+			<div class="playground ml-2">
+				<div class="frame">
+					<img class="rounded-0" src="/files/playground/{{$frame}}">
 				</div>
-				{if($avaimage = $playground->get_resource_active(2, {user_id}))}
-					<img style="border-radius: 0px !important;" src="../files/playground/<?echo $avaimage;?>">
-				{else}
-					<img style="border-radius: 0px !important;" src="{avatar}">
-				{/if}
+
+				<img class="rounded-0" src="<?=convert_avatar('{user_id}');?>">
 			</div>
 		{else}
-			{if($avaimage = $playground->get_resource_active(2, {user_id}))}
-				<img src="../files/playground/<?echo $avaimage;?>">
-			{else}
-				<img src="{avatar}">
-			{/if}
+			<img src="<?=convert_avatar('{user_id}');?>" class="rounded-circle ml-2">
 		{/if}
 	</a>
 	<div class="message">

@@ -11,6 +11,94 @@
 
 	<div class="col-md-6">
 		<div class="block">
+			<div class="block_head">Метод привязки</div>
+			
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-default btn-sm" id="bind_nick_pass_btn" for="bind_nick_pass">
+					<input type="checkbox" id="bind_nick_pass" autocomplete="off"> Ник + пароль
+				</label>
+				
+				<label class="btn btn-default btn-sm" id="bind_steam_btn" for="bind_steam">
+					<input type="checkbox" id="bind_steam" autocomplete="off"> STEAM ID
+				</label>
+				
+				<label class="btn btn-default btn-sm" id="bind_steam_pass_btn" for="bind_steam_pass">
+					<input type="checkbox" id="bind_steam_pass" autocomplete="off"> STEAM ID + пароль
+				</label>
+			</div>
+			
+			<script>
+				{if('{bind_nick_pass}' == '1')}
+					$("#bind_nick_pass").prop("checked", true);
+					$("#bind_nick_pass_btn").addClass("active");
+				{/if}
+				
+				{if('{bind_steam}' == '1')}
+					$("#bind_steam").prop("checked", true);
+					$("#bind_steam_btn").addClass("active");
+				{/if}
+				
+				{if('{bind_steam_pass}' == '1')}
+					$("#bind_steam_pass").prop("checked", true);
+					$("#bind_steam_pass_btn").addClass("active");
+				{/if}
+				
+				$(function() {
+					$("#bind_nick_pass").bind("change", function() {
+						if($(this).is(':checked')) {
+							send_post(get_url() + "ajax/actions_panel.php", serializeform(new FormData, {
+								send_prefixes_conf: '1',
+								type: 'bind_nick_pass',
+								value: '1'
+							}), (result) => toasty(result.alert, result.message));
+						}
+						else {
+							send_post(get_url() + "ajax/actions_panel.php", serializeform(new FormData, {
+								send_prefixes_conf: '1',
+								type: 'bind_nick_pass',
+								value: '0'
+							}), (result) => toasty(result.alert, result.message));
+						}
+					});
+					
+					$("#bind_steam").bind("change", function() {
+						if($(this).is(':checked')) {
+							send_post(get_url() + "ajax/actions_panel.php", serializeform(new FormData, {
+								send_prefixes_conf: '1',
+								type: 'bind_steam',
+								value: '1'
+							}), (result) => toasty(result.alert, result.message));
+						}
+						else {
+							send_post(get_url() + "ajax/actions_panel.php", serializeform(new FormData, {
+								send_prefixes_conf: '1',
+								type: 'bind_steam',
+								value: '0'
+							}), (result) => toasty(result.alert, result.message));
+						}
+					});
+					
+					$("#bind_steam_pass").bind("change", function() {
+						if($(this).is(':checked')) {
+							send_post(get_url() + "ajax/actions_panel.php", serializeform(new FormData, {
+								send_prefixes_conf: '1',
+								type: 'bind_steam_pass',
+								value: '1'
+							}), (result) => toasty(result.alert, result.message));
+						}
+						else {
+							send_post(get_url() + "ajax/actions_panel.php", serializeform(new FormData, {
+								send_prefixes_conf: '1',
+								type: 'bind_steam_pass',
+								value: '0'
+							}), (result) => toasty(result.alert, result.message));
+						}
+					});
+				});
+			</script>
+		</div>
+	
+		<div class="block">
 			<div class="block_head">Запрещенные слова</div>
 
 			<div class="input-group">

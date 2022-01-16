@@ -58,8 +58,9 @@
 	/*
 		Загрузка класса Префиксов и работа с ним
 	*/
-	$prefixes = new Prefixes(pdo());
-
+	$prefixes		= new Prefixes();
+	$cnf 			= $prefixes->conf();
+	
 	/*
 		Загрузка контента
 	*/
@@ -68,6 +69,9 @@
 	->set("{site_host}", $site_host)
 	->set("{template}", $conf->template)
 	->set("{servers}", $prefixes->get_servers())
+	->set("{bind_nick_pass}", $cnf->bind_nick_pass)
+	->set("{bind_steam}", $cnf->bind_steam)
+	->set("{bind_steam_pass}", $cnf->bind_steam_pass)
 	->compile("content")
 	->clear();
 

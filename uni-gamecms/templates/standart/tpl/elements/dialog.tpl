@@ -1,8 +1,27 @@
+<?
+	$frame = trading()->get_resource_active(3, '{user_id}');
+	$very = new Verification(pdo());
+?>
 <div class="dialog" id="{id}">
 	<div onclick="open_dialog({id});">
-		<img src="../{avatar}" alt="{login}"> 
+		{if(isset($frame))}
+		<div class="playground">
+			<div class="frame">
+				<img src="/files/playground/{{$frame}}" class="rounded-0">
+			</div>
+
+			<img src="<?=convert_avatar('{user_id}');?>" class="rounded-0">
+		</div>
+		{else}
+		<img src="<?=convert_avatar('{user_id}');?>">
+		{/if}
+
 		<div>
-			<p>{login}</p>
+			<p>{login}
+				{if($very->is_very('{user_id}'))}
+					{{$very->get_very_style('standart')}}
+				{/if}
+			</p>
 			<p>{date}</p>
 			{if('{new}' == '0')}
 				<p class="text-default">Все сообщения прочитаны</p>

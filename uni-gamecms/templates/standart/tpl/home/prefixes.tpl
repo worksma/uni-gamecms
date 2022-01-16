@@ -20,14 +20,30 @@
 					<label><h4>Метод привязки</h4></label>
 					<select class="form-control" id="binding" onchange="change_store_bind_type($('#binding option:selected').val());">
 						<option selected disabled>Выберите способ привязки</option>
+						{if('{bind_nick_pass}' == '1')}
 						<option value="1">Ник + пароль</option>
+						{/if}
+						
+						{if('{bind_steam}' == '1')}
 						<option value="2">SteamID</option>
+						{/if}
+						
+						{if('{bind_steam_pass}' == '1')}
 						<option value="3">SteamID + пароль</option>
+						{/if}
 					</select>
-
-					<input type="text" class="form-control disp-n" maxlength="32" id="player_nick" placeholder="Введите свой ник" value="{nick}">
-					<input type="text" class="form-control disp-n" maxlength="32" id="player_steam_id" placeholder="Введите свой STEAM ID" value="{steam_id}">
-					<input type="text" class="form-control disp-n" maxlength="32" id="player_pass" placeholder="Придумайте пароль">
+					
+					{if('{bind_nick_pass}' == '1')}
+						<input type="text" class="form-control disp-n" maxlength="32" id="player_nick" placeholder="Введите свой ник" value="{nick}">
+					{/if}
+					
+					{if('{bind_steam}' == '1' || '{bind_steam_pass}' == '1')}
+						<input type="text" class="form-control disp-n" maxlength="32" id="player_steam_id" placeholder="Введите свой STEAM ID" value="{steam_id}">
+					{/if}
+					
+					{if('{bind_nick_pass}' == '1' || '{bind_steam_pass}' == '1')}
+						<input type="text" class="form-control disp-n" maxlength="32" id="player_pass" placeholder="Придумайте пароль">
+					{/if}
 				</div>
 
 				<div class="form-group">

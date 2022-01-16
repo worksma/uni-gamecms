@@ -1,6 +1,61 @@
 <div class="page">
 	<div class="row">
 		<div class="col-md-6">
+			<!--[ AmaraPay ]-->
+			<div class="block">
+				<div class="block_head">
+					AmaraPay
+					
+					<?if((strtotime("2022-01-16 17:00:00") + strtotime("+7 days", false)) > time()):?>
+						<span class="badge">Новое!</span>
+					<?endif;?>
+				</div>
+				
+				<div class="form-group mb-10">
+					<div class="btn-group" data-toggle="buttons">
+						<label class="btn btn-default {amarapay_act}" onclick="change_value('config__bank','amarapay','1','1','amarapay_id,amarapay_public,amarapay_secret');">
+							<input type="radio"> Включить
+						</label>
+						
+						<label class="btn btn-default {amarapay_act2}" onclick="change_value('config__bank','amarapay','2','1');">
+							<input type="radio"> Выключить
+						</label>
+					</div>
+				</div>
+				
+				<div class="input-group">
+					<span class="input-group-btn">
+						<button class="btn btn-default pd-40-12" type="button" onclick="edit_amarapay();">Изменить</button>
+					</span>
+					<input type="text" class="form-control" id="amarapay_id" maxlength="255" autocomplete="off" value="{amarapay_id}" placeholder="ID магазина">
+					<input type="text" class="form-control" id="amarapay_secret" maxlength="255" autocomplete="off" value="{amarapay_secret}" placeholder="Секретный ключ">
+					<input type="text" class="form-control" id="amarapay_public" maxlength="255" autocomplete="off" value="{amarapay_public}" placeholder="Публичный ключ">
+				</div>
+				
+				<div class="bs-callout bs-callout-info mt-10">
+					<p>
+					<table>
+						<tr>
+							<td colspan="2">Необходимые данные:</td>
+						</tr>
+						<tr>
+							<td style="text-align: right">URL оповещ: </td>
+							<td>&nbsp&nbsp<b>{full_site_host}purse?amarapay=get</b></td>
+						</tr>
+						<tr>
+							<td style="text-align: right">URL успеха: </td>
+							<td>&nbsp&nbsp<b>{full_site_host}purse?result=success</b></td>
+						</tr>
+						<tr>
+							<td style="text-align: right">URL неуспеха: </td>
+							<td>&nbsp&nbsp<b>{full_site_host}purse?result=fail</b></td>
+						</tr>
+					</table>
+					</p>
+				</div>
+			</div>
+		
+			<!--[ FreeKassa ]-->
 			<div class="block">
 				<div class="block_head">
 					FreeKassa (для мерчантов зарегистрированных после 01.08.2021)

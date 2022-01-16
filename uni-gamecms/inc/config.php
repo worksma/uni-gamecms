@@ -38,3 +38,4 @@
 	require_once __DIR__ . '/autoloader.php';
 
 	$SourceQuery = new SourceQuery;
+	$Playground = new Playground($pdo, $conf);

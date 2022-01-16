@@ -1,6 +1,19 @@
+<?
+	$frame = trading()->get_resource_active(3, '{user_id}');
+?>
 <div class="comment" id="message_id_{id}">
 	<a href="../profile?id={user_id}" title="{login}">
-		<img src="../{avatar}" alt="{login}">
+		{if(isset($frame))}
+			<div class="playground ml-2">
+				<div class="frame">
+					<img src="/files/playground/{{$frame}}" alt="{login}" class="rounded-0">
+				</div>
+
+				<img src="<?=convert_avatar('{user_id}');?>" alt="{login}" class="rounded-0">
+			</div>
+		{else}
+			<img src="<?=convert_avatar('{user_id}');?>" alt="{login}">
+		{/if}
 	</a>
 	<div>
 		<div class="info">

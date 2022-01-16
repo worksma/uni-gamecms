@@ -273,6 +273,22 @@
 				</div>
 			</div>
         {/if}
+		
+		{if('{amara}' == '1')}
+			<div class="col-md-6">
+				<div class="block">
+					<div class="block_head">
+						AmaraPay - Visa/MasterCard, ЮMoney, Qiwi, SMS...
+					</div>
+					<label for="number_amarapay">
+						<img src="../templates/{template}/img/amarapay.png" alt="AmaraPay">
+					</label>
+					<input class="form-control" id="number_amarapay" placeholder="Укажите сумму" value="{price}">
+					<div id="balance_result_amarapay" class="mt-3"></div>
+					<button class="btn btn-outline-primary btn-xl" onclick="refill_balance('amarapay');">Пополнить баланс</button>
+				</div>
+			</div>
+		{/if}
 	</div>
 
 	<script>$('#voucher').modal('hide');</script>

@@ -55,6 +55,10 @@ class Payments
 			'slug' => 'enot',
 			'name' => 'Enot'
 		],
+		[
+			'slug' => 'amarapay',
+			'name' => 'AmaraPay'
+		]
 	];
 
 	function selectPayment($payment)

@@ -79,6 +79,13 @@ if (isset($_POST['chat_send_message'])) {
 	$STH = $pdo->prepare("INSERT INTO `chat` (`user_id`,`message_text`,`message_date`) values (:user_id, :message_text, :message_date)");
 	if ($STH->execute(array( ':user_id' => $_SESSION['id'], ':message_text' => $message_text, ':message_date' => date("Y-m-d H:i:s") )) == '1') {
 		up_online($pdo);
+
+		/*
+			Выдаём опыт
+		*/
+		$l = new Levels;
+		$l->add_user_exp($_SESSION['id'], $l->configs()['chat_send_message']);
+
 		exit(json_encode(array('status' => '1')));
 	} else {
 		exit(json_encode(array('status' => '2')));

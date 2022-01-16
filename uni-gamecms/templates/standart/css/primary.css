@@ -1446,8 +1446,7 @@ a[onclick] {
 
 .popover_avatar {
   width: 50px;
-  height: 50px;
-  margin: -5px -8px;
+  height: auto;
   border-radius: 2px;
 }
 
@@ -1555,7 +1554,7 @@ a[onclick] {
 }
 .comment > div {
   float: right;
-  width: calc( 100% - 60px );
+  width: calc( 100% - 70px );
   word-wrap: break-word;
   position: relative;
   overflow: hidden;
@@ -2059,7 +2058,7 @@ div[id^=store_info] table.table > tbody[id^=admins_services] > tr > td select {
 }
 .friend > div, .user > div {
   float: right;
-  width: calc( 100% - 85px );
+  width: calc( 100% - 100px );
   word-wrap: break-word;
   position: relative;
   overflow: hidden;
@@ -2175,7 +2174,7 @@ div[id^=store_info] table.table > tbody[id^=admins_services] > tr > td select {
 }
 #place_for_messages .dialog > div:nth-child(1) div {
   float: right;
-  width: calc( 100% - 70px );
+  width: calc( 100% - 75px );
 }
 #place_for_messages .dialog > div:nth-child(1) div p {
   margin: 0;
@@ -2309,7 +2308,7 @@ div[id^=store_info] table.table > tbody[id^=admins_services] > tr > td select {
 .profile-page .profile table tbody tr td {
   border: 0;
 }
-.profile-page .profile table tbody tr td[colspan="2"] h4 {
+.profile-page .profile table tbody tr td[colspan="4"] h4 {
   margin-left: -41px;
   margin-right: -41px;
   padding-left: 41px;
@@ -2428,7 +2427,7 @@ div[id^=store_info] table.table > tbody[id^=admins_services] > tr > td select {
 .profile-settings #vk_user span, .profile-settings #steam_user span, .profile-settings #fb_user span {
   display: inline;
 }
-.profile-settings table tr td[colspan="2"] {
+.profile-settings table tr td[colspan="4"] {
   white-space: normal !important;
 }
 
@@ -4255,6 +4254,129 @@ table tr[data-toggle=modal] > td, table.admins tr > td {
 
 .disp-n {
   display: none;
+}
+
+#edit-status-message {
+    position: relative;
+}
+
+#edit-status-message input {
+  padding-right: 30px;
+}
+
+#edit-status-message #save-button {
+  cursor: pointer;
+  position: absolute;
+    right: 11px;
+    top: 14px;
+}
+
+audio {
+  max-width: 100%;
+}
+
+.playground {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.playground img {
+  all: unset;
+  background: transparent !important;
+  filter: none;
+  display: block;
+  padding: 0px;
+  width: 100%;
+}
+
+.playground .frame {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.playground .frame img {
+  transform: scale(1.23);
+  background: transparent;
+  height: 100%;
+}
+
+.profile-page a.small-friend.playground {
+  margin: 8px !important;
+}
+
+.profile-page a.small-friend .playground {
+  margin: 0;
+}
+
+.profile-page a.small-friend .playground .frame,
+.profile-page a.small-friend .playground .frame img,
+.profile-page a.small-friend .playground img {
+  width: 60px;
+  height: 60px;
+}
+
+.playground.m-40 img,
+.playground.m-40 .frame,
+.playground.m-40 .frame img {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.playground.nav {
+  float: right;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.dialog .playground,
+.dialog .playground .frame {
+  float: left !important;
+  width: auto !important;
+}
+
+.dialog img.verification {
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: unset !important;
+  float: unset !important;
+  margin: 0px !important;
+}
+
+.cover {
+  margin-bottom: 12px;
+  position: relative;
+  min-height: 10.3125rem;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: 50% 40%;
+  border-radius: 8px;
+}
+
+.cover button {
+  margin: 8px 8px 0 0;
+  color: #131313;
+  background: transparent;
+}
+
+.cover input {
+  display: none;
+}
+
+.cover:hover button {
+  color: #ddd;
+  background: #131313;
+}
+
+button.full_info {
+  width: 100%;
+  background: #2a2931;
+}
+
+.m-40 {
+  width: 40px !important;
 }
 
 /*# sourceMappingURL=primary.css.map */

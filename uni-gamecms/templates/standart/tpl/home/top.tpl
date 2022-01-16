@@ -1,26 +1,16 @@
 <?
-	/*
-		Подключение различных элементов
-		///////////////////////////////
-	*/
-	
-	$playground = new Playground($pdo, $conf);									// Система торговой площадки
-	
-	if(strpos($_SERVER['REQUEST_URI'], "profile") !== false) {
+	$request_url = $_SERVER['REQUEST_URI'];
+	if(strpos($request_url, "profile") !== false):
 		global $profile;
-		$bgimage = $playground->get_resource_active(1, $profile->id);
-	}
+		$background = trading()->get_resource_active(1, $profile->id);
+	endif;
 ?>
 <div class="container-fluid wapper">
-	<div class="content" <?
-		if(isset($bgimage)) {
-			echo "style=\"background:url('../files/playground/{$bgimage}') no-repeat;
-			background-attachment: scroll;
-			background-size: auto;
-			background-attachment: fixed;
-			background-size: cover;\"";
-		}
-	?>>
+	{if(isset($background))}
+	<div class="content" style="background: url('/files/playground/{{$background}}') no-repeat; background-attachment: scroll; background-attachment: fixed; background-size: cover;">
+	{else}
+	<div class="content">
+	{/if}
 		<div class="header">
 			<div class="container">
 				<button class="menu-trigger btn d-block d-lg-none collapsed" type="button" data-toggle="collapse" data-target="#hidden-menu" ></button>

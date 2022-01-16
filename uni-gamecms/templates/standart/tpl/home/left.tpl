@@ -1,7 +1,20 @@
+<?
+	$frame = trading()->get_resource_active(3, '{user_id}');
+?>
 <ul class="collapsible-menu user-menu">
 	<li class="collapsible">
 		<a href="">
-			<img src="../{avatar}" alt="{login}">
+			{if(isset($frame))}
+			<div class="playground m-40 nav">
+				<div class="frame">
+					<img src="/files/playground/{{$frame}}">
+				</div>
+
+				<img src="<?=convert_avatar('{user_id}');?>" alt="{login}">
+			</div>
+			{else}
+				<img src="<?=convert_avatar('{user_id}');?>" alt="{login}">
+			{/if}
 			<h3>{login}</h3>
 			<p>{group_name}</p>
 

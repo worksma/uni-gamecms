@@ -755,6 +755,12 @@ if (isset($_POST['send_new_comment'])) {
 		$ES = new EventsRibbon($pdo);
 		$ES->new_new_comment($id, $row->new_name, $row->id);
 
+		/*
+			Выдаём опыт
+		*/
+		$l = new Levels;
+		$l->add_user_exp($_SESSION['id'], $l->configs()['new_comments']);
+
 		exit (json_encode(array('status' => '1')));
 	}
 }
@@ -976,6 +982,12 @@ if (isset($_POST['add_topic']) and is_worthy("w")) {
 
 		write_sitemap($full_site_host."forum/topic?id=".$topic['id']);
 
+		/*
+			Выдаём опыт
+		*/
+		$l = new Levels;
+		$l->add_user_exp($_SESSION['id'], $l->configs()['add_topic']);
+
 		exit(json_encode(array('status' => '1', 'id' => $topic['id'])));
 	} else {
 		exit (json_encode(array('status' => '2')));
@@ -1050,6 +1062,12 @@ if (isset($_POST['send_answer'])) {
 	if( $answer = $forum->add_answer($topic_id, $text) ) {
 		$ES = new EventsRibbon($pdo);
 		$ES->new_answer($answer['answer'], $answer['topic'], $answer['name'], $answer['access']);
+
+		/*
+			Выдаём опыт
+		*/
+		$l = new Levels;
+		$l->add_user_exp($_SESSION['id'], $l->configs()['send_answer']);
 
 		exit(json_encode(array('status' => '1')));
 	} else {
@@ -1328,6 +1346,12 @@ if (isset($_POST['send_user_comment'])) {
 
 	$STH = $pdo->prepare("INSERT INTO users__comments (author,user_id,text,date) values (:author, :user_id, :text, :date)");
 	if ($STH->execute(array( 'author' => $_SESSION['id'], 'user_id' => $id, 'text' => $text, 'date' => date("Y-m-d H:i:s") )) == '1') {
+		/*
+			Выдаём опыт
+		*/
+		$l = new Levels;
+		$l->add_user_exp($_SESSION['id'], $l->configs()['send_user_comment']);
+
 		exit (json_encode(array('status' => '1')));
 	}
 }
@@ -2214,6 +2238,26 @@ if(isset($_POST['buyPrefix'])):
 	endif;
 
 	exit(json_encode(['alert' => 'error', 'message' => 'Ошибка запроса..']));
+endif;
+
+if(isset($_POST['change_cover'])):
+	$result = file_uploads("/files/cover", $_FILES['image']);
+
+	if($result['alert'] == 'error'):
+		exit(json_encode($result));
+	endif;
+
+	pdo()
+	->prepare("UPDATE `users` SET `cover`=:cover WHERE `id`=:uid LIMIT 1")
+	->execute([
+		':uid' => $_SESSION['id'],
+		':cover' => $result['full_dir']
+	]);
+
+	exit(json_encode([
+		'alert' => 'success',
+		'file' => $result['full_dir']
+	]));
 endif;
 
 exit(json_encode(['status' => 2]));
