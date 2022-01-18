@@ -2227,7 +2227,7 @@ if(isset($_POST['buyPrefix'])):
 
 					SourceQuery()->Connect($server->ip, $server->port, 1, (($server->game == 'Counter-Strike: 1.6') ? SourceQuery::GOLDSOURCE : SourceQuery::SOURCE));
 					SourceQuery()->SetRconPassword($server->rcon_password);
-					SourceQuery()->Rcon($query);
+					SourceQuery()->Rcon(htmlspecialchars_decode($query));
 				endif;
 
 				exit(json_encode($prefixes->endTemp()));

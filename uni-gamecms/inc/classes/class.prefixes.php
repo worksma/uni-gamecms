@@ -44,15 +44,26 @@
 
 		public function term($id_term = null) {
 			if(empty($id_term)):
-				return null;
+				exit(json_encode([
+					'alert' => 'error',
+					'message' => 'Не указан тариф'
+				]));
+			endif;
+			
+			$sth = pdo()->query("SELECT * FROM `servers__prefixes_term` WHERE `id`='$id_term'");
+		
+			if(!$sth->rowCount()):
+				exit(json_encode([
+					'alert' => 'error',
+					'message' => 'Данный тариф не найден'
+				]));
 			endif;
 
-			return pdo()->query("SELECT * FROM `servers__prefixes_term` WHERE `id`='$id_term'")->fetch(PDO::FETCH_OBJ);
+			return $sth->fetch(PDO::FETCH_OBJ);
 		}
 
 		public function setPrefix($data = []) {
-			$this
-			->pdo
+			pdo()
 			->prepare("INSERT INTO `servers__prefixes`(`id_server`, `id_user`, `steamid`, `nickname`, `password`, `prefix`, `date_start`, `date_end`) VALUES (:id_server, :id_user, :steamid, :nickname, :password, :prefix, :date_start, :date_end)")
 			->execute([
 				':id_server' => (isset($data->id_server) ? $data->id_server : 0),
@@ -125,8 +136,7 @@
 		}
 
 		public function addTerm($data = []) {
-			$this
-			->pdo
+			pdo()
 			->prepare("INSERT INTO `servers__prefixes_term`(`id_server`, `price`, `time`, `discount`, `rcon`) VALUES (:id_server, :price, :time, :discount, :rcon)")
 			->execute([
 				':id_server' => $data->id_server,
@@ -140,8 +150,7 @@
 		}
 
 		public function editTerm($data = []) {
-			$this
-			->pdo
+			pdo()
 			->prepare("UPDATE `servers__prefixes_term` SET `price`=:price,`time`=:time,`discount`=:discount,`rcon`=:rcon WHERE `id`=:id")
 			->execute([
 				':id' => $data->index,
@@ -159,8 +168,7 @@
 				return true;
 			endif;
 
-			$sth = $this
-			->pdo
+			$sth = pdo()
 			->query("SELECT * FROM `servers__prefixes_ban` WHERE `id_server`='$id_server'");
 
 			if(!$sth->rowCount()):
@@ -179,8 +187,7 @@
 		}
 
 		public function addSpeech($data = []) {
-			$this
-			->pdo
+			pdo()
 			->prepare("INSERT INTO `servers__prefixes_ban`(`id_server`, `speech`) VALUES (:id_server, :speech)")
 			->execute([
 				':id_server' => $data->id_server,
@@ -191,8 +198,7 @@
 		}
 
 		public function editSpeech($data = []) {
-			$this
-			->pdo
+			pdo()
 			->prepare("UPDATE `servers__prefixes_ban` SET `speech`=:speech WHERE `id`=:id")
 			->execute([
 				':id' => $data->index,
