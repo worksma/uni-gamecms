@@ -24,6 +24,7 @@
 9. Qiwi
 10. LiqPay
 11. AnyPay
+12. AmaraPay
 
 # Навигация по сайту (Site Navigation)
 1. Главная страница (Home page) ([адрес сайта]);
