@@ -5,9 +5,11 @@
 		var $configs;
 		
 		public function __construct($pdo = null, $conf = null) {
-			if(isset($pdo)) {
-				$this->pdo = $pdo;
-			}
+			if(empty($pdo)):
+				return false;
+			endif;
+			
+			$this->pdo = $pdo;
 			
 			if(isset($conf)) {
 				$this->conf = $conf;
