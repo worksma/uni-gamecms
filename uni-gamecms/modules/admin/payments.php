@@ -47,7 +47,6 @@ $STH->setFetchMode(PDO::FETCH_OBJ);
 $bank_conf = $STH->fetch();
 
 $rbact  = get_active($bank_conf->rb, 2);
-$fkact  = get_active($bank_conf->fk, 2);
 $fknewact  = get_active($bank_conf->fk_new, 2);
 $wact   = get_active($bank_conf->wb, 2);
 $upact  = get_active($bank_conf->up, 2);
@@ -60,6 +59,7 @@ $qwact  = get_active($bank_conf->qw, 2);
 $lpact  = get_active($bank_conf->lp, 2);
 $apact  = get_active($bank_conf->ap, 2);
 $enotact  = get_active($bank_conf->enot, 2);
+$lava = get_active($bank_conf->lava, 2);
 $amarapayact = get_active($bank_conf->amarapay, 2);
 $psRUB  = '';
 $psEUR  = '';
@@ -77,9 +77,6 @@ if($bank_conf->ps_currency == 'EUR') {
 $tpl->load_template('payments.tpl');
 $tpl->set("{site_host}", $site_host);
 $tpl->set("{full_site_host}", $full_site_host);
-$tpl->set("{fk_login}", $bank_conf->fk_login);
-$tpl->set("{fk_pass1}", $bank_conf->fk_pass1);
-$tpl->set("{fk_pass2}", $bank_conf->fk_pass2);
 $tpl->set("{fk_new_login}", $bank_conf->fk_new_login);
 $tpl->set("{fk_new_pass1}", $bank_conf->fk_new_pass1);
 $tpl->set("{fk_new_pass2}", $bank_conf->fk_new_pass2);
@@ -116,8 +113,6 @@ $tpl->set("{upact}", $upact[0]);
 $tpl->set("{upact2}", $upact[1]);
 $tpl->set("{psact}", $psact[0]);
 $tpl->set("{psact2}", $psact[1]);
-$tpl->set("{fkact}", $fkact[0]);
-$tpl->set("{fkact2}", $fkact[1]);
 $tpl->set("{fknewact}", $fknewact[0]);
 $tpl->set("{fknewact2}", $fknewact[1]);
 $tpl->set("{pstest}", $pstest[0]);
@@ -145,7 +140,11 @@ $tpl
 ->set("{amarapay_act2}", $amarapayact[1])
 ->set("{amarapay_id}", $bank_conf->amarapay_id)
 ->set("{amarapay_public}", $bank_conf->amarapay_public)
-->set("{amarapay_secret}", $bank_conf->amarapay_secret);
+->set("{amarapay_secret}", $bank_conf->amarapay_secret)
+->set("{lava_act}", $lava[0])
+->set("{lava_act2}", $lava[1])
+->set("{lava_wallet}", Lava::conf()->wallet)
+->set("{lava_token}", Lava::conf()->token);
 
 $tpl->compile('content');
 $tpl->clear();

@@ -98,22 +98,6 @@
 			</div>
 		{/if}
 
-		{if('{fk}' == '1')}
-			<div class="col-md-6">
-				<div class="block">
-					<div class="block_head">
-						Free-Kassa - VISA/MasterCard, ЮMoney, QIWI, SMS...
-					</div>
-					<label for="number_fk">
-						<img src="../templates/{template}/img/freekassa.jpg" alt="Free-Kassa">
-					</label>
-					<input class="form-control" id="number_fk" placeholder="Укажите сумму" value="{price}">
-					<div id="balance_result_fk" class="mt-3"></div>
-					<button class="btn btn-outline-primary btn-xl" onclick="refill_balance('fk');">Пополнить баланс</button>
-				</div>
-			</div>
-		{/if}
-
 		{if('{fk_new}' == '1')}
 			<div class="col-md-6">
 				<div class="block">
@@ -158,6 +142,22 @@
 					<input class="form-control" id="number_wb" placeholder="Укажите сумму" value="{price}">
 					<div id="balance_result_wb" class="mt-3"></div>
 					<button class="btn btn-outline-primary btn-xl" onclick="refill_balance('wb');">Пополнить баланс</button>
+				</div>
+			</div>
+        {/if}
+
+        {if('{lava}' == '1')}
+			<div class="col-md-6">
+				<div class="block">
+					<div class="block_head">
+						QIWI, Lava, Банковские карты
+					</div>
+					<label for="number_lava">
+						<img src="../templates/{template}/img/qiwi.jpg" alt="QIWI">
+					</label>
+					<input class="form-control" id="number_lava" placeholder="Укажите сумму" value="{price}">
+					<div id="balance_result_lava" class="mt-3"></div>
+					<button class="btn btn-outline-primary btn-xl" onclick="refill_balance('lava');">Пополнить баланс</button>
 				</div>
 			</div>
         {/if}

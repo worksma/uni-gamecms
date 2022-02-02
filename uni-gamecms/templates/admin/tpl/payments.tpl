@@ -1,6 +1,38 @@
 <div class="page">
 	<div class="row">
 		<div class="col-md-6">
+			<!--[ Lava ]-->
+			<div class="block">
+				<div class="block_head">
+					Lava
+					
+					<?if((strtotime("2022-01-27 19:00:00") + strtotime("+7 days", false)) > time()):?>
+						<span class="badge">Новое!</span>
+					<?endif;?>
+				</div>
+				
+				<div class="form-group mb-10">
+					<div class="btn-group" data-toggle="buttons">
+						<label class="btn btn-default {lava_act}" onclick="change_value('config__bank','lava','1','1','lava_wallet,lava_token');">
+							<input type="radio"> Включить
+						</label>
+						
+						<label class="btn btn-default {lava_act2}" onclick="change_value('config__bank','lava','2','1');">
+							<input type="radio"> Выключить
+						</label>
+					</div>
+				</div>
+				
+				<div class="input-group">
+					<span class="input-group-btn">
+						<button class="btn btn-default pd-23-12" type="button" onclick="edit_lava();">Изменить</button>
+					</span>
+					
+					<input type="text" class="form-control" id="lava_wallet" maxlength="255" autocomplete="off" value="{lava_wallet}" placeholder="Номер кошелька">
+					<input type="text" class="form-control" id="lava_token" maxlength="255" autocomplete="off" value="{lava_token}" placeholder="Секретный ключ">
+				</div>
+			</div>
+			
 			<!--[ AmaraPay ]-->
 			<div class="block">
 				<div class="block_head">
@@ -58,7 +90,7 @@
 			<!--[ FreeKassa ]-->
 			<div class="block">
 				<div class="block_head">
-					FreeKassa (для мерчантов зарегистрированных после 01.08.2021)
+					FreeKassa
 				</div>
 				<div class="form-group mb-10">
 					<div class="btn-group" data-toggle="buttons">
@@ -101,55 +133,6 @@
 							<td>&nbsp&nbsp<b>{full_site_host}purse?result=fail</b></td>
 						</tr>
 					</table>
-					</p>
-				</div>
-			</div>
-
-			<div class="block">
-				<div class="block_head">
-					Free-Kassa (для мерчантов зарегистрированных до 01.08.2021)
-				</div>
-				<div class="form-group mb-10">
-					<div class="btn-group" data-toggle="buttons">
-						<label class="btn btn-default {fkact}" onclick="change_value('config__bank','fk','1','1','fk_login,fk_pass1,fk_pass2');">
-							<input type="radio">
-							Включить
-						</label>
-
-						<label class="btn btn-default {fkact2}" onclick="change_value('config__bank','fk','2','1');">
-							<input type="radio">
-							Выключить
-						</label>
-					</div>
-				</div>
-				<div class="input-group">
-					<span class="input-group-btn">
-						<button class="btn btn-default pd-40-12" type="button" onclick="edit_freekassa();">Изменить</button>
-					</span>
-					<input type="text" class="form-control" id="fk_login" maxlength="255" autocomplete="off" value="{fk_login}" placeholder="ID магазина">
-					<input type="text" class="form-control" id="fk_pass1" maxlength="255" autocomplete="off" value="{fk_pass1}" placeholder="Секретное слово">
-					<input type="text" class="form-control" id="fk_pass2" maxlength="255" autocomplete="off" value="{fk_pass2}" placeholder="Секретное слово 2">
-				</div>
-				<div id="edit_freekassa_result"></div>
-				<div class="bs-callout bs-callout-info mt-10">
-					<p>
-						<table>
-							<tr>
-								<td colspan="2">Необходимые данные:</td>
-							</tr>
-							<tr>
-								<td style="text-align: right">URL оповещ: </td>
-								<td>&nbsp&nbsp<b>{full_site_host}purse?result=get</b></td>
-							</tr>
-							<tr>
-								<td style="text-align: right">URL успеха: </td>
-								<td>&nbsp&nbsp<b>{full_site_host}purse?result=success</b></td>
-							</tr>
-							<tr>
-								<td style="text-align: right">URL неуспеха: </td>
-								<td>&nbsp&nbsp<b>{full_site_host}purse?result=fail</b></td>
-							</tr>
-						</table>
 					</p>
 				</div>
 			</div>

@@ -4355,3 +4355,15 @@ function edit_amarapay() {
 		(result) => push(result.message, result.alert)
 	);
 }
+
+function edit_lava() {
+	send_post(
+		url() + "ajax/actions_panel.php",
+		serializeform(new FormData, {
+			edit_lava: 1,
+			wallet: $("#lava_wallet").val(),
+			secret: $("#lava_token").val()
+		}),
+		(result) => push(result.message, result.alert)
+	);
+}

@@ -1,1 +1,0 @@
-CREATE TABLE `config__prefixes` (`id` INT(9) NOT NULL AUTO_INCREMENT , `bind_nick_pass` INT(9) NOT NULL DEFAULT '1' , `bind_steam` INT(9) NOT NULL DEFAULT '1' , `bind_steam_pass` INT(9) NOT NULL DEFAULT '1' , PRIMARY KEY (`id`)) ENGINE = InnoDB; INSERT INTO `config__prefixes`(`bind_nick_pass`, `bind_steam`, `bind_steam_pass`) VALUES ('1', '1', '1');

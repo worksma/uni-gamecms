@@ -126,32 +126,6 @@ if(isset($_POST['refill_balance'])) {
 				Payments::showForm($url, $parameters);
 
 				break;
-			case 'fk':
-				if(empty($cashierSettings->fk_login) || empty($cashierSettings->fk_pass1)) {
-					throw new Exception('Способ оплаты не настроен');
-				}
-
-				$cashierId        = $cashierSettings->fk_login;
-				$cashierPublicKey = $cashierSettings->fk_pass1;
-				$orderNumber      = substr($payId, 5);
-
-				$parameters = [
-					'm'       => $cashierId,
-					'oa'      => $amount,
-					'o'       => $orderNumber,
-					's'       => md5("$cashierId:$amount:$cashierPublicKey:$orderNumber"),
-					'us_user' => $user->id
-				];
-
-				if(!empty($user->email) && (substr($user->email, 0, 6) != 'vk_id_')) {
-					$parameters['em'] = $user->email;
-				}
-
-				$url = 'https://www.free-kassa.ru/merchant/cash.php';
-
-				Payments::showLink($url, $parameters);
-
-				break;
 			case 'fk_new':
 				if(empty($cashierSettings->fk_new_login) || empty($cashierSettings->fk_new_pass1)) {
 					throw new Exception('Способ оплаты не настроен');
@@ -340,6 +314,17 @@ if(isset($_POST['refill_balance'])) {
 				}
 
 				break;
+			case "lava":
+				if(empty($cashierSettings->lava_token)) {
+					throw new Exception('Способ оплаты не настроен');
+				}
+				try {
+					return Lava::g2p($amount);
+				}
+				catch(Exception $exception) {
+					exit(json_encode(['alert' => 'error', 'message' => $e->getMessage()]));
+				}
+			break;
 			case 'lp':
 				if(empty($cashierSettings->lp_public_key) || empty($cashierSettings->lp_private_key)) {
 					throw new Exception('Способ оплаты не настроен');

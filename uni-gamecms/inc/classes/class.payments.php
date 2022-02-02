@@ -2,7 +2,7 @@
 
 class Payments
 {
-	private $cashiers = [
+	private static $cashiers = [
 		[
 			'slug' => 'ik',
 			'name' => 'InterKassa'
@@ -58,22 +58,26 @@ class Payments
 		[
 			'slug' => 'amarapay',
 			'name' => 'AmaraPay'
+		],
+		[
+			'slug' => 'lava',
+			'name' => 'Lava'
 		]
 	];
 
-	function selectPayment($payment)
+	public static function selectPayment($payment)
 	{
-		return '[' . $this->cashiers[$this->getCashierKey($payment)]['name'] . '] : ';
+		return '[' . self::$cashiers[self::getCashierKey($payment)]['name'] . '] : ';
 	}
 
-	public function getCashierKey($slug)
+	public static function getCashierKey($slug)
 	{
-		return array_search($slug, array_column($this->cashiers, 'slug'));
+		return array_search($slug, array_column(self::$cashiers, 'slug'));
 	}
 
-	public function getCashier($cashierKey)
+	public static function getCashier($cashierKey)
 	{
-		return $this->cashiers[$cashierKey];
+		return self::$cashiers[$cashierKey];
 	}
 
 	public static function getCashierCurrency($slug)
@@ -85,19 +89,19 @@ class Payments
 			: 'RUB';
 	}
 
-	public function generatePayId()
+	public static function generatePayId()
 	{
 		return time() . '0' . rand(1, 9);
 	}
 
-	public function generatePayDescription($siteName)
+	public static function generatePayDescription($siteName)
 	{
 		return 'Пополнение баланса на ' . $siteName;
 	}
 
-	public function isCashierEnable($pdo, $cashierKey)
+	public static function isCashierEnable($pdo, $cashierKey)
 	{
-		$cashierSlug = $this->cashiers[$cashierKey]['slug'];
+		$cashierSlug = self::$cashiers[$cashierKey]['slug'];
 		$STH         = $pdo->query("SELECT $cashierSlug FROM config__bank LIMIT 1");
 		$STH->setFetchMode(PDO::FETCH_OBJ);
 		$row = $STH->fetch();
@@ -176,7 +180,7 @@ class Payments
 		return $STH->fetch();
 	}
 
-	function doPayAction($pdo, $user, $amount, $bank, $pay_method, $pay_number, $currency)
+	public static function doPayAction($pdo, $user, $amount, $bank, $pay_method, $pay_number, $currency)
 	{
 		$amount = check($amount, "float");
 		$bank   = $bank + $amount;
@@ -188,7 +192,7 @@ class Payments
 				"INSERT INTO money__actions (date,shilings,author,type) VALUES (:date, :shilings, :author, :type)"
 			);
 			$STH->execute(['date' => date("Y-m-d H:i:s"), 'shilings' => $amount, 'author' => $user->id, 'type' => '1']);
-			$this->paymentLog($pay_method, $amount, $pdo, $user->id, 1);
+			self::paymentLog($pay_method, $amount, $pdo, $user->id, 1);
 
 			$STH = $pdo->query("SELECT bonuses FROM config__secondary LIMIT 1");
 			$STH->setFetchMode(PDO::FETCH_OBJ);
@@ -266,39 +270,32 @@ class Payments
 				}
 			}
 		}
-		$this->insertPay($pay_method, $pay_number, $pdo);
+		self::insertPay($pay_method, $pay_number, $pdo);
+	}
+	
+	public static function issetPay($pdo = null, $pay_method, $pay_number) {
+		return pdo()
+		->query("SELECT `id` FROM `pays` WHERE `method`='$pay_method' and `payid`='$pay_number' LIMIT 1")
+		->rowCount();
 	}
 
-	function issetPay($pdo, $pay_method, $pay_number)
-	{
-		$STH = $pdo->prepare("SELECT id FROM pays WHERE method=:method AND payid=:payid LIMIT 1");
-		$STH->setFetchMode(PDO::FETCH_OBJ);
-		$STH->execute([':method' => $pay_method, ':payid' => $pay_number]);
-		$row = $STH->fetch();
-		if(isset($row->id)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	function insertPay($pay_method, $pay_number, $pdo)
+	public static function insertPay($pay_method, $pay_number, $pdo)
 	{
 		$STH = $pdo->prepare("INSERT INTO pays (method,payid,date) VALUES (:method, :payid, :date)");
 		$STH->execute([':method' => $pay_method, ':payid' => $pay_number, ':date' => date("Y-m-d H:i:s")]);
 	}
 
-	function paymentLog($payment, $log, $pdo, $user, $type)
+	public static function paymentLog($payment, $log, $pdo, $user, $type)
 	{
 		global $messages;
 
-		$payment = $this->selectPayment($payment);
+		$payment = self::selectPayment($payment);
 
 		if($type == 1) {
 			$log  = "Пополнение счета на " . $log . $messages['RUB'];
 			$file = get_log_file_name("payment_successes");
 		} else {
-			$log  = $this->selectPaymentMess($log);
+			$log  = self::selectPaymentMess($log);
 			$file = get_log_file_name("payment_errors");
 		}
 

@@ -3,6 +3,35 @@ $Pm = new Payments;
 
 $bankConf = pdo()->query("SELECT * FROM config__bank LIMIT 1")->fetch(PDO::FETCH_OBJ);
 
+if(isset($_GET['lava']) && $_GET['lava'] == 'get'):
+	$result = json_decode($_GET['demo']);
+	$payMethod = "lava";
+	
+	if(Lava::is_valid($result->invoice_id)):
+		$amount = intval($result->amount);
+		$uid = $result->custom_fields;
+		$udata = Lava::getUser(pdo(), $uid);
+		
+		if(empty($udata->id)):
+			Lava::paymentLog($payMethod, "unknown user", pdo(), $udata, 2);
+		else:
+			if(Lava::issetPay(null, $payMethod, $result->order_id)):
+				exit("OK");
+			endif;
+			
+			if(trading()->is_bonuses()):
+				trading()->add_bonuses($udata->id, $amount);
+			endif;
+			
+			Lava::doPayAction(pdo(), $udata, $amount, $conf->bank, $payMethod, $result->order_id, $messages['RUB']);
+			exit("OK");
+		endif;
+	endif;
+	
+	http_response_code(404);
+	exit;
+endif;
+
 if(isset($_GET['result_qw']) && $_GET['result_qw'] == 'get') {
 	$payMethod = 'qw';
 
@@ -268,40 +297,6 @@ if(isset($_GET['amarapay']) && $_GET['amarapay'] == 'get'):
 	
 	die('200');
 endif;
-
-if(isset($_GET['result']) && $_GET['result'] == 'get') {
-	$payMethod = 'fk';
-
-	$amount    = clean($_POST['AMOUNT'], 'float');
-	$payNumber = clean($_POST['MERCHANT_ORDER_ID'], 'int');
-	$userId    = clean($_POST['us_user'], 'int');
-
-	$sign = md5($bankConf->fk_login . ':' . $_POST['AMOUNT'] . ':' . $bankConf->fk_pass2 . ':' . $_POST['MERCHANT_ORDER_ID']);
-
-	if($sign != $_POST['SIGN']) {
-		$Pm->paymentLog($payMethod, "bad sign", $pdo, $userId, 2);
-		exit("bad sign");
-	}
-
-	$userInfo = $Pm->getUser($pdo, $userId);
-	if(empty($userInfo->id)) {
-		$Pm->paymentLog($payMethod, "unknown user", $pdo, $userId, 2);
-		exit('Error: [User does not exist]');
-	} else {
-		if($Pm->issetPay($pdo, $payMethod, $payNumber)) {
-			exit('YES');
-		}
-
-		$playground = new Playground(pdo(), $conf);
-
-		if($playground->is_bonuses()):
-			$playground->add_bonuses($userInfo->id, $amount);
-		endif;
-
-		$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
-		exit('YES');
-	}
-}
 
 if(isset($_GET['result_fk']) && $_GET['result_fk'] == 'get') {
 	$payMethod = 'fk_new';
@@ -847,6 +842,7 @@ $bonuses = unserialize(
 	->set("{wo}", $bankConf->wo)
 	->set("{ya}", $bankConf->ya)
 	->set("{qw}", $bankConf->qw)
+	->set("{lava}", $bankConf->lava)
 	->set("{lp}", $bankConf->lp)
 	->set("{ap}", $bankConf->ap)
 	->set("{amara}", $bankConf->amarapay)

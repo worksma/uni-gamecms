@@ -1225,6 +1225,31 @@ if(isset($_POST['edit_amarapay'])):
 	]));
 endif;
 
+if(isset($_POST['edit_lava'])):
+	$wallet = clean($_POST['wallet']);
+	$token = clean($_POST['secret']);
+	
+	if(empty($wallet) || empty($token)):
+		exit(json_encode([
+			'alert' => 'danger',
+			'message' => 'Заполните все поля!'
+		]));
+	endif;
+	
+	pdo()
+	->prepare("UPDATE `config__bank` SET `lava_wallet`=:wallet, `lava_token`=:token LIMIT 1")
+	->execute([
+		':wallet' => $wallet,
+		':token' => $token
+	]);
+	
+	write_log("Отредактирована Lava");
+	exit(json_encode([
+		'alert' => 'success',
+		'message' => 'Настройки изменены!'
+	]));
+endif;
+
 /*
 	FreeKassa
 */
@@ -1264,16 +1289,10 @@ if(isset($_POST['edit_freekassa'])) {
 		exit('<p class="text-danger">Вы заполнили не все поля!</p>');
 	}
 
-	if($type == 'new') {
-		$STH = $pdo->prepare("UPDATE config__bank SET fk_new_login=:fk_login,fk_new_pass1=:fk_pass1,fk_new_pass2=:fk_pass2 LIMIT 1");
-		write_log("Отредактирована freekassa new");
-	} else {
-		$STH = $pdo->prepare("UPDATE config__bank SET fk_login=:fk_login,fk_pass1=:fk_pass1,fk_pass2=:fk_pass2 LIMIT 1");
-		write_log("Отредактирована freekassa");
-	}
+	$STH = $pdo->prepare("UPDATE config__bank SET fk_new_login=:fk_login,fk_new_pass1=:fk_pass1,fk_new_pass2=:fk_pass2 LIMIT 1");
+	write_log("Отредактирована freekassa new");
 
 	$STH->execute([':fk_login' => $fk_login, ':fk_pass1' => $fk_pass1, ':fk_pass2' => $fk_pass2]);
-
 	exit('<p class="text-success">Настройки изменены!</p>');
 }
 
