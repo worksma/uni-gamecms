@@ -4,7 +4,7 @@ $Pm = new Payments;
 $bankConf = pdo()->query("SELECT * FROM config__bank LIMIT 1")->fetch(PDO::FETCH_OBJ);
 
 if(isset($_GET['lava']) && $_GET['lava'] == 'get'):
-	$result = json_decode($_GET['demo']);
+	$result = json_decode(file_get_contents("php://input"));
 	$payMethod = "lava";
 	
 	if(Lava::is_valid($result->invoice_id)):
