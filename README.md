@@ -13,18 +13,19 @@
 4. Включенный модуль ZipArchive.
 
 # Платёжные системы (Payment systems)
-1. Free-Kassa
-2. UnitPay
-3. ROBOKASSA
-4. WalletOne
-5. InterKassa
-6. WebMoney
-7. Paysera
-8. ЮMoney
-9. Qiwi
-10. LiqPay
-11. AnyPay
-12. AmaraPay
+1. Lava
+2. FreeKassa
+3. UnitPay
+4. ROBOKASSA
+5. WalletOne
+6. InterKassa
+7. WebMoney
+8. Paysera
+9. ЮMoney
+10. Qiwi
+11. LiqPay
+12. AnyPay
+13. AmaraPay
 
 # Навигация по сайту (Site Navigation)
 1. Главная страница (Home page) ([адрес сайта]);
