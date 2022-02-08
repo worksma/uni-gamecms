@@ -91,7 +91,7 @@
 
 			exit(json_encode(['status' => '1']));
 		}
-
+		
 		public function install_template($key) {
 			if(empty($key)):
 				exit(json_encode(['status' => '2', 'message' => 'Введите ключ.']));
@@ -146,16 +146,20 @@
 			endif;
 		}
 
-		public function install_module($key) {
+		public function install_module($key, $fileName = null) {
 			$this->is_install_module($key);
-
-			$result = curl($this->server(true), json_encode([
-				'module' => 'uni-gamecms',
-				'type' => 'get_module',
-				'key' => $key,
-				'domain' => $_SERVER['SERVER_NAME']
-			]));
-
+			
+			if(empty($fileName)):
+				$result = curl($this->server(true), json_encode([
+					'module' => 'uni-gamecms',
+					'type' => 'get_module',
+					'key' => $key,
+					'domain' => $_SERVER['SERVER_NAME']
+				]));
+			else:
+				$result = $_SERVER['DOCUMENT_ROOT'] . "/modules_extra/$fileName.zip";
+			endif;
+			
 			if(json_decode($result)):
 				exit(json_encode(['status' => '2', 'message' => json_decode($result)->message]));
 			else:

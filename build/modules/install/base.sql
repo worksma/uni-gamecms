@@ -323,7 +323,7 @@ CREATE TABLE IF NOT EXISTS `config__prefixes` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
-INSERT INTO `config__prefixes`(`bind_nick_pass`, `bind_steam`, `bind_steam_pass`) VALUES ('1', '1', '1');
+INSERT INTO `config__prefixes`(`id`, `bind_nick_pass`, `bind_steam`, `bind_steam_pass`) VALUES ('1', '1', '1', '1');
 
 CREATE TABLE IF NOT EXISTS `config__strings` (
   `id` int NOT NULL AUTO_INCREMENT,
