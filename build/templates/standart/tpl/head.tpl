@@ -43,6 +43,9 @@
 		<script src="{site_host}ajax/performers/functions.min.js?v={cache}"></script>
 		<script src="{site_host}ajax/performers/main.min.js?v={cache}"></script>
 
+		<link rel="stylesheet" href="{site_host}files/jquery-confirm/css/jquery-confirm.css?v={cache}">
+		<link href="{site_host}files/toasts/toasty.min.css?v={cache}" rel="stylesheet">
+
 		{if($conf->new_year == 1 || $conf->win_day == 1)}
 		<link rel="stylesheet" href="{site_host}templates/{template}/css/holiday.css">
 		<script src="{site_host}templates/{template}/js/holiday.js"></script>

@@ -1,4 +1,6 @@
-{if(strpos($_SERVER['REQUEST_URI'], "profile") !== false)}
+{if(strpos($_SERVER['REQUEST_URI'], "market") !== false or isset($offparts))}
+	
+{elseif(strpos($_SERVER['REQUEST_URI'], "profile") !== false)}
     <div class="cover" data-src="<?=get_user_cover($profile->id);?>">
         {if($profile->id == $_SESSION['id'])}
         <div class="d-flex justify-content-end">

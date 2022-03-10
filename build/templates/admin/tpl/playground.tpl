@@ -1,8 +1,3 @@
-<style>
-	.mt-4 {
-		margin-top: 0.4rem;
-	}
-</style>
 <div class="page">
 	<div class="row">
 		<?
@@ -41,20 +36,19 @@
 			<div class="block">
 				<div class="block_head">Действующие товары</div>
 				<div>
-					<table class="table">
+					<table class="table playground">
 						<thead>
 							<tr>
-								<td>#</td>
-								<td>Наименование</td>
-								<td>Стоимость</td>
-								<td>Категория</td>
-								<td>Ресурс</td>
-								<td>Действия</td>
+								<td class="number">#</td>
+								<td class="name">Наименование</td>
+								<td class="price">Стоимость</td>
+								<td class="availability">Наличие</td>
+								<td class="actions">Действия</td>
 							</tr>
 						</thead>
 						<tbody id="product">
 							<tr>
-								<td colspan="5">
+								<td colspan="7">
 									<center>
 										<img src="{site_host}templates/admin/img/loader.gif" alt="Загрузка..">
 									</center>
@@ -175,7 +169,7 @@
 					<input id="executor" type="text" class="form-control" placeholder="Ссылка или патч файл">
 					<div class="bs-callout bs-callout-info mt-10">
 						<p>
-							<a target="_blank" href="https://worksma.ru/wiki/executive-file">
+							<a target="_blank" href="https://worksma.ru/forum/threads/Работа-с-исполнительным-файлов-Торговой-площадки.172/">
 								<span class="glyphicon glyphicon-link"></span> Подробнее о исполнительном файле
 							</a>
 						</p>
@@ -187,74 +181,71 @@
 					<button class="btn btn-default btn-block mt-4" onclick="add_product();">Добавить</button>
 				</div>
 			</div>
-			
-			<div class="block">
-				<div class="block_head">Добавление продаж</div>
-				<section>
-					<div class="tabs tabs-style-topline">
-						<nav>
-							<ul>
-								<li>
-									<a href="#section-topline-3">
-										<span>Добавление</span>
-									</a>
-								</li>
-								<li>
-									<a href="#section-topline-4">
-										<span>Удаление</span>
-									</a>
-								</li>
-							</ul>
-							<div class="content-wrap">
-								<section id="section-topline-3">
-									<div class="row">
-										<div class="form-row">
-											<div class="form-group col-md-6">
-												<label for="sels_id">Продукт</label>
-												<select class="form-control" id="sels_id"></select>
-											</div>
-											<div class="form-group col-md-6">
-												<label for="sels_count">Количество</label>
-												<input id="sels_count" type="number" class="form-control" value="10">
-											</div>
-										</div>
-									</div>
-								
-									<button class="btn btn-default btn-block mt-4" onclick="add_sels();">Добавить</button>
-								</section>
-								<section id="section-topline-4">
-									<div class="row">
-										<div class="form-row">
-											<div class="form-group col-md-6">
-												<label for="remove_id">Продукт</label>
-												<select class="form-control" id="remove_id"></select>
-											</div>
-											<div class="form-group col-md-6">
-												<label for="remove_count">Количество</label>
-												<input id="remove_count" type="number" class="form-control" value="10">
-											</div>
-										</div>
-									</div>
-									
-									<button class="btn btn-default btn-block mt-4" onclick="remove_sels();">Удалить</button>
-								</section>
-							</div>
-						</nav>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="modal" tabindex="-1">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="modal-title">Настройка RCON команд</div>
+			</div>
+			<div class="modal-body p_rcon">
+				<div class="block-text">
+					Добавление команды
+				</div>
+				
+				<form id="form_rcon_add" class="row">
+					<input type="hidden" name="pid">
+					<div class="col-lg-4">
+						<select name="server" class="form-control">
+							{servers}
+						</select>
 					</div>
-				</section>
+					<div class="col-lg-6">
+						<input name="command" type="text" class="form-control" placeholder="Консольная команда" autocomplete="off">
+					</div>
+					<div class="col-lg-2">
+						<button type="submit" class="btn btn-primary">Добавить</button>
+					</div>
+					
+					<div class="col-md-12">
+						<div class="bs-callout bs-callout-info mt-5" style="white-space: pre-line;">Для работы опции, должна быть включена функция RCON у <a href="/admin/servers">сервера</a>.
+						
+						<b>Параметры:</b>
+						<b>{uid}</b> - отправка ID профиля покупателя.
+						<b>{id}</b> - индекс купленного товара.
+						<b>{price}</b> - цена, за которую был куплен товар
+						<b>{steamid}</b> - отправит из профиля, если нет то придет 0.
+						</div>
+					</div>
+				</form>
+				
+				<div class="block-text">
+					Имеющиеся команды
+				</div>
+					
+				<div class="f-table">
+					<table class="table table-responsive">
+						<tbody id="rcon_list"></tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 	</div>
 </div>
-<script>
-	document.addEventListener("DOMContentLoaded", load_category);
-	document.addEventListener("DOMContentLoaded", load_opt_category);
-	document.addEventListener("DOMContentLoaded", load_product);
-	document.addEventListener("DOMContentLoaded", load_sels_product);
-</script>
+
 <script src="{site_host}templates/admin/js/tabs.js"></script>
 <script>
-	(function() { [].slice.call( document.querySelectorAll( '.tabs' ) ).forEach( function( el ) { new CBPFWTabs( el ); }); })();
+	$(function() {
+		load_category();
+		load_opt_category();
+		load_product();
+		load_sels_product();
+		
+		[].slice.call(document.querySelectorAll('.tabs')).forEach(function(e) {
+			new CBPFWTabs(e);
+		});
+	});
 </script>
-<link href="{site_host}files/toasts/toasty.min.css?v={cache}" rel="stylesheet">
-<script src="{site_host}files/toasts/toasty.min.js?v={cache}" type="text/javascript"></script>

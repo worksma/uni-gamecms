@@ -1,41 +1,16 @@
-<style>
-	.card-img-top {
-		border-radius: 0px;
-	}
-	
-	.card:hover {
-		cursor:pointer;
-		border: solid 2px #0000007d;
-		background-color: #324965;
-		color:white;
-	}
-	
-	.card.active {
-		border: solid 2px #0000007d;
-		background-color: #324965;
-		color:white;
-	}
-</style>
-
 <div class="col-lg-12 order-is-first">
 	<div class="row">
 		<div class="col-md-6">
 			У Вас на счету {balance}<br>
-			<a href="#" data-toggle="modal" data-target="#exchanger">Пополнить счёт</a>.
+			<a href="#" data-toggle="modal" data-target="#exchanger">Пополнить счёт</a>
 		</div>
 		<div class="col-md-6 col-md-push-12 text-right">
 			<a class="btn btn-default" href="/market">Торговая площадка</a>
 		</div>
 	</div>
-	<div class="block">
-		<div class="row" id="items"></div>
-	</div>
+	
+	<div class="row" id="items">{content}</div>
 </div>
-<script>
-	document.addEventListener("DOMContentLoaded", load_items);
-</script>
-<link href="{site_host}files/toasts/toasty.min.css?v={cache}" rel="stylesheet">
-<script src="{site_host}files/toasts/toasty.min.js?v={cache}" type="text/javascript"></script>
 
 <!--[ Обменник валюты ]!-->
 <div class="modal fade" id="exchanger" tabindex="-1" aria-hidden="true">

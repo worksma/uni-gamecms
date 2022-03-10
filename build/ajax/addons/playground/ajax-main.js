@@ -1,225 +1,4 @@
 /*
-	Загрузка категорий
-*/
-function load_category() {
-	var form_data = new FormData;
-	form_data.append("phpaction", "1");
-	form_data.append("token", $("#token").val());
-	form_data.append("load_category", "1");
-	
-	var category = $("#search_category").val();
-	if(category && category != '') {
-		form_data.append("category", category);
-	}
-	
-	$.ajax({
-		type: "POST",
-		url: "../ajax/addons/playground/actions/main.php",
-		processData: false,
-		contentType: false,
-		data: form_data,
-		dataType: "json",
-		success: function(result) {
-			$("#category").html(result.html);
-		}
-	});
-}
-
-/*
-	Загрузка товара на продажу
-*/
-function load_product_sell() {
-	var form_data = new FormData;
-	form_data.append("phpaction", "1");
-	form_data.append("token", $("#token").val());
-	form_data.append("load_product_sell", "1");
-	form_data.append("page", $("#page_index").val());
-	
-	var category = $("#search_category").val();
-	if(category && category != '') {
-		form_data.append("category", category);
-	}
-	
-	$.ajax({
-		type: "POST",
-		url: "../ajax/addons/playground/actions/main.php",
-		processData: false,
-		contentType: false,
-		data: form_data,
-		dataType: "json",
-		success: function(result) {
-			$("#product_sell").html(result.html);
-		}
-	});
-}
-
-/*
-	Покупка товара
-*/
-function playground_buy(index) {
-	if(confirm("Вы действительно хотите купить?")) {
-		var form_data = new FormData;
-		form_data.append("phpaction", "1");
-		form_data.append("token", $("#token").val());
-		form_data.append("playground_buy", "1");
-		form_data.append("id_product", index);
-		
-		$.ajax({
-			type: "POST",
-			url: "../ajax/addons/playground/actions/main.php",
-			processData: false,
-			contentType: false,
-			data: form_data,
-			dataType: "json",
-			success: function(result) {
-				var toast = new Toasty({
-					classname: "toast",
-					transition: "slideLeftRightFade",
-					insertBefore: false,
-					progressBar: true,
-					enableSounds: true
-				});
-				
-				if(result.status == 1) {
-					toast.success(result.message);
-					load_product_sell();
-				}
-				else {
-					toast.error(result.message);
-				}
-			}
-		});
-	}
-}
-
-/*
-	Загрузка предметов пользователя
-*/
-function load_items() {
-	var form_data = new FormData;
-	form_data.append("phpaction", "1");
-	form_data.append("token", $("#token").val());
-	form_data.append("load_items", "1");
-	
-	$.ajax({
-		type: "POST",
-		url: "../ajax/addons/playground/actions/main.php",
-		processData: false,
-		contentType: false,
-		data: form_data,
-		dataType: "json",
-		success: function(result) {
-			$("#items").html(result.html);
-		}
-	});
-}
-
-/*
-	Включение товара
-*/
-function playground_enable(index) {
-	var form_data = new FormData;
-	form_data.append("phpaction", "1");
-	form_data.append("token", $("#token").val());
-	form_data.append("playground_enable", "1");
-	form_data.append("id_purchases", index);
-	
-	$.ajax({
-		type: "POST",
-		url: "../ajax/addons/playground/actions/main.php",
-		processData: false,
-		contentType: false,
-		data: form_data,
-		dataType: "json",
-		success: function(result) {
-			var toast = new Toasty({
-				classname: "toast",
-				transition: "slideLeftRightFade",
-				insertBefore: false,
-				progressBar: true,
-				enableSounds: true
-			});
-			
-			if(result.status == 1) {
-				load_items();
-				
-				if(result.info == 'info') {
-					toast.warning(result.message);
-				}
-				else if(result.info == 'success') {
-					toast.success(result.message);
-				}
-			}
-			else {
-				toast.error(result.message);
-			}
-		}
-	});
-}
-
-/*
-	Загрузка предметов на продажу
-*/
-function sell_load_items() {
-	var form_data = new FormData;
-	form_data.append("phpaction", "1");
-	form_data.append("token", $("#token").val());
-	form_data.append("sell_load_items", "1");
-	
-	$.ajax({
-		type: "POST",
-		url: "../ajax/addons/playground/actions/main.php",
-		processData: false,
-		contentType: false,
-		data: form_data,
-		dataType: "json",
-		success: function(result) {
-			$("#items").html(result.html);
-		}
-	});
-}
-
-/*
-	Продажа предмета пользователем
-*/
-function sell_product(index) {
-	if(confirm("Вы действительно хотите продать предмет?")) {
-		var form_data = new FormData;
-		form_data.append("phpaction", "1");
-		form_data.append("token", $("#token").val());
-		form_data.append("sell_product", "1");
-		form_data.append("id_purchases", index);
-		
-		$.ajax({
-			type: "POST",
-			url: "../ajax/addons/playground/actions/main.php",
-			processData: false,
-			contentType: false,
-			data: form_data,
-			dataType: "json",
-			success: function(result) {
-				var toast = new Toasty({
-					classname: "toast",
-					transition: "slideLeftRightFade",
-					insertBefore: false,
-					progressBar: true,
-					enableSounds: true
-				});
-				
-				if(result.status == 1) {
-					sell_load_items();
-					load_product_sell();
-					toast.success(result.message);
-				}
-				else {
-					toast.error(result.message);
-				}
-			}
-		});
-	}
-}
-
-/*
 	Калькулятор
 */
 function clc() {
@@ -278,3 +57,81 @@ function on_exchange() {
 		}
 	});
 }
+
+$uri = url() + "ajax/addons/playground/actions/main.php";
+
+$(function() {
+	$(".product-buy-trading").on('click', function() {
+		var pid = $(this).data("product");
+		
+		$.confirm({
+			title: 'Покупка товара',
+			content: 'Вы действительно хотите купить данный товар?',
+			type: 'blue',
+			typeAnimated: true,
+			buttons: {
+				confirm: {
+					text: 'Да, купить',
+					btnClass: 'btn-blue',
+					action: function() {
+						send_post($uri, serializeform(new FormData, {
+							buy: 1,
+							pid: pid
+						}), (result) => {
+							if(result.alert != 'error' && result.alert != 'warning') {
+								$("#availability" + pid).html(result.count);
+							}
+							
+							push(result.message, result.alert);
+						})
+					}
+				},
+				close: {
+					text: 'Отмена'
+				}
+			}
+		});
+	});
+	
+	const con = document.getElementsByClassName("card-body");
+	Array.from(con).map((item) => {
+		const img = new Image();
+		img.src = item.dataset.src;
+		
+		img.onload = () => {
+			return item.nodeName === "IMG" ?
+				item.src = item.dataset.src :
+				item.style.background = `url('${item.dataset.src}')`;
+		}
+	});
+	
+	$(".trading-item").bind('click', function() {
+		var item = $(this);
+		
+		if(item.hasClass('active')) {
+			$.confirm({
+				title: 'Отключение товара', content: 'Вы действительно хотите отключить предмет?', type: 'blue', typeAnimated: true,
+				buttons: {
+					confirm: {
+						text: 'Да',
+						btnClass: 'btn-blue',
+						action: function() {
+							item.removeClass("active");
+							send_post($uri, serializeform(new FormData, {off: 1, pid: item.data('purchases')}), (result) => {});
+						}
+					},
+					close: {
+						text: 'Отмена'
+					}
+				}
+			});
+		}
+		else {
+			$(".trading-item[data-category='" + item.data('category') + "']").removeClass('active');
+			item.addClass("active");
+			send_post($uri, serializeform(new FormData, {on: 1, pid: item.data('purchases')}), (result) => {});
+		}
+	});
+	
+	$(".footer").remove();
+});

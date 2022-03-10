@@ -188,4 +188,76 @@ a, a:hover, a:active, a:focus {
   }
 }
 
+table.playground thead .number {
+	width: 5% !important;
+}
+
+table.playground thead .name {
+	width: 35% !important;
+}
+
+table.playground thead .price {
+	width: 15% !important;
+}
+
+table.playground thead .availability {
+	width: 15% !important;
+}
+
+table.playground thead .actions {
+	width: 30% !important;
+}
+
+table.playground thead tr td {
+	text-align: center !important;
+}
+
+table.playground tbody td:nth-child(1),
+table.playground tbody td:nth-child(3),
+table.playground tbody td:nth-child(4),
+table.playground tbody td:nth-child(5)
+{
+	text-align: center !important;
+}
+
+.mt-4 {
+	margin-top: 0.4rem !important;
+}
+
+#rcon_list tr td {
+	align-items: center;
+	border-style: none;
+}
+
+.table.table-responsive {
+	border-style: none;
+}
+
+.modal-body.p_rcon {
+	padding: 0;
+}
+
+.modal-body.p_rcon form,
+.modal-body.p_rcon .f-table {
+	padding: 15px;
+}
+
+#rcon_list tr td:last-child {
+	display: flex;
+    justify-content: end;
+}
+
+.block-text {
+	display: flex;
+    background-color: #191D20;
+    color: white;
+    align-items: center;
+    padding: 15px;
+	height: 40px;
+}
+
+#form_rcon_add .col-md-12 {
+	padding-right: 0;
+}
+
 /*# sourceMappingURL=primary.css.map */

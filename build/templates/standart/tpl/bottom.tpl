@@ -1,4 +1,4 @@
-					</div>
+</div>
 				</div>
 			</div>
 			<div class="footer">
@@ -73,12 +73,14 @@
 				</div>
 			</div>
 		</div>
-
+		<script src="{site_host}files/jquery-confirm/js/jquery-confirm.js?v={cache}"></script>
+		<script src="{site_host}files/toasts/toasty.min.js?v={cache}" type="text/javascript"></script>
 		<script src="{site_host}templates/{template}/js/lightbox.js"></script>
 		<script>
 			window.onload = function () {
 				$('[tooltip="yes"]').tooltip();
 				$('[data-toggle="dropdown"]').dropdown();
+				$('[data-toggle="tooltip"]').tooltip();
 			};
 		</script>
 	</body>

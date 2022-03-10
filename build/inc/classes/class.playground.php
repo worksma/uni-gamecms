@@ -41,18 +41,15 @@
 			return $this->add_balance($id_user, $bonuses);
 		}
 
-		public function get_resource_active($id_category, $id_user) {
-			$sth = $this->pdo->query("SELECT * FROM `playground__purchases` WHERE `id_category`='{$id_category}' and `id_user`='{$id_user}' and `active`='1'");
-			$sth->setFetchMode(PDO::FETCH_OBJ);
-				
-			if($sth->rowCount()):
-				$sth = $this->pdo->query("SELECT * FROM `playground__product` WHERE `id`='{$sth->fetch()->id_product}'");
-				$sth->setFetchMode(PDO::FETCH_OBJ);
-				
-				return $sth->fetch()->resource;
-			else:
-				return null;
-			endif;
+		public function get_resource_active($category, $uid) {
+			$sth = pdo()->query("SELECT * FROM `playground__purchases` WHERE `category`='$category' and `uid`='$uid' and `enable`='1' LIMIT 1");
+			
+			if($sth->rowCount()) {
+
+				return Trading::GetProduct($sth->fetch(PDO::FETCH_OBJ)->pid)->resource;
+			}
+			
+			return null;
 		}
 		
 		public function get_configs() {
@@ -127,11 +124,12 @@
 			}
 			
 			$this->elbuf .= file_get_contents($patch);
+			return $this;
 		}
 		
 		public function set_element($search, $to) {
 			$this->elbuf = str_replace($search, $to, $this->elbuf);
-			return true;
+			return $this;
 		}
 		
 		public function show_element() {

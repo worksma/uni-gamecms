@@ -843,7 +843,7 @@ function update_monitoring($pdo = null) {
 	$secondary = $api->secondary();
 
 	if((time() - $secondary->mon_time) > $secondary->mon_gap):
-		$api->update_monitoring(($secondary->mon_api == 1));
+		$api->update_monitoring(($secondary->mon_api == 1) ? true : null);
 	endif;
 }
 
@@ -2305,4 +2305,8 @@ function sys() {
 	endif;
 	
 	return $system;
+}
+
+function result($arr) {
+	exit(json_encode($arr));
 }

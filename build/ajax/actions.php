@@ -185,7 +185,7 @@ if(isset($_POST['send_new_pass'])) {
 /* Сервера
 =========================================*/
 if(isset($_POST['get_servers'])) {
-	update_monitoring($pdo);
+	update_monitoring();
 	$i = 0;
 
 	$tpl                    = new Template;

@@ -14,7 +14,6 @@
 		exit(json_encode(['status' => '2']));
 	}
 	
-	
 	/*
 		Загрузка категорий
 	*/
@@ -56,17 +55,18 @@
 				
 				$playground->set_element("{category}", $ath->fetch()->name);
 				$playground->set_element("{resource}", $row->resource);
+				$playground->set_element("{availability}", $row->availability);
 			}
 			
 			exit(json_encode(['status' => '1', 'html' => $playground->show_element()]));
 		}
 		
-		exit(json_encode(['status' => '2', 'html' => '<center>Товаров нет.</center>']));
+		exit(json_encode(['status' => '2', 'html' => '<td colspan="7"><center>Товаров нет.</center></td>']));
 	}
 	
 	if(isset($_POST['remove'])) {
 		$pdo->query("DELETE FROM `playground__product` WHERE `id`='{$_POST['id_product']}'");
-		$pdo->query("DELETE FROM `playground__purchases` WHERE `id_product`='{$_POST['id_product']}'");
+		$pdo->query("DELETE FROM `playground__purchases` WHERE `pid`='{$_POST['id_product']}'");
 		$pdo->query("DELETE FROM `playground__sale` WHERE `id_product`='{$_POST['id_product']}'");
 		
 		exit(json_encode(['status' => '1']));
@@ -127,34 +127,6 @@
 		exit(json_encode(['status' => '1', 'html' => $products]));
 	}
 	
-	if(isset($_POST['add_sels'])) {
-		$sth = $pdo->query("SELECT * FROM `playground__product` WHERE `id`='{$_POST['id_product']}'");
-		$sth->setFetchMode(PDO::FETCH_OBJ);
-		$row = $sth->fetch();
-		
-		for($i = 0; $i < $_POST['value']; $i++) {
-			$pdo->query("INSERT INTO `playground__sale`(`id_product`, `id_category`, `id_seller`) VALUES ('{$row->id}', '{$row->id_category}', '0')");
-		}
-		
-		exit(json_encode(['status' => '1']));
-	}
-	
-	if(isset($_POST['remove_sels'])) {
-		$sth = $pdo->query("SELECT * FROM `playground__sale` WHERE `id_product`='{$_POST['id_product']}' and `id_seller`='0' LIMIT {$_POST['value']}");
-		
-		if($sth->rowCount()) {
-			$sth->setFetchMode(PDO::FETCH_OBJ);
-			
-			while($row = $sth->fetch()) {
-				$pdo->query("DELETE FROM `playground__sale` WHERE `id`='{$row->id}'");
-			}
-			
-			exit(json_encode(['status' => '1', 'message' => 'Товары успешно удалены!']));
-		}
-		
-		exit(json_encode(['status' => '2', 'message' => 'Недостаточно товаров для удаления.']));
-	}
-	
 	if(isset($_POST['edit_currency'])) {
 		$pdo->query("UPDATE `playground` SET `currency`='{$_POST['name']}' WHERE 1 LIMIT 1");
 		exit(json_encode(['status' => '1']));
@@ -182,3 +154,59 @@
 
 		exit(json_encode(['alert' => 'error']));
 	endif;
+	
+	if(isset($_POST['edit_product'])) {
+		$pid = clean($_POST['pid'], "int");
+		$name = clean($_POST['name']);
+		$price = clean($_POST['price'], "int");
+		$availability = clean($_POST['availability'], "int");
+		
+		if(empty($pid) || empty($name) || empty($availability) || empty($price)) {
+			result(['alert' => 'warning', 'message' => 'Один из параметров пуст.']);
+		}
+		
+		if(pdo()->prepare("UPDATE `playground__product` SET `name`=:name, `price`=:price, `availability`=:availability WHERE `id`=:pid LIMIT 1")->execute([
+			':pid' => $pid,
+			':name' => $name,
+			':price' => $price,
+			':availability' => $availability
+		])) {
+			result(['alert' => 'success']);
+		}
+		
+		result(['alert' => 'error']);
+	}
+	
+	if(isset($_POST['getRcon'])) {
+		result(['content' => Trading::getCommands($_POST['pid'])]);
+	}
+	
+	if(isset($_POST['addRcon'])) {
+		$sid = clean($_POST['server'], "int");
+		
+		if(empty($sid)) {
+			result(['alert' => 'warning', 'message' => 'Выберите сервер']);
+		}
+		
+		$command = clean($_POST['command']);
+		
+		if(empty($command)) {
+			result(['alert' => 'warning', 'message' => 'Введите комманду']);
+		}
+		
+		$pid = clean($_POST['pid'], "int");
+		
+		if(empty($pid)) {
+			result(['alert' => 'warning', 'message' => 'Утерян индекс товара']);
+		}
+		
+		if(Trading::addCommand($pid, $sid,  $command)) {
+			result(['alert' => 'success', 'content' => Trading::getCommands($pid)]);
+		}
+	}
+	
+	if(isset($_POST['removeCommand'])) {
+		if(Trading::removeCommand($_POST['id'])) {
+			result(['alert' => 'success', 'content' => Trading::getCommands($_POST['pid'])]);
+		}
+	}

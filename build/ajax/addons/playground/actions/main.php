@@ -1,285 +1,82 @@
 <?PHP
-	require("{$_SERVER['DOCUMENT_ROOT']}/inc/start.php");
+	require($_SERVER['DOCUMENT_ROOT'] . '/inc/start.php');
 	
-	if(empty($_POST['phpaction'])) {
-		exit(json_encode(['status' => '2']));
-	}
-	
-	if($_SESSION['token'] != $_POST['token']) {
-		exit(json_encode(['status' => '2']));
+	if(empty($_POST['phpaction']) || $_SESSION['token'] != $_POST['token']) {
+		result(['alert' => 'error']);
 	}
 	
 	if(empty($_SESSION['id'])) {
-		echo 'Ошибка: [Доступно только авторизованным]';
-		exit(json_encode(['status' => '2']));
+		result(['alert' => 'error', 'message' => 'Доступно только авторизованным']);
 	}
 	
-	/*
-		Загрузка категорий
-	*/
-	if(isset($_POST['load_category'])) {
-		$sth = $pdo->query("SELECT * FROM `playground__category` WHERE 1");
+	if(isset($_POST['buy'])) {
+		$pid = clean($_POST['pid'], "int");
 		
-		if($sth->rowCount()) {
-			$sth->setFetchMode(PDO::FETCH_OBJ);
-			
-			$category = "<li class=\"".($_POST['category'] ? "" : "active")."\"><a href=\"/market\">Все предметы</a></li>";
-			
-			while($row = $sth->fetch()) {
-				$category .= "<li class=\"".($_POST['category'] == $row->code_name ? "active" : "")."\"><a href=\"/market?category={$row->code_name}\">{$row->name}</a></li>";
-			}
-			
-			exit(json_encode([
-				'status' => '1',
-				'html' => $category
-			]));
+		if(empty($pid) || !Trading::IsValidProduct($pid)) {
+			result(['alert' => 'warning', 'message' => 'Неверный индекс товара.']);
 		}
 		
-		exit(json_encode([
-			'status' => '2',
-			'html' => '<center>Категорий нет</center>'
-		]));
-	}
-	
-	/*
-		Получение товаров на продажу
-	*/
-	if(isset($_POST['load_product_sell'])) {
-		if(isset($_POST['page'])):
-			$n_page = $_POST['page'];
-		else:
-			$n_page = 1;
-		endif;
-
-		$playground = new Playground($pdo, $conf);
-		$limit = $playground->get_configs()->limit_product;
-
-		if(isset($_POST['category'])) {
-			$sth_category = $pdo->query("SELECT * FROM `playground__category` WHERE `code_name`='{$_POST['category']}' ORDER BY `id` DESC LIMIT ".(($n_page * $limit) - $limit).", $limit");
-			
-			if($sth_category->rowCount()) {
-				$sth_category->setFetchMode(PDO::FETCH_OBJ);
-				$category = $sth_category->fetch();
-				
-				$sth = $pdo->query("SELECT * FROM `playground__product` WHERE `id_category`='{$category->id}' ORDER BY `id` DESC LIMIT ".(($n_page * $limit) - $limit).", $limit");
-			}
-			else {
-				$sth = $pdo->query("SELECT * FROM `playground__product` WHERE 1 ORDER BY `id` DESC LIMIT ".(($n_page * $limit) - $limit).", $limit");
-			}
-		}
-		else {
-			$sth = $pdo->query("SELECT * FROM `playground__product` WHERE 1 ORDER BY `id` DESC LIMIT ".(($n_page * $limit) - $limit).", $limit");
-		}
+		$Product = Trading::GetProduct($pid);
 		
-		if($sth->rowCount()) {
-			$sth->setFetchMode(PDO::FETCH_OBJ);
-			$playground = new Playground($pdo, $conf);
-			$playground->clear_element();
-			
-			while($row = $sth->fetch()) {
-				$playground->load_element("table/product-sell");
-				
-				$playground->set_element("{id}", $row->id);
-				$playground->set_element("{name}", $row->name);
-				$playground->set_element("{image}", $row->resource);
-				$playground->set_element("{price}", $row->price . ' ' . $playground->get_configs()->currency);
-				
-				$sth2 = $pdo->query("SELECT * FROM `playground__sale` WHERE `id_product`='{$row->id}'");
-				$playground->set_element("{count}", $sth2->rowCount());
-			}
-			
-			exit(json_encode([
-				'status' => '1',
-				'html' => $playground->show_element()
-			]));
-		}
-		
-		exit(json_encode([
-			'status' => '2',
-			'html' => "<tr style=\"background:unset;\"><td colspan=\"3\"><center>Товаров нет</center></td></tr>"
-		]));
-	}
-	
-	/*
-		Покупка товара
-	*/
-	if(isset($_POST['playground_buy'])) {
-		$sth = $pdo->query("SELECT * FROM `playground__product` WHERE `id`='{$_POST['id_product']}'");
-		
-		if($sth->rowCount()) {
-			$ath = $pdo->query("SELECT * FROM `playground__sale` WHERE `id_product`='{$_POST['id_product']}'");
-			
-			if(!$ath->rowCount()) {
-				exit(json_encode([
-					'status' => '2',
-					'message' => 'Нет в наличие.'
-				]));
-			}
-			
-			$sth->setFetchMode(PDO::FETCH_OBJ);
-			$playground = new Playground($pdo, $conf);
-			$row = $sth->fetch();
-			
-			if($playground->get_balance($_SESSION['id']) >= $row->price) {
-				if($playground->min_balance($_SESSION['id'], $row->price) && $pdo->query("INSERT INTO `playground__purchases`(`id_product`, `id_category`, `id_user`, `price`, `buy_time`) VALUES ('{$_POST['id_product']}', '{$row->id_category}', '{$_SESSION['id']}', '{$row->price}', '".time()."')")) {
-					$ath->setFetchMode(PDO::FETCH_OBJ);
-					$se = $ath->fetch();
-					$pdo->query("DELETE FROM `playground__sale` WHERE `id`='{$se->id}'");
+		if($Product->availability) {
+			if(Trading::GetBalance($_SESSION['id']) >= $Product->price) {
+				if(Trading::SetProduct($pid, 'availability', ($Product->availability - 1))) {
+					Trading::SetBalance($_SESSION['id'], (Trading::GetBalance($_SESSION['id']) - $Product->price));
+					Trading::addPurchases($_SESSION['id'], $pid, $Product->price);
 					
-					if($se->id_seller != 0) {
-						$playground->add_balance($se->id_seller, $row->price);
-					}
+					Trading::SendRcon($pid, [
+						'uid' => $_SESSION['id'],
+						'steamid' => user()->steam_id,
+						'pid' => $pid,
+						'price' => $Product->price
+					]);
 					
-					if(isset($row->executor) && $row->executor != 'none'):
-						$playground->notification($row->executor, [
-							'type' => 'pay',
-							'id_user' => $_SESSION['id'],
-							'id_product' => $row->id,
-							'price' => $row->price
-						]);
-					endif;
-
-					exit(json_encode([
-						'status' => '1',
-						'message' => 'Успешная покупка!'
-					]));
+					Trading::RemoteNoty($pid, [
+						'uid' => $_SESSION['id'],
+						'pid' => $pid,
+						'price' => $Product->price
+					]);
+					
+					result(['alert' => 'info', 'message' => 'Товар добавлен в Инвентарь', 'count' => ($Product->availability - 1)]);
 				}
 			}
 			else {
-				exit(json_encode([
-					'status' => '2',
-					'message' => 'Недостаточно средств.'
-				]));
+				result(['alert' => 'warning', 'message' => 'Недостаточно средств.']);
 			}
 		}
 		
-		exit(json_encode([
-			'status' => '2',
-			'message' => 'Запрашиваемый товар не найден.'
-		]));
+		result(['alert' => 'warning', 'message' => 'Товар распродан.']);
 	}
 	
-	/*
-		Загрузка предметов пользователя
-	*/
-	if(isset($_POST['load_items'])) {
-		$sth = $pdo->query("SELECT * FROM `playground__purchases` WHERE `id_user`='{$_SESSION['id']}'");
+	if(isset($_POST['on'])) {
+		$pid = clean($_POST['pid'], "int");
 		
-		if($sth->rowCount()) {
-			$sth->setFetchMode(PDO::FETCH_OBJ);
-			$playground = new Playground($pdo, $conf);
-			
-			while($row = $sth->fetch()) {
-				$playground->load_element("card/items");
-				
-				$ath = $pdo->query("SELECT * FROM `playground__product` WHERE `id`='{$row->id_product}'");
-				$ath->setFetchMode(PDO::FETCH_OBJ);
-				$arow = $ath->fetch();
-				
-				$playground->set_element("{id_purchases}", $row->id);
-				$playground->set_element("{name}", $arow->name);
-				$playground->set_element("{image}", $arow->resource);
-				$playground->set_element("{active}", ($row->active ? "active" : ""));
-			}
-			
-			exit(json_encode([
-				'status' => '1',
-				'html' => $playground->show_element()
-			]));
+		if(empty($pid)) {
+			result(['alert' => 'warning', 'message' => 'Отсутствует индекс']);
 		}
 		
-		exit(json_encode([
-			'status' => '2',
-			'html' => '<center style="flex:content;">Инвентарь пуст.</center>'
-		]));
+		if(!Trading::IsUserPurchases($_SESSION['id'], $pid)) {
+			result(['alert' => 'warning', 'message' => 'Нет предмета в Инвентаре']);
+		}
+		
+		Trading::OffUserPurchases($_SESSION['id'], Trading::GetPurchases($pid)->category);
+		Trading::SetPurchases($pid, 'enable', 1);
+		result(['alert' => 'success']);
 	}
 	
-	if(isset($_POST['playground_enable'])) {
-		$sth = $pdo->query("SELECT * FROM `playground__purchases` WHERE `id`='{$_POST['id_purchases']}' and `id_user`='{$_SESSION['id']}'");
+	if(isset($_POST['off'])) {
+		$pid = clean($_POST['pid'], "int");
 		
-		if($sth->rowCount()) {
-			$sth->setFetchMode(PDO::FETCH_OBJ);
-			$row = $sth->fetch();
-			
-			if(!$row->active) {
-				$pdo->query("UPDATE `playground__purchases` SET `active`='0' WHERE `id_user`='{$_SESSION['id']}' and `id_category`='{$row->id_category}'");
-				$pdo->query("UPDATE `playground__purchases` SET `active`='1' WHERE `id`='{$_POST['id_purchases']}'");
-			}
-			else {
-				$pdo->query("UPDATE `playground__purchases` SET `active`='0' WHERE `id`='{$_POST['id_purchases']}'");
-			}
-			
-			$ath = $pdo->query("SELECT * FROM `playground__product` WHERE `id`='{$row->id_product}'");
-			$ath->setFetchMode(PDO::FETCH_OBJ);
-			$arow = $ath->fetch();
-			
-			exit(json_encode([
-				'status' => '1',
-				'message' => ($row->active ? "Вы выключили {$arow->name}" : "Вы включили {$arow->name}"),
-				'info' => ($row->active ? "info" : "success")
-			]));
+		if(empty($pid)) {
+			result(['alert' => 'warning', 'message' => 'Отсутствует индекс']);
 		}
 		
-		exit(json_encode([
-			'status' => '2',
-			'message' => 'Произошла ошибка..'
-		]));
-	}
-	
-	/*
-		Загрузка предметов на продажу
-	*/
-	if(isset($_POST['sell_load_items'])) {
-		$sth = $pdo->query("SELECT * FROM `playground__purchases` WHERE `id_user`='{$_SESSION['id']}'");
-		
-		if($sth->rowCount()) {
-			$sth->setFetchMode(PDO::FETCH_OBJ);
-			$playground = new Playground($pdo, $conf);
-			
-			while($row = $sth->fetch()) {
-				$playground->load_element("modal/sell");
-				
-				$ath = $pdo->query("SELECT * FROM `playground__product` WHERE `id`='{$row->id_product}'");
-				$ath->setFetchMode(PDO::FETCH_OBJ);
-				$arow = $ath->fetch();
-				
-				$playground->set_element("{id_purchases}", $row->id);
-				$playground->set_element("{image}", $arow->resource);
-			}
-			
-			exit(json_encode([
-				'status' => '1',
-				'html' => $playground->show_element()
-			]));
+		if(!Trading::IsUserPurchases($_SESSION['id'], $pid)) {
+			result(['alert' => 'warning', 'message' => 'Нет предмета в Инвентаре']);
 		}
 		
-		exit(json_encode([
-			'status' => '2',
-			'html' => '<center style="flex:content;">Инвентарь пуст.</center>'
-		]));
-	}
-	
-	/*
-		Продажа предмета пользователем
-	*/
-	if(isset($_POST['sell_product'])) {
-		$sth = $pdo->query("SELECT * FROM `playground__purchases` WHERE `id`='{$_POST['id_purchases']}' and `id_user`='{$_SESSION['id']}'");
-		
-		if($sth->rowCount()) {
-			$sth->setFetchMode(PDO::FETCH_OBJ);
-			$row = $sth->fetch();
-			
-			if($pdo->query("INSERT INTO `playground__sale`(`id_product`, `id_category`, `id_seller`) VALUES ('{$row->id_product}', '{$row->id_category}', '{$_SESSION['id']}')")) {
-				$pdo->query("DELETE FROM `playground__purchases` WHERE `id`='{$row->id}'");
-				exit(json_encode([
-					'status' => '1', 'message' => 'Предмет выставлен на продажу.'
-				]));
-			}
-		}
-		
-		exit(json_encode([
-			'status' => '2', 'message' => 'У Вас отсутствует данный предмет.'
-		]));
+		Trading::SetPurchases($pid, 'enable', 0);
+		result(['alert' => 'success']);
 	}
 	
 	/*
@@ -300,27 +97,23 @@
 		Обмен валюты
 	*/
 	if(isset($_POST['on_exchange'])) {
-		$sth = $pdo->query("SELECT * FROM `users` WHERE `id`='{$_SESSION['id']}'");
-		$sth->setFetchMode(PDO::FETCH_OBJ);
-		$row = $sth->fetch();
+		$count = clean($_POST['value'], "int");
+		$price = $count * Trading::conf()->course;
 		
-		$playground = new Playground($pdo, $conf);
-		$get_configs = $playground->get_configs();
-		
-		if($row->shilings >= $_POST['value'] * $get_configs->course) {
-			$shilings = $row->shilings - $_POST['value'] * $get_configs->course;
+		if(user()->shilings >= $price) {
+			$shilings = user()->shilings - $price;
 			
-			if($pdo->query("UPDATE `users` SET `shilings`='{$shilings}' WHERE `id`='{$_SESSION['id']}'")) {
-				$playground->add_balance($_SESSION['id'], $_POST['value']);
-				exit(json_encode([
+			if(pdo()->prepare("UPDATE `users` SET `shilings`=:shilings WHERE `id`=:id")->execute([':shilings' => $shilings, ':id' => $_SESSION['id']])) {
+				Trading::SetBalance($_SESSION['id'], Trading::GetBalance($_SESSION['id']) + $count);
+				result([
 					'status' => '1',
 					'html' => '<font class="text-success">Успешный обмен валюты!</font>'
-				]));
+				]);
 			}
 		}
 		
-		exit(json_encode([
+		result([
 			'status' => '1',
-			'html' => '<font class="text-danger">Недостаточно средств.</font>'
-		]));
+			'html' => '<font class="text-danger">Недостаточно средств</font>'
+		]);
 	}

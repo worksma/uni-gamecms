@@ -747,13 +747,14 @@ CREATE TABLE IF NOT EXISTS `playground__category` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(64) NOT NULL,
   `code_name` varchar(64) NOT NULL,
+  `main` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
-INSERT INTO `playground__category` (`id`, `name`, `code_name`) VALUES
-(1, 'Фон профиля', 'background'),
-(2, 'Аватар', 'avatar'),
-(3, 'Рамка профиля', 'frame');
+INSERT INTO `playground__category` (`id`, `name`, `code_name`, `main`) VALUES
+(1, 'Фон профиля', 'background', 1),
+(2, 'Аватар', 'avatar', 1),
+(3, 'Рамка профиля', 'frame', 1);
 
 CREATE TABLE IF NOT EXISTS `playground__product` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -762,17 +763,18 @@ CREATE TABLE IF NOT EXISTS `playground__product` (
   `resource` text NOT NULL,
   `executor` text NOT NULL,
   `id_category` int NOT NULL,
+  `availability` int NOT NULL DEFAULT '100',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `playground__purchases` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `id_product` int NOT NULL,
-  `id_category` int NOT NULL,
-  `id_user` int NOT NULL,
+  `pid` int NOT NULL,
+  `category` int NOT NULL,
+  `uid` int NOT NULL,
   `price` float NOT NULL,
-  `buy_time` int NOT NULL,
-  `active` int NOT NULL DEFAULT '0',
+  `date` varchar(64) NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `enable` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -783,6 +785,14 @@ CREATE TABLE IF NOT EXISTS `playground__sale` (
   `id_seller` int NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `playground__commands` (
+	`id` INT(9) NOT NULL AUTO_INCREMENT ,
+	`pid` INT(9) NOT NULL,
+	`sid` INT(9) NOT NULL,
+	`command` VARCHAR(256) NOT NULL,
+	PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `pm__dialogs` (
   `id` int NOT NULL AUTO_INCREMENT,

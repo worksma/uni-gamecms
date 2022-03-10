@@ -52,6 +52,7 @@
 	$tpl->set("{secret}", $playground->get_configs()->secret);
 	$tpl->set("{limit_product}", $playground->get_configs()->limit_product);
 	$tpl->set("{bonuses}", $playground->get_configs()->bonuses);
+	$tpl->set("{servers}", Trading::getServersRcon());
 	$tpl->compile( 'content' );
 	$tpl->clear();
 
