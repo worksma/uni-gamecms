@@ -70,22 +70,22 @@
 		/**
 		 * Points to socket class
 		 */
-		private BaseSocket $Socket;
+		private $Socket;
 		
 		/**
 		 * True if connection is open, false if not
 		 */
-		private bool $Connected = false;
+		private $Connected = false;
 		
 		/**
 		 * Contains challenge
 		 */
-		private string $Challenge = '';
+		private $Challenge = '';
 		
 		/**
 		 * Use old method for getting challenge number
 		 */
-		private bool $UseOldGetChallengeMethod = false;
+		private $UseOldGetChallengeMethod = false;
 		
 		public function __construct( BaseSocket $Socket = null )
 		{
@@ -141,7 +141,7 @@
 		/**
 		 * Closes all open connections
 		 */
-		public function Disconnect( ) : void
+		public function Disconnect( )// : void
 		{
 			$this->Connected = false;
 			$this->Challenge = '';

@@ -20,7 +20,9 @@
 	 */
 	class Socket extends BaseSocket
 	{
-		public function Close( ) : void
+		public function Close( )// : void
+		//you have to omit the return type completely for void
+		//https://stackoverflow.com/questions/35482195/php7-void-return-type-not-working/35482402
 		{
 			if( $this->Socket !== null )
 			{

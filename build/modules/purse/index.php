@@ -2,6 +2,7 @@
 $Pm = new Payments;
 
 $bankConf = pdo()->query("SELECT * FROM config__bank LIMIT 1")->fetch(PDO::FETCH_OBJ);
+$bankConf->rubusd = @file_get_contents("./inc/configs/cbr.txt")+0.0;
 
 if(isset($_GET['lava']) && $_GET['lava'] == 'get'):
 	$result = json_decode(file_get_contents("php://input"));
@@ -297,6 +298,129 @@ if(isset($_GET['amarapay']) && $_GET['amarapay'] == 'get'):
 	
 	die('200');
 endif;
+
+if(isset($_GET['pm']) && $_GET['pm'] == 'get')
+{	//Added by Metal Messiah
+	$payMethod			= "perfectmoney";
+	try {
+		$amount    = clean($_POST['PAYMENT_AMOUNT'], 'float');
+		if ($_POST['PAYMENT_UNITS']=="USD") $amount = $amount * ($bankConf->rubusd);
+		list($userId, $payNumber) = explode("_", $_POST['PAYMENT_ID'], 2);
+		$payNumber = clean($payNumber, 'int');
+		$userId    = clean($userId, 'int');
+
+		if (!isset($_POST['PAYMENT_BATCH_NUM']) || !isset($_POST['TIMESTAMPGMT']))
+		{
+			throw new Exception('wrong params');
+		}
+		$arHash = array(
+			$_POST['PAYMENT_ID'],
+			$_POST['PAYEE_ACCOUNT'],
+			$_POST['PAYMENT_AMOUNT'],
+			$_POST['PAYMENT_UNITS'],
+			$_POST['PAYMENT_BATCH_NUM'],
+			$_POST['PAYER_ACCOUNT'],
+			$bankConf->perfectmoney_secret,
+			$_POST['TIMESTAMPGMT']
+		);
+		$sign_hash = strtoupper(md5(implode(':', $arHash)));
+		if ($_POST['V2_HASH'] != $sign_hash)
+		{
+			throw new Exception('bad sign');
+		}
+	
+		$userInfo = $Pm->getUser($pdo, $userId);
+		if(empty($userInfo->id)) {
+			throw new Exception('unknown user');
+		} else {
+			if($Pm->issetPay($pdo, $payMethod, $payNumber))
+			{
+				die('OK');
+			}
+
+			$playground = new Playground(pdo(), $conf);
+
+			if($playground->is_bonuses()):
+				$playground->add_bonuses($userInfo->id, $amount);
+			endif;
+
+			$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
+			die('OK');
+		}
+	} catch(Exception $e) {
+		if(empty($userId)) {
+			$userId = 0;
+		}
+		$Pm->paymentLog($payMethod, $e->getMessage(), $pdo, $userId, 2);
+		http_response_code(500);
+		die('Error: '.$e->getMessage());
+	}
+}
+
+if(isset($_GET['payeer']) && $_GET['payeer'] == 'get')
+{	//Added by Metal Messiah
+	$payMethod			= "payeer";
+	try {
+		$amount    = clean($_POST['m_amount'], 'float');
+		list($userId, $payNumber) = explode("_", $_POST['m_orderid'], 2);
+		$payNumber = clean($payNumber, 'int');
+		$userId    = clean($userId, 'int');
+
+		if (!isset($_POST['m_operation_id']) || !isset($_POST['m_sign']))
+		{
+			throw new Exception('wrong params');
+		}
+
+		$arHash = array(
+			$_POST['m_operation_id'],
+			$_POST['m_operation_ps'],
+			$_POST['m_operation_date'],
+			$_POST['m_operation_pay_date'],
+			$_POST['m_shop'],
+			$_POST['m_orderid'],
+			$_POST['m_amount'],
+			$_POST['m_curr'],
+			$_POST['m_desc'],
+			$_POST['m_status']
+		);
+		if (isset($_POST['m_params'])) $arHash[] = $_POST['m_params'];
+		$arHash[] = $bankConf->payeer_secret;
+		$sign_hash = strtoupper(hash('sha256', implode(':', $arHash)));
+		if ($_POST['m_sign'] != $sign_hash)
+		{
+			throw new Exception('bad sign');
+		}
+		if ($_POST['m_status'] != 'success') {
+			die($_POST['m_orderid'].'|success');
+		}
+		
+		$userInfo = $Pm->getUser($pdo, $userId);
+		if(empty($userInfo->id)) {
+			throw new Exception('unknown user');
+		} else {
+			if($Pm->issetPay($pdo, $payMethod, $payNumber))
+			{
+				die($_POST['m_orderid'].'|success');
+			}
+
+			$playground = new Playground(pdo(), $conf);
+
+			if($playground->is_bonuses()):
+				$playground->add_bonuses($userInfo->id, $amount);
+			endif;
+
+			$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
+			die($_POST['m_orderid'].'|success');
+		}
+	} catch(Exception $e) {
+		if(empty($userId)) {
+			$userId = 0;
+		}
+		$Pm->paymentLog($payMethod, $e->getMessage(), $pdo, $userId, 2);
+		http_response_code(500);
+		die($_POST['m_orderid'].'|'.$e->getMessage());
+	}
+}
 
 if(isset($_GET['result_fk']) && $_GET['result_fk'] == 'get') {
 	$payMethod = 'fk_new';
@@ -832,6 +956,8 @@ $bonuses = unserialize(
 	->set("{login}", $_SESSION['login'])
 	->set("{bonusesActivity}", $bonusesActivity)
 	->set("{rb}", $bankConf->rb)
+	->set("{payeer}", $bankConf->payeer)
+	->set("{perfectmoney}", $bankConf->perfectmoney)
 	->set("{wb}", $bankConf->wb)
 	->set("{up}", $bankConf->up)
 	->set("{enot}", $bankConf->enot)

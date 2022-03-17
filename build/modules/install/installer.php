@@ -88,6 +88,10 @@
 		
 		$pdo->exec("set names utf8"); 
 		
+		@ini_set('max_execution_time', 1200);
+		@ignore_user_abort(1);
+		@set_time_limit(0);
+		
 		$result = importSqlFile($pdo, ($_SERVER['DOCUMENT_ROOT'] . '/modules/install/base.sql'), [
 			'project' => $project,
 			'salt' => crate_pass(10, 2),

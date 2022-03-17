@@ -22,18 +22,18 @@
 	{
 		/** @var resource */
 		public $Socket;
-		public int $Engine;
+		public $Engine;
 		
-		public string $Address;
-		public int $Port;
-		public int $Timeout;
+		public $Address;
+		public $Port;
+		public $Timeout;
 		
 		public function __destruct( )
 		{
 			$this->Close( );
 		}
 		
-		abstract public function Close( ) : void;
+		abstract public function Close( );// : void;
 		abstract public function Open( string $Address, int $Port, int $Timeout, int $Engine ) : void;
 		abstract public function Write( int $Header, string $String = '' ) : bool;
 		abstract public function Read( int $Length = 1400 ) : Buffer;

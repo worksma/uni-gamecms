@@ -61,6 +61,8 @@ $apact  = get_active($bank_conf->ap, 2);
 $enotact  = get_active($bank_conf->enot, 2);
 $lava = get_active($bank_conf->lava, 2);
 $amarapayact = get_active($bank_conf->amarapay, 2);
+$payeeract = get_active($bank_conf->payeer, 2);
+$perfectmoneyact = get_active($bank_conf->perfectmoney, 2);
 $psRUB  = '';
 $psEUR  = '';
 $psUSD  = '';
@@ -80,6 +82,10 @@ $tpl->set("{full_site_host}", $full_site_host);
 $tpl->set("{fk_new_login}", $bank_conf->fk_new_login);
 $tpl->set("{fk_new_pass1}", $bank_conf->fk_new_pass1);
 $tpl->set("{fk_new_pass2}", $bank_conf->fk_new_pass2);
+$tpl->set("{payeer_id}", $bank_conf->payeer_id);
+$tpl->set("{payeer_secret}", $bank_conf->payeer_secret);
+$tpl->set("{perfectmoney_id}", $bank_conf->perfectmoney_id);
+$tpl->set("{perfectmoney_secret}", $bank_conf->perfectmoney_secret);
 $tpl->set("{rb_login}", $bank_conf->rb_login);
 $tpl->set("{rb_pass1}", $bank_conf->rb_pass1);
 $tpl->set("{rb_pass2}", $bank_conf->rb_pass2);
@@ -141,6 +147,17 @@ $tpl
 ->set("{amarapay_id}", $bank_conf->amarapay_id)
 ->set("{amarapay_public}", $bank_conf->amarapay_public)
 ->set("{amarapay_secret}", $bank_conf->amarapay_secret)
+
+->set("{payeer_act}", $payeeract[0])
+->set("{payeer_act2}", $payeeract[1])
+->set("{payeer_id}", $bank_conf->payeer_id)
+->set("{payeer_secret}", $bank_conf->payeer_secret)
+
+->set("{perfectmoney_act}", $perfectmoneyact[0])
+->set("{perfectmoney_act2}", $perfectmoneyact[1])
+->set("{perfectmoney_id}", $bank_conf->perfectmoney_id)
+->set("{perfectmoney_secret}", $bank_conf->perfectmoney_secret)
+
 ->set("{lava_act}", $lava[0])
 ->set("{lava_act2}", $lava[1])
 ->set("{lava_wallet}", Lava::conf()->wallet)

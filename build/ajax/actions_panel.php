@@ -1296,6 +1296,38 @@ if(isset($_POST['edit_freekassa'])) {
 	exit('<p class="text-success">Настройки изменены!</p>');
 }
 
+if(isset($_POST['edit_payeer'])) {
+	$payeer_id = check($_POST['payeer_id'], 'int');
+	$payeer_secret = check($_POST['payeer_secret'], null);
+
+	if(empty($payeer_id) or empty($payeer_secret)) {
+		exit('<p class="text-danger">Вы заполнили не все поля!</p>');
+	}
+
+	$STH = $pdo->prepare("UPDATE config__bank SET payeer_id=:payeer_id,payeer_secret=:payeer_secret LIMIT 1");
+	write_log("Отредактирован Payeer");
+
+	$STH->execute([':payeer_id' => $payeer_id, ':payeer_secret' => $payeer_secret]);
+	exit('<p class="text-success">Настройки изменены!</p>');
+}
+
+if(isset($_POST['edit_perfectmoney'])) {
+	$perfectmoney_id = check(trim($_POST['perfectmoney_id']), null);
+	$perfectmoney_secret = check(trim($_POST['perfectmoney_secret']), null);
+
+	if(empty($perfectmoney_id) or empty($perfectmoney_secret)) {
+		exit('<p class="text-danger">Вы заполнили не все поля!</p>');
+	}
+
+	$STH = $pdo->prepare("UPDATE config__bank SET perfectmoney_id=:perfectmoney_id,perfectmoney_secret=:perfectmoney_secret LIMIT 1");
+	write_log("Отредактирован PerfectMoney");
+
+	$STH->execute([':perfectmoney_id' => $perfectmoney_id, ':perfectmoney_secret' => $perfectmoney_secret]);
+	exit('<p class="text-success">Настройки изменены!</p>');
+}
+
+
+
 if(isset($_POST['edit_interkassa'])) {
 	$ik_login = check($_POST['ik_login'], null);
 	$ik_pass1 = check($_POST['ik_pass1'], null);
