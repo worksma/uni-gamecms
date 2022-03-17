@@ -18,19 +18,21 @@ location / {
 ```
 
 # Платёжные системы (Payment systems)
-1. Lava
-2. FreeKassa
-3. UnitPay
-4. ROBOKASSA
-5. WalletOne
-6. InterKassa
-7. WebMoney
-8. Paysera
-9. ЮMoney
-10. Qiwi
+```
+1. Qiwi
+2. Lava
+3. FreeKassa
+4. UnitPay
+5. Robokassa
+6. WalletOne
+7. InterKassa
+8. Webmoney
+9. Paysera
+10. ЮMoney
 11. LiqPay
 12. AnyPay
 13. AmaraPay
+```
 
 # Лицензии и благодарности (Licenses and commendations)
 1. Основа для дизайна сайта [Bootstrap](https://getbootstrap.com/docs/4.0/about/license/)
