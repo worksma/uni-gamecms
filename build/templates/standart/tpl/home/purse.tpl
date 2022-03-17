@@ -81,6 +81,38 @@
 				</div>
 			</div>
 		{/if}
+		
+		{if('{payeer}' == '1')}
+			<div class="col-md-6">
+				<div class="block">
+					<div class="block_head">
+						Payeer - ваш электронный кошелек
+					</div>
+					<label for="number_up">
+						<img src="../templates/{template}/img/payeer.jpg" alt="Payeer">
+					</label>
+					<input class="form-control" id="number_payeer" placeholder="Укажите сумму" value="{price}">
+					<div id="balance_result_payeer" class="mt-3"></div>
+					<button class="btn btn-outline-primary btn-xl" onclick="refill_balance('payeer');">Пополнить баланс</button>
+				</div>
+			</div>
+		{/if}
+		
+		{if('{perfectmoney}' == '1')}
+			<div class="col-md-6">
+				<div class="block">
+					<div class="block_head">
+						PerfectMoney - надежный финансовый сервис
+					</div>
+					<label for="number_up">
+						<img src="../templates/{template}/img/perfectmoney.jpg" alt="PerfectMoney">
+					</label>
+					<input class="form-control" id="number_perfectmoney" placeholder="Укажите сумму" value="{price}">
+					<div id="balance_result_perfectmoney" class="mt-3"></div>
+					<button class="btn btn-outline-primary btn-xl" onclick="refill_balance('perfectmoney');">Пополнить баланс</button>
+				</div>
+			</div>
+		{/if}
 
 		{if('{enot}' == '1')}
 			<div class="col-md-6">

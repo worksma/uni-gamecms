@@ -8,6 +8,14 @@ class Payments
 			'name' => 'InterKassa'
 		],
 		[
+			'slug' => 'payeer',
+			'name' => 'Payeer'
+		],
+		[
+			'slug' => 'perfectmoney',
+			'name' => 'PerfectMoney'
+		],
+		[
 			'slug' => 'ya',
 			'name' => 'ЮMoney'
 		],

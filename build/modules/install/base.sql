@@ -231,14 +231,21 @@ CREATE TABLE IF NOT EXISTS `config__bank` (
   `freekassa_id` varchar(15) NOT NULL DEFAULT '',
   `freekassa_secret1` varchar(128) NOT NULL DEFAULT '',
   `freekassa_secret2` varchar(128) NOT NULL DEFAULT '',
+  `payeer` int(11) NOT NULL DEFAULT '2',
+  `payeer_id` varchar(10) NOT NULL DEFAULT '',
+  `payeer_secret` varchar(128) NOT NULL DEFAULT '',
+  `payeer_addsec` varchar(128) NOT NULL DEFAULT '',
+  `perfectmoney` int(11) NOT NULL DEFAULT '2',
+  `perfectmoney_id` varchar(10) NOT NULL DEFAULT '',
+  `perfectmoney_secret` varchar(128) NOT NULL DEFAULT '',
   `lava` int NOT NULL DEFAULT '2',
   `lava_wallet` varchar(256) NOT NULL DEFAULT '',
   `lava_token` varchar(256) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
-INSERT INTO `config__bank` (`id`, `rb`, `rb_login`, `rb_pass1`, `rb_pass2`, `rb_commission`, `wb`, `wb_login`, `wb_pass1`, `wb_num`, `up`, `up_type`, `up_pass1`, `up_pass2`, `ps`, `ps_num`, `ps_pass`, `ps_currency`, `ps_test`, `fk`, `fk_login`, `fk_pass1`, `fk_pass2`, `ik`, `ik_login`, `ik_pass1`, `wo`, `wo_login`, `wo_pass`, `ya`, `ya_num`, `ya_key`, `qw`, `qw_pass`, `enot`, `enot_id`, `enot_key`, `enot_key2`, `lp`, `lp_public_key`, `lp_private_key`, `ap`, `ap_project_id`, `ap_private_key`, `fk_new`, `fk_new_login`, `fk_new_pass1`, `fk_new_pass2`, `amarapay`, `amarapay_id`, `amarapay_public`, `amarapay_secret`, `freekassa`, `freekassa_id`, `freekassa_secret1`, `freekassa_secret2`, `lava`, `lava_wallet`, `lava_token`) VALUES
-(1, 2, '', '', '', 1, 2, '', '', '', 2, 1, '', '', 2, '', '', 'EUR', 0, 2, '', '', '', 2, '', '', 2, '', '', 2, '', '', 2, '', 2, '', '', '', 2, '', '', 2, '', '', 2, '', '', '', 2, '', '', '', 2, '', '', '', 2, '', '');
+INSERT INTO `config__bank` (`id`, `rb`, `rb_login`, `rb_pass1`, `rb_pass2`, `rb_commission`, `wb`, `wb_login`, `wb_pass1`, `wb_num`, `up`, `up_type`, `up_pass1`, `up_pass2`, `ps`, `ps_num`, `ps_pass`, `ps_currency`, `ps_test`, `fk`, `fk_login`, `fk_pass1`, `fk_pass2`, `ik`, `ik_login`, `ik_pass1`, `wo`, `wo_login`, `wo_pass`, `ya`, `ya_num`, `ya_key`, `qw`, `qw_pass`, `enot`, `enot_id`, `enot_key`, `enot_key2`, `lp`, `lp_public_key`, `lp_private_key`, `ap`, `ap_project_id`, `ap_private_key`, `fk_new`, `fk_new_login`, `fk_new_pass1`, `fk_new_pass2`, `amarapay`, `amarapay_id`, `amarapay_public`, `amarapay_secret`, `freekassa`, `freekassa_id`, `freekassa_secret1`, `freekassa_secret2`, `payeer`, `payeer_id`, `payeer_secret`, `payeer_addsec`, `perfectmoney`, `perfectmoney_id`, `perfectmoney_secret`, `lava`, `lava_wallet`, `lava_token`) VALUES
+(1, 2, '', '', '', 1, 2, '', '', '', 2, 1, '', '', 2, '', '', 'EUR', 0, 2, '', '', '', 2, '', '', 2, '', '', 2, '', '', 2, '', 2, '', '', '', 2, '', '', 2, '', '', 2, '', '', '', 2, '', '', '', 2, '', '', '', 2, '', '', '', 2, '', '', 2, '', '');
 
 CREATE TABLE IF NOT EXISTS `config__email` (
   `username` varchar(255) NOT NULL DEFAULT '',
