@@ -50,7 +50,6 @@ if(isset($_POST['refill_balance'])) {
 		$cashier = $Pm->getCashier($cashierKey);
 
 		$cashierSettings = pdo()->query("SELECT * FROM config__bank LIMIT 1")->fetch(PDO::FETCH_OBJ);
-		$cashierSettings->rubusd = @file_get_contents("../inc/configs/cbr.txt")+0.0;
 
 		switch($cashier['slug']) {
 			case 'amarapay':
@@ -98,55 +97,6 @@ if(isset($_POST['refill_balance'])) {
 
 				Payments::showForm($url, $parameters);
 
-				break;
-			case 'payeer':
-				if(empty($cashierSettings->payeer_id) || empty($cashierSettings->payeer_secret)) {
-					throw new Exception('Способ оплаты не настроен');
-				}
-
-				$amount = number_format($amount,2); //IMPORTANT !!!
-				$currency = Payments::getCashierCurrency('payeer');
-				$parameters = array(
-					'm_shop' => $cashierSettings->payeer_id,
-					'm_amount'    => $amount,
-					'm_curr'   => $currency,
-					'm_orderid' => $user->id."_".$payId,
-					'm_desc'  => base64_encode($orderDesc)
-				);
-				$arHash = array($cashierSettings->payeer_id, $parameters['m_orderid'], $amount, $currency, $parameters['m_desc'], $cashierSettings->payeer_secret);
-				$url                   = 'https://payeer.com/merchant/';
-				$parameters['m_sign'] = strtoupper(hash('sha256', implode(':', $arHash)));
-
-				Payments::showForm($url, $parameters);
-
-				break;
-			case 'perfectmoney':
-				if(empty($cashierSettings->perfectmoney_id) || empty($cashierSettings->perfectmoney_secret)) {
-					throw new Exception('Способ оплаты не настроен');
-				}
-				$currency = Payments::getCashierCurrency('perfectmoney');
-				// ????
-				if ($cashierSettings->rubusd)
-				$amount = $amount / $cashierSettings->rubusd;
-				$amount = number_format($amount,2); //IMPORTANT !!!
-				$currency = 'USD';
-				
-				$parameters = array(
-					'PAYEE_ACCOUNT' => $cashierSettings->perfectmoney_id,
-					'PAYEE_NAME' => $conf->name,
-					'PAYMENT_AMOUNT' => $amount,
-					'PAYMENT_UNITS' => $currency,
-					'SUGGESTED_MEMO' => substr($orderDesc, 0, 100),
-					'PAYMENT_ID' => $user->id."_".$payId,
-					'PAYMENT_URL' => $full_site_host . 'purse?result=success',
-					'PAYMENT_URL_METHOD' => 'POST',
-					'NOPAYMENT_URL' => $full_site_host . 'purse?result=fail',
-					'NOPAYMENT_URL_METHOD' => 'POST',
-					'STATUS_URL' => $full_site_host . 'purse?pm=get',
-				);
-				$url = 'https://perfectmoney.is/api/step1.asp';
-				Payments::showForm($url, $parameters);
-				
 				break;
 			case 'ya':
 				if(empty($cashierSettings->ya_num) || empty($cashierSettings->ya_key)) {

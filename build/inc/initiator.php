@@ -6,7 +6,7 @@
 	endif;
 
 	if(!file_exists("./robots.txt")):
-		file_put_contents("./robots.txt", "User-agent: *\nDisallow: /admin/\nHost: {$_SERVER['SERVER_NAME']}\nSitemap: https://{$_SERVER['SERVER_NAME']}/sitemap.xml");
+		file_put_contents("./robots.txt", "User-agent: *\nDisallow: /admin/\nHost: {$_SERVER['SERVER_NAME']}\nSitemap: http://{$_SERVER['SERVER_NAME']}/sitemap.xml");
 	endif;
 
 	require_once(__DIR__ . "/dictionary.php");

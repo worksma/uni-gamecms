@@ -32,8 +32,6 @@ location / {
 11. LiqPay
 12. AnyPay
 13. AmaraPay
-14. Payeer
-15. PerfectMoney
 ```
 
 # Лицензии и благодарности (Licenses and commendations)

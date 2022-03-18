@@ -5,6 +5,10 @@
 			<div class="block">
 				<div class="block_head">
 					Lava
+					
+					<?if((strtotime("2022-01-27 19:00:00") + strtotime("+7 days", false)) > time()):?>
+						<span class="badge">Новое!</span>
+					<?endif;?>
 				</div>
 				
 				<div class="form-group mb-10">
@@ -33,6 +37,10 @@
 			<div class="block">
 				<div class="block_head">
 					AmaraPay
+					
+					<?if((strtotime("2022-01-16 17:00:00") + strtotime("+7 days", false)) > time()):?>
+						<span class="badge">Новое!</span>
+					<?endif;?>
 				</div>
 				
 				<div class="form-group mb-10">
@@ -78,130 +86,6 @@
 					</p>
 				</div>
 			</div>
-			
-			
-			<!--[ Payeer ]-->
-			<div class="block">
-				<div class="block_head">
-					Payeer
-					<?if(time() < strtotime("2022-04-15")):?>
-						<span class="badge">Новое, добавил Metal Messiah</span>
-					<?endif;?>
-				</div>
-				
-				<div class="form-group mb-10">
-					<div class="btn-group" data-toggle="buttons">
-						<label class="btn btn-default {payeer_act}" onclick="change_value('config__bank','payeer','1','1','payeer_id,payeer_secret');">
-							<input type="radio"> Включить
-						</label>
-						
-						<label class="btn btn-default {payeer_act2}" onclick="change_value('config__bank','payeer','2','1');">
-							<input type="radio"> Выключить
-						</label>
-					</div>
-				</div>
-				
-				<div class="input-group">
-					<span class="input-group-btn">
-						<button class="btn btn-default pd-40-12" type="button" onclick="edit_payeer();">Изменить</button>
-					</span>
-					<input type="text" class="form-control" id="payeer_id" maxlength="255" autocomplete="off" value="{payeer_id}" placeholder="ID магазина">
-					<input type="text" class="form-control" id="payeer_secret" maxlength="255" autocomplete="off" value="{payeer_secret}" placeholder="Секретный ключ">
-				</div>
-				<div id="edit_payeer_result"></div>
-				<div class="bs-callout bs-callout-info mt-10">
-					<p>
-					<table>
-						<tr>
-							<td colspan="2">Необходимые данные:</td>
-						</tr>
-						<tr>
-							<td style="text-align: right">URL оповещ: </td>
-							<td>&nbsp&nbsp<b>{full_site_host}purse?payeer=get</b></td>
-						</tr>
-						<tr>
-							<td style="text-align: right">URL успеха: </td>
-							<td>&nbsp&nbsp<b>{full_site_host}purse?result=success</b></td>
-						</tr>
-						<tr>
-							<td style="text-align: right">URL неуспеха: </td>
-							<td>&nbsp&nbsp<b>{full_site_host}purse?result=fail</b></td>
-						</tr>
-					</table>
-					</p>
-				</div>
-			</div>
-			
-			
-			
-			
-			
-			<!--[ PerfectMoney ]-->
-			<div class="block">
-				<div class="block_head">
-					PerfectMoney
-					<?if(time() < strtotime("2022-04-15")):?>
-						<span class="badge">Новое, добавил Metal Messiah</span>
-					<?endif;?>
-				</div>
-				
-				<div class="form-group mb-10">
-					<div class="btn-group" data-toggle="buttons">
-						<label class="btn btn-default {perfectmoney_act}" onclick="change_value('config__bank','perfectmoney','1','1','perfectmoney_id,perfectmoney_secret');">
-							<input type="radio"> Включить
-						</label>
-						
-						<label class="btn btn-default {perfectmoney_act2}" onclick="change_value('config__bank','perfectmoney','2','1');">
-							<input type="radio"> Выключить
-						</label>
-					</div>
-				</div>
-				
-				<div class="input-group">
-					<span class="input-group-btn">
-						<button class="btn btn-default pd-40-12" type="button" onclick="edit_perfectmoney();">Изменить</button>
-					</span>
-					<input type="text" class="form-control" id="perfectmoney_id" maxlength="255" autocomplete="off" value="{perfectmoney_id}" placeholder="ID магазина">
-					<input type="text" class="form-control" id="perfectmoney_secret" maxlength="255" autocomplete="off" value="{perfectmoney_secret}" placeholder="Секретный ключ">
-				</div>
-				<div id="edit_perfectmoney_result"></div>
-				<div class="bs-callout bs-callout-info mt-10">
-					<p>
-					<table>
-						<tr>
-							<td colspan="2">Необходимые данные:</td>
-						</tr>
-						<tr>
-							<td colspan=2>Секретный ключ это MD5 от Альтернативная кодовая фраза в ВЕРХНЕМ регистре (32 печаных символа A-F, 0-9)</td>
-						</tr>
-						<tr>
-							<td style="text-align: right">URL оповещ: </td>
-							<td>&nbsp&nbsp<b>{full_site_host}purse?pm=get</b></td>
-						</tr>
-						<tr>
-							<td style="text-align: right">URL успеха: </td>
-							<td>&nbsp&nbsp<b>{full_site_host}purse?result=success</b></td>
-						</tr>
-						<tr>
-							<td style="text-align: right">URL неуспеха: </td>
-							<td>&nbsp&nbsp<b>{full_site_host}purse?result=fail</b></td>
-						</tr>
-					</table>
-					</p>
-				</div>
-			</div>
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
 		
 			<!--[ FreeKassa ]-->
 			<div class="block">
