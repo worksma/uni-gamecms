@@ -50,7 +50,7 @@ if(isset($_POST['refill_balance'])) {
 		$cashier = $Pm->getCashier($cashierKey);
 
 		$cashierSettings = pdo()->query("SELECT * FROM config__bank LIMIT 1")->fetch(PDO::FETCH_OBJ);
-		$cashierSettings->rubusd = @file_get_contents("../inc/configs/cbr.txt")+0.0;
+		$cashierSettings->rubusd = configs()->usd;
 
 		switch($cashier['slug']) {
 			case 'amarapay':

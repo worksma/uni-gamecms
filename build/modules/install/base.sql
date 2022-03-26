@@ -166,13 +166,15 @@ CREATE TABLE IF NOT EXISTS `config` (
   `captcha` varchar(50) NOT NULL DEFAULT '2',
   `captcha_client_key` varchar(256) NOT NULL DEFAULT 'none',
   `captcha_secret` varchar(256) NOT NULL DEFAULT 'none',
+  `date_cbr` varchar(64) NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `usd` varchar(32) NOT NULL DEFAULT '95.66',
   `token` int NOT NULL DEFAULT '1',
   `caching` int NOT NULL DEFAULT '2',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
-INSERT INTO `config` (`id`, `name`, `template`, `template_mobile`, `violations_number`, `violations_delta`, `ban_time`, `protect`, `hide_players_id`, `top_donators`, `top_donators_count`, `top_donators_show_sum`, `vk_api_version`, `update_server`, `stat`, `stat_number`, `show_news`, `show_events`, `bank`, `date`, `cont`, `col_nick`, `col_pass`, `col_type`, `conf_us`, `cote`, `widgets_type`, `vk_group`, `vk_group_id`, `vk_admin`, `vk_admin_id`, `disp_last_online`, `new_year`, `win_day`, `copyright_key`, `developer_mode`, `off`, `dell_admin_time`, `global_ban`, `time_zone`, `protocol`, `code`, `cache`, `salt`, `secret`, `ip_protect`, `privacy_policy`, `captcha`, `token`, `caching`) VALUES
-(1, '<<project>>', 'standart', 'standart', 30, '2', '15', 2, 0, 1, 5, 2, 5.131, 1, 2, '3000', 0, 3, 0, '2021-10-13', 2, 1, 1, 1, 2, 2, 2, 2, '', 2, '', 1, 2, 2, 'none', 2, 2, '2021-10-14 02:19:00', 2, 'Etc/GMT-3', 1, '<<code>>', 38, '<<salt>>', 'none', 1, 2, '2', 1, 2);
+INSERT INTO `config` (`id`, `name`, `template`, `template_mobile`, `violations_number`, `violations_delta`, `ban_time`, `protect`, `hide_players_id`, `top_donators`, `top_donators_count`, `top_donators_show_sum`, `vk_api_version`, `update_server`, `stat`, `stat_number`, `show_news`, `show_events`, `bank`, `date`, `cont`, `col_nick`, `col_pass`, `col_type`, `conf_us`, `cote`, `widgets_type`, `vk_group`, `vk_group_id`, `vk_admin`, `vk_admin_id`, `disp_last_online`, `new_year`, `win_day`, `copyright_key`, `developer_mode`, `off`, `dell_admin_time`, `global_ban`, `time_zone`, `protocol`, `code`, `cache`, `salt`, `secret`, `ip_protect`, `privacy_policy`, `captcha`, `date_cbr`, `usd`, `token`, `caching`) VALUES
+(1, '<<project>>', 'standart', 'standart', 30, '2', '15', 2, 0, 1, 5, 2, 5.131, 1, 2, '3000', 0, 3, 0, '2021-10-13', 2, 1, 1, 1, 2, 2, 2, 2, '', 2, '', 1, 2, 2, 'none', 2, 2, '2021-10-14 02:19:00', 2, 'Etc/GMT-3', 1, '<<code>>', 38, '<<salt>>', 'none', 1, 2, '2', '2022-03-26 13:19:37', '95.66', 1, 2);
 
 CREATE TABLE IF NOT EXISTS `config__bank` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -305,7 +307,7 @@ CREATE TABLE IF NOT EXISTS `config__secondary` (
   `complaints_lim` int NOT NULL DEFAULT '30',
   `stand_rights` int NOT NULL DEFAULT '1',
   `stand_balance` float NOT NULL DEFAULT '0',
-  `version` varchar(10) NOT NULL DEFAULT '5.7',
+  `version` varchar(10) NOT NULL DEFAULT '5.7.1',
   `col_login` int NOT NULL DEFAULT '30',
   `admins_ids` varchar(80) NOT NULL DEFAULT '1',
   `off_message` varchar(250) NOT NULL DEFAULT 'Сайт находится в стадии разработки',
@@ -320,7 +322,7 @@ CREATE TABLE IF NOT EXISTS `config__secondary` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 INSERT INTO `config__secondary` (`id`, `vk_api`, `vk_id`, `vk_key`, `vk_service_key`, `steam_api`, `steam_key`, `fb_api`, `fb_id`, `fb_key`, `mon_gap`, `mon_time`, `mon_api`, `mon_key`, `bans_lim`, `muts_lim`, `users_lim`, `bans_lim2`, `news_lim`, `stats_lim`, `complaints_lim`, `stand_rights`, `stand_balance`, `version`, `col_login`, `admins_ids`, `off_message`, `update_link`, `return_services`, `bad_nicks_act`, `min_amount`, `bonuses`, `auto_steam_id_fill`, `steam_id_format`) VALUES
-(1, 2, NULL, NULL, NULL, 2, NULL, 2, NULL, NULL, 120, 1634158027, 2, '', 30, 30, 12, 30, 10, 30, 30, 2, 0, '5.7', 30, '1', 'Ведутся технические работы', '', 2, 2, 10, 2, 2, 1);
+(1, 2, NULL, NULL, NULL, 2, NULL, 2, NULL, NULL, 120, 1634158027, 2, '', 30, 30, 12, 30, 10, 30, 30, 2, 0, '5.7.1', 30, '1', 'Ведутся технические работы', '', 2, 2, 10, 2, 2, 1);
 
 CREATE TABLE IF NOT EXISTS `config__prefixes` (
   `id` int NOT NULL AUTO_INCREMENT,

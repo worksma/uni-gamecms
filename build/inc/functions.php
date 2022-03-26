@@ -239,25 +239,34 @@ function ValidateLetterAndNum($variable) {
 	}
 }
 
-function clean($variable, $param = null) {
-	$variable = magic_quotes($variable);
-	$variable = htmlspecialchars($variable, ENT_QUOTES);
-	$variable = trim($variable);
+	function clean($text = null, $params = null) {
+		if(empty($text)) {
+			return $text;
+		}
 
-	//$variable = preg_replace('/[^(\x20-\x7F)]*/','', $variable); //crutch
+		$text = stripslashes($text);
+		$text = htmlspecialchars($text, ENT_QUOTES);
+		$text = trim($text);
 
-	if($param == "int") {
-		$variable = preg_replace('/[^0-9]+/', '', $variable);
-		//$variable = abs(intval($variable));
+		switch($params) {
+			case "int":
+				$text = preg_replace("/[^0-9]+/", "", $text);
+			break;
+			case "float":
+				$text = str_replace(",", ".", $text);
+				$text = preg_replace("/[^0-9.]/", "", $text);
+				$text = (float)$text;
+				$text = round($text, 2);
+			break;
+			default:
+				$text = preg_replace('/{{ ?([a-zA-Z0-9>,\(\)_\-\]\[\'"$]{1,50}) ?}}/', '${1}', $text);
+				$text = str_replace('{', '&#123;', $text);
+				$text = str_replace('}', '&#125;', $text);
+			break;
+		}
+
+		return $text;
 	}
-	if($param == "float") {
-		$variable = str_replace(',', '.', $variable);
-		$variable = preg_replace('/[^0-9.]/', '', $variable);
-		$variable = (float)$variable;
-		$variable = round($variable, 2);
-	}
-	return $variable;
-}
 
 function check($variable, $param) {
 	if(isset($variable)) {
@@ -539,6 +548,7 @@ function translit($url) {
 	                     "Г" => "g",
 	                     "Д" => "d",
 	                     "Е" => "e",
+	                     "Ё" => "e",
 	                     "Ж" => "zh",
 	                     "З" => "z",
 	                     "И" => "i",
@@ -572,6 +582,7 @@ function translit($url) {
 	                     "г" => "g",
 	                     "д" => "d",
 	                     "е" => "e",
+	                     "ё" => "e",
 	                     "ж" => "j",
 	                     "з" => "z",
 	                     "и" => "i",
