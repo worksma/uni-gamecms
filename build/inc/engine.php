@@ -1,5 +1,5 @@
 <?PHP
-		require('dictionary.php');
+	require('dictionary.php');
 	
 	if (!isset($protection)) {
 		$protection = 1;
@@ -296,32 +296,6 @@
 		Запуск стандартных модулей.
 	*/
 	require_once($page->file);
-	
-	/*
-		Загрузка сторонних дополнений разработчиков
-	*/
-	$dir_autoloader = $_SERVER['DOCUMENT_ROOT'] . "/inc/autoloader";
-	$scandirA = scandir($dir_autoloader);
-	
-	for($i = 0; $i < sizeof($scandirA); $i++):
-		if($scandirA[$i][0] == '.'):
-			continue;
-		endif;
-		
-		if(is_dir($dir_autoloader . '/' . $scandirA[$i])):
-			$scandirB = scandir($dir_autoloader . '/' . $scandirA[$i]);
-			
-			for($c = 0; $c < sizeof($scandirB); $c++):
-				if(is_dir($dir_autoloader . '/' . $scandirA[$i] . '/' . $scandirB[$c])):
-					continue;
-				endif;
-				
-				require($dir_autoloader . '/' . $scandirA[$i] . '/' . $scandirB[$c]);
-			endfor;
-		else:
-			require($dir_autoloader . '/' . $scandirA[$i]);
-		endif;
-	endfor;
 	
 	if ($page->type == 2) {
 		$tpl->set("{content}", $tpl->result["content"]);
