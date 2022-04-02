@@ -258,11 +258,6 @@ function ValidateLetterAndNum($variable) {
 				$text = (float)$text;
 				$text = round($text, 2);
 			break;
-			default:
-				$text = preg_replace('/{{ ?([a-zA-Z0-9>,\(\)_\-\]\[\'"$]{1,50}) ?}}/', '${1}', $text);
-				$text = str_replace('{', '&#123;', $text);
-				$text = str_replace('}', '&#125;', $text);
-			break;
 		}
 
 		return $text;

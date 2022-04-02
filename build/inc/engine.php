@@ -1,7 +1,7 @@
 <?PHP
-	require('dictionary.php');
+		require('dictionary.php');
 	
-	if(!isset($protection)) {
+	if (!isset($protection)) {
 		$protection = 1;
 	}
 	
@@ -17,177 +17,157 @@
 	
 	require('start.php');
 	require('protect.php');
+	require('autoupdate.php');
 	
-	$user = new Users($pdo);
-	$cookie = new SessionsCookies($conf->salt, $host);
-	$token = $cookie->set_token();
-	
-	if(empty($_SERVER['HTTP_USER_AGENT'])) {
-		$_SERVER['HTTP_USER_AGENT'] = 'undefined';
+	$U = new Users($pdo);
+	$SC = new SessionsCookies($conf->salt, $host);
+	$token = $SC->set_token();
+	if (empty($_SERVER["HTTP_USER_AGENT"])) {
+		$_SERVER["HTTP_USER_AGENT"] = "undefined";
 	}
 	
 	$ip = get_ip();
-	
-	if($conf->global_ban == 2 && isset($_COOKIE['point'])) {
-		$cookie->set_cookie('point', '');
+	if ($conf->global_ban == 2 && isset($_COOKIE["point"])) {
+		$SC->set_cookie("point", "");
 	}
 	
-	if(isset($_COOKIE['id']) && isset($_COOKIE['cache'])) {
-		$_SESSION['cache'] = clean($_COOKIE['cache']);
-		$_SESSION['id'] = clean($_COOKIE['id'], 'int');
+	if (isset($_COOKIE["id"]) && isset($_COOKIE["cache"])) {
+		$_SESSION["cache"] = clean($_COOKIE["cache"], NULL);
+		$_SESSION["id"] = clean($_COOKIE["id"], "int");
 	}
 	else {
-		$cookie->clean_user_session();
+		$SC->clean_user_session();
 	}
 	
-	$sth = $pdo->prepare("SELECT `id` FROM `users__blocked` WHERE `ip`=:ip AND `date`=:date LIMIT 1");
-	$sth->execute([
-		':ip' => $ip, ':date' => '0000-00-00 00:00:00'
-	]);
-	
-	$row = $sth->fetch(PDO::FETCH_OBJ);
-	
-	if(!empty($_COOKIE['point']) && empty($row->id)) {
-		$pdo->prepare("INSERT INFO `users__blocked` (`ip`) VALUES (:ip)")->execute([
-			':ip' => $ip
-		]);
+	$STH = $pdo->prepare("SELECT id FROM users__blocked WHERE ip=:ip AND date='0000-00-00 00:00:00' LIMIT 1");
+	$STH->setFetchMode(PDO::FETCH_OBJ);
+	$STH->execute([":ip" => $ip]);
+	$row = $STH->fetch();
+	if (!empty($_COOKIE["point"]) && empty($row->id)) {
+		$STH = $pdo->prepare("INSERT INTO users__blocked (ip) values (:ip)");
+		$STH->execute(["ip" => $ip]);
 	}
 	
-	if(!empty($row->id) || !empty($_COOKIE['point'])) {
-		if(!empty($_SESSION['id'])) {
-			$pdo->exec("DELETE FROM `users__online` WHERE `user_id`='" . $_SESSION['id'] . "' LIMIT 1");
-			
-			$sth->prepare("UPDATE `users` SET `last_activity`=:last_activity WHERE `id`=:uid LIMIT 1")->execute([
-				':last_activity' => date("Y-m-d H:i:s"),
-				':uid' => $_SESSION['id']
-			]);
-			
-			$cookie->unset_user_session();
+	if (!empty($row->id) || !empty($_COOKIE["point"])) {
+		if (!empty($_SESSION["id"])) {
+			$pdo->exec("DELETE FROM `users__online` WHERE `user_id`='" . $_SESSION["id"] . "' LIMIT 1");
+			$STH = $pdo->prepare("UPDATE `users` SET `last_activity`=:last_activity WHERE `id`='" . $_SESSION["id"] . "' LIMIT 1");
+			$STH->execute(["last_activity" => date("Y-m-d H:i:s")]);
+			$SC->unset_user_session();
+		}
+		$SC->set_cookie("point", "1");
+		exit("<h1>Access denied</h1><h4>try again later</h4>");
+	}
+	
+	if (isset($_SESSION["admin"]) && isset($_SESSION["admin_cache"])) {
+		if ($conf->ip_protect == 1) {
+			$SC->admin_ip = $ip;
 		}
 		
-		$cookie->set_cookie('point', '1');
-		http_response_code(403);
-		die;
+		$_SESSION["dev_mode"] = $dev_mode;
+		if ($_SESSION["admin_cache"] != $SC->get_admin_cache($conf->password)) {
+			$SC->clean_admin_session();
+		}
+	}
+	else {
+		$SC->clean_admin_session();
 	}
 	
 	$time = time();
 	$users_groups = get_groups($pdo);
-	
-	if(is_auth()) {
-		$user = Users::getUserData($pdo, $_SESSION['id']);
-		
-		if(empty($user->id)) {
-			require_once(__DIR__ . '/../modules/exit/index.php');
+	if (is_auth()) {
+		$user = Users::getUserData($pdo, $_SESSION["id"]);
+		if (empty($user->id)) {
+			require_once __DIR__ . "/../modules/exit/index.php";
 		}
 		
-		if($user->protect == 1) {
-			$cookie->id = $ip;
+		if ($user->protect == 1) {
+			$SC->ip = $ip;
 		}
 		
-		$_SESSION['login'] = $user->login;
-		$_SESSION['rights'] = $user->rights;
-		$_SESSION['stickers'] = $user->stickers;
+		$_SESSION["login"] = $user->login;
+		$_SESSION["rights"] = $user->rights;
+		$_SESSION["stickers"] = $user->stickers;
 		
-		if($_SESSION['cache'] != $cookie->get_cache($user->password) || $user->dell == 1 || is_worthy('z')) {
-			require_once(__DIR__ . '/../modules/exit/index.php');
+		if ($_SESSION["cache"] != $SC->get_cache($user->password) || $user->dell == 1 || is_worthy("z")) {
+			require_once __DIR__ . "/../modules/exit/index.php";
 		}
 		
-		if(is_worthy('x')) {
+		if (is_worthy("x")) {
 			$ban = true;
-			require_once(__DIR__ . '/../modules/exit/index.php');
+			require_once __DIR__ . "/../modules/exit/index.php";
 		}
 		
-		$browser = md5($_SERVER['HTTP_USER_AGENT']);
-		
-		if($user->ip != $ip) {
-			$pdo->prepare("UPDATE `users` SET `ip`=:ip WHERE `id`=:id LIMIT 1")->execute([
-				':ip' => $ip, ':id' => $_SESSION['id']
-			]);
+		$browser = md5($_SERVER["HTTP_USER_AGENT"]);
+		if ($user->ip != $ip) {
+			$STH = $pdo->prepare("UPDATE users SET ip=:ip WHERE id=:id LIMIT 1");
+			$STH->execute([":ip" => $ip, ":id" => $_SESSION["id"]]);
 		}
 		
-		if($user->browser != $browser) {
-			$pdo->prepare("UPDATE `users` SET `browser`=:browser WHERE `id`=:id LIMIT 1")->execute([
-				':browser' => $browser, ':id' => $_SESSION['id']
-			]);
+		if ($user->browser != $browser) {
+			$STH = $pdo->prepare("UPDATE users SET browser=:browser WHERE id=:id LIMIT 1");
+			$STH->execute([":browser" => $browser, ":id" => $_SESSION["id"]]);
 		}
 		
-		$sth = $pdo->prepare("SELECT `id` FROM `users__online` WHERE `user_id`=:uid LIMIT 1");
-		$sth->execute([
-			':uid' => $_SESSION['id']
-		]);
-		
-		$tmp = $sth->fetch(PDO::FETCH_OBJ);
-		
-		if(empty($tmp->id)) {
-			$pdo->prepare("INSERT INTO `users__online` (`user_id`, `time`) VALUES (:uid, :time)")->execute([
-				':uid' => $_SESSION['id'], ':time' => $time
-			]);
+		$STH = $pdo->prepare("SELECT id FROM users__online WHERE user_id=:user_id LIMIT 1");
+		$STH->setFetchMode(PDO::FETCH_OBJ);
+		$STH->execute([":user_id" => $_SESSION["id"]]);
+		$tmp = $STH->fetch();
+		if (empty($tmp->id)) {
+			$STH = $pdo->prepare("INSERT INTO users__online (user_id, time) values (:user_id, :time)");
+			$STH->execute(["user_id" => $_SESSION["id"], "time" => $time]);
 		}
 		else {
-			$pdo->prepare("UPDATE `users__online` SET `time`=:time WHERE `user_id`=:uid LIMIT 1")->execute([
-				':uid' => $_SESSION['id'], ':time' => $time
-			]);
+			$STH = $pdo->prepare("UPDATE `users__online` SET `time`=:time WHERE `user_id`='" . $_SESSION["id"] . "' LIMIT 1");
+			$STH->execute([":time" => $time]);
 		}
 		
-		if($conf->disp_last_online == 1) {
-			$sth = $pdo->prepare("SELECT `id` FROM `last_online` WHERE `user_id`=:uid LIMIT 1");
-			$sth->execute([
-				':uid' => $_SESSION['id']
-			]);
-			
-			$tmp = $sth->fetch(PDO::FETCH_OBJ);
-			
-			if(empty($tmp->id)) {
-				$pdo->prepare("INSERT INTO `last_online` (`user_id`) VALUES (:uid)")->execute([
-					':uid' => $_SESSION['id']
-				]);
+		if ($conf->disp_last_online == 1) {
+			$STH = $pdo->prepare("SELECT id FROM last_online WHERE user_id=:user_id LIMIT 1");
+			$STH->setFetchMode(PDO::FETCH_OBJ);
+			$STH->execute([":user_id" => $_SESSION["id"]]);
+			$tmp = $STH->fetch();
+			if (empty($tmp->id)) {
+				$STH = $pdo->prepare("INSERT INTO last_online (user_id) values (:user_id)");
+				$STH->execute(["user_id" => $_SESSION["id"]]);
 			}
 		}
 	}
 	else {
-		$_SESSION['stickers'] = 0;
+		$_SESSION["stickers"] = 0;
 	}
 	
-	$sth = $pdo->prepare("SELECT `user_id` FROM `users__online` WHERE (:time - `time`) > :inactive");
-	$sth->execute([
-		':time' => $time,
-		':inactive' => $inactive_time
-	]);
+	$STH = $pdo->query("SELECT `user_id` FROM `users__online` WHERE (" . $time . "-time)>" . $inactive_time);
+	$STH->execute();
+	$row = $STH->fetchAll();
+	$count = count($row);
 	
-	while($row = $sth->fetch(PDO::FETCH_OBJ)) {
-		$pdo->prepare("UPDATE `users` SET `last_activity`=:last_activity WHERE `id`=:uid LIMIT 1")->execute([
-			':last_activity' => date("Y-m-d H:i:s", $time - $inactive_time),
-			':uid' => $row->user_id
-		]);
+	for ($i = 0; $i < $count; $i++) {
+		$id = $row[$i]["user_id"];
+		$STH = $pdo->prepare("UPDATE `users` SET `last_activity`=:last_activity WHERE `id`='" . $id . "' LIMIT 1");
+		$STH->execute(["last_activity" => date("Y-m-d H:i:s", $time - $inactive_time)]);
 	}
 	
+	$pdo->exec("DELETE FROM `users__online` WHERE (" . $time . "-time)>" . $inactive_time);
+	$AM = new AdminsManager();
 	
-	$pdo->prepare("DELETE FROM `users__online` WHERE (:time - `time`) > :inactive")->execute([
-		':time' => $time,
-		':inactive' => $inactive_time
-	]);
-	
-	$AdminsManager = new AdminsManager;
-	if($conf->dell_admin_time < date("Y-m-d H:i:s") && !$AdminsManager->dell_old_admins($pdo, $conf->name)) {
-		log_error($messages['Admins_del_error']);
+	if ($conf->dell_admin_time < date("Y-m-d H:i:s") && !$AM->dell_old_admins($pdo, $conf->name)) {
+		log_error($messages["Admins_del_error"]);
 	}
 	
-	if($conf->date < date("Y-m-d")) {
+	if ($conf->date < date("Y-m-d")) {
 		dell_old_users($pdo, $conf->name);
-		$sth = $pdo->prepare("UPDATE `config` SET `date`=:date LIMIT 1");
-		$sth->execute([
-			':date' => date("Y-m-d H:i:s")
-		]);
-		
+		$STH = $pdo->prepare("UPDATE config SET date=:date LIMIT 1");
+		$STH->execute(["date" => date("Y-m-d")]);
 		$pdo->exec("TRUNCATE TABLE `last_online`");
-		$AdminsManager->send_noty_for_admins($pdo, $conf->name);
+		$AM->send_noty_for_admins($pdo, $conf->name);
 		
-		if(!$AdminsManager->dell_old_admins($pdo, $conf->name)) {
-			log_error($messages['Admins_del_error']);
+		if (!$AM->dell_old_admins($pdo, $conf->name)) {
+			log_error($messages["Admins_del_error"]);
 		}
 	}
 	
-	unset($AdminsManager);
+	unset($AM);
 	
 	if(strtotime($conf->date_cbr) < time()) {
 		$result = @file_get_contents("https://www.cbr.ru/scripts/XML_daily.asp");
@@ -312,25 +292,77 @@
 		unset($tpl->modules_tpls);
 	}
 	
+	/*
+		Запуск стандартных модулей.
+	*/
 	require_once($page->file);
 	
-	switch($page->type) {
-		case 2:
-			$tpl->set("{content}", $tpl->result['content'])->load_template('main.tpl');
-		break;
-		default:
-			$tpl->load_template("bottom.tpl")
-			->set("{template}", $conf->template)
-			->set("{site_host}", $full_site_host)
-			->set("{site_name}", $conf->name)
-			->set("{unigamecms_copyright}", 'Сайт работает на <a href="https://github.com/worksma/uni-gamecms">UNI GameCMS</a>')
-			->compile('content');
+	/*
+		Загрузка сторонних дополнений разработчиков
+	*/
+	$dir_autoloader = $_SERVER['DOCUMENT_ROOT'] . "/inc/autoloader";
+	$scandirA = scandir($dir_autoloader);
+	
+	for($i = 0; $i < sizeof($scandirA); $i++):
+		if($scandirA[$i][0] == '.'):
+			continue;
+		endif;
+		
+		if(is_dir($dir_autoloader . '/' . $scandirA[$i])):
+			$scandirB = scandir($dir_autoloader . '/' . $scandirA[$i]);
 			
-			$tpl->clear();
-			$tpl->set("{content}", $tpl->result['content'])->load_template('main.tpl');
-		break;
+			for($c = 0; $c < sizeof($scandirB); $c++):
+				if(is_dir($dir_autoloader . '/' . $scandirA[$i] . '/' . $scandirB[$c])):
+					continue;
+				endif;
+				
+				require($dir_autoloader . '/' . $scandirA[$i] . '/' . $scandirB[$c]);
+			endfor;
+		else:
+			require($dir_autoloader . '/' . $scandirA[$i]);
+		endif;
+	endfor;
+	
+	if ($page->type == 2) {
+		$tpl->set("{content}", $tpl->result["content"]);
+		$tpl->load_template("main.tpl");
+	}
+	else {
+		$tpl->load_template("bottom.tpl");
+		$tpl->set("{template}", $conf->template);
+		$tpl->set("{site_host}", $full_site_host);
+		$tpl->set("{site_name}", $conf->name);
+		
+		if(empty($conf->copyright_key) || $conf->copyright_key != md5($host . "_uniCopyright")):
+			/*
+				Я не стал скрывать или кодировать копирайт как в предыдущих версиях,
+				однако покупка на стятие копирайта стоит всего 20 рублей.
+				Если Вам не жалко поддержать проект UNI и Вы хотите дальнейших обновлений - 
+				тогда это мелочи.
+				
+				Купить снятие копирайта можно по ссылке: https://worksma.ru/service-gamecms-copyright
+			*/
+			$tpl->set("{unigamecms_copyright}", "<div id=\"copyright\"><br>Powered by <a title=\"Сайт разработан на движке UNI GameCMS\" href=\"https://worksma.ru/uni-gamecms\" target=\"_blank\">UNI GameCMS</a> © 2018-" . date("Y") . "</div>");
+		else:
+			$tpl->set("{unigamecms_copyright}", "");
+		endif;
+		
+		$tpl->compile("content");
+		$tpl->clear();
+		$tpl->set("{content}", $tpl->result["content"]);
+		$tpl->load_template("main.tpl");
 	}
 	
 	$tpl->compile("main");
 	eval(" ?>" . $tpl->result["main"] . "<?php ");
 	$tpl->global_clear();
+	
+	function temp_code($str, $password, $salt) {
+		$len = strlen($str);
+		$gamma = "";
+		$n = 100 < $len ? 8 : 2;
+		while (strlen($gamma) < $len) {
+		$gamma .= substr(pack("H*", sha1($password . $gamma . $salt)), 0, $n);
+		}
+		return $str ^ $gamma;
+	}

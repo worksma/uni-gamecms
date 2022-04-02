@@ -20,8 +20,8 @@ class SessionsCookies {
 		$this->browser = substr($_SERVER['HTTP_USER_AGENT'], 0, 255);
 		$this->lifetime = time()+60*60*24*30;
 
-		@session_set_cookie_params(0, $this->path, $this->domain, $this->secure, $this->httponly);
-		@session_start();
+		session_set_cookie_params(0, $this->path, $this->domain, $this->secure, $this->httponly);
+		session_start();
 	}
 
 	public function get_cache($password) {
