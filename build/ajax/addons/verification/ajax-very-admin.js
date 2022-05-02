@@ -3,7 +3,7 @@ function send_very(index) {
 	form_data.append("send_very", "1");
 	form_data.append("index", index);
 
-	send_post(get_url() + "ajax/addons/verification/actions_admin.php", form_data, function(result) {
+	send_post("/ajax/addons/verification/actions_admin.php", form_data, function(result) {
 		if(result.status == 1) {
 			$("#list_verifications").html(result.html);
 		}
@@ -19,7 +19,7 @@ function send_not_very(index) {
 		form_data.append("index", index);
 		form_data.append("message", message);
 
-		send_post(get_url() + "ajax/addons/verification/actions_admin.php", form_data, function(result) {
+		send_post("/ajax/addons/verification/actions_admin.php", form_data, function(result) {
 			if(result.status == 1) {
 				$("#list_verifications").html(result.html);
 			}
@@ -33,7 +33,7 @@ function off_very(index) {
 	form_data.append("user_id", index);
 	form_data.append("value", "0");
 
-	send_post(get_url() + "ajax/addons/verification/actions_admin.php", form_data, function(result) {
+	send_post("/ajax/addons/verification/actions_admin.php", form_data, function(result) {
 		if(result.alert == 'success') {
 			alert(result.message);
 			location.reload();
