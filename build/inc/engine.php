@@ -178,10 +178,12 @@
 				if($val->NumCode == 840) {
 					$usd = clean($val->Value, 'float');
 					
-					$pdo->prepare("UPDATE `config` SET `date_cbr`=:date, `usd`=:usd LIMIT 1")->execute([
-						':usd' => $usd,
-						':date' => date("Y-m-d H:i:s", strtotime("+30 minutes"))
-					]);
+					if(isset($usd)) {
+						$pdo->prepare("UPDATE `config` SET `date_cbr`=:date, `usd`=:usd LIMIT 1")->execute([
+							':usd' => $usd,
+							':date' => date("Y-m-d H:i:s", strtotime("+30 minutes"))
+						]);
+					}
 					
 					continue;
 				}
