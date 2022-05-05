@@ -65,6 +65,14 @@
 
 [➦ Перейти к модулям](https://worksma.ru/c/unigamecms)
 
+<h2 align="center">Конфигурации</h2>
+Для запуска сайта на Nginx требуется прописать в nginx.conf
+```
+location / {
+  rewrite ^/(.*)$ /index.php?/$1 last;
+}
+```
+
 <h2 align="center">Полезные ссылки</h2>
 
 - [Торговая площадка WORKSMA](https://worksma.ru/)
