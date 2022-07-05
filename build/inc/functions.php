@@ -2190,15 +2190,6 @@ function dd($data)
 	die;
 }
 
-function getNameLike($name)
-{
-	if(mb_strlen($name, 'UTF-8') < 3) {
-		return $name;
-	} else {
-		return "%" . strip_data($name) . "%";
-	}
-}
-
 function isMobile()
 {
 	if((new MobileDetect())->isMobile()) {
@@ -2315,4 +2306,171 @@ function sys() {
 
 function result($arr) {
 	exit(json_encode($arr));
+}
+
+function getLimit($attr)
+{
+	if(
+		in_array($attr,
+		    [
+			    'bans_lim',
+			    'muts_lim',
+			    'users_lim',
+			    'bans_lim2',
+			    'news_lim',
+			    'stats_lim',
+			    'complaints_lim'
+		    ]
+		)
+	) {
+		return pdo()
+			->query("SELECT $attr FROM config__secondary LIMIT 1")
+			->fetch(PDO::FETCH_OBJ)
+			->$attr;
+	} else {
+		return 30;
+	}
+}
+
+function getPageParam($paramName, $type = 'int')
+{
+	if(array_key_exists($paramName, $_GET)) {
+		return clean($_GET[$paramName], $type);
+	} else {
+		return 0;
+	}
+}
+
+function getPageStartPosition($number, $limit)
+{
+	if($number) {
+		return ($number - 1) * $limit;
+	} else {
+		return 0;
+	}
+}
+
+function resetIfPaginationIncorrect($number, $limit, $count, $to)
+{
+	if(($number * $limit - $count) > $limit) {
+		header('Location: ' . $to);
+		exit();
+	}
+}
+
+function getLibAssets($libNames)
+{
+	$libs = [
+		'timepicker' => '<link rel="stylesheet" href="../templates/admin/css/timepicker.css">'
+			. '<script src="../templates/admin/js/timepicker/timepicker.js"></script>'
+			. '<script src="../templates/admin/js/timepicker/jquery-ui-timepicker-addon.js"></script>'
+			. '<script src="../templates/admin/js/timepicker/jquery-ui-timepicker-addon-i18n.min.js"></script>'
+			. '<script src="../templates/admin/js/timepicker/jquery-ui-sliderAccess.js"></script>',
+		'ckeditor'   => '<script src="../modules/editors/ckeditor/ckeditor.js"></script>',
+		'dropzone'   => '<script src="../templates/admin/js/dropzone.js"></script>'
+			. '<link rel="stylesheet" href="../templates/admin/css/dropzone.css">',
+		'codemirror' => '<link rel="stylesheet" href="../modules/editors/editor/codemirror.css?v={cache}">'
+			. '<link rel="stylesheet" href="../modules/editors/editor/fullscreen.css?v={cache}">'
+			. '<link rel="stylesheet" href="../modules/editors/editor/simplescrollbars.css?v={cache}">'
+			. '<link rel="stylesheet" href="../modules/editors/editor/monokai.css?v={cache}">'
+			. '<link rel="stylesheet" href="../modules/editors/editor/dialog.css?v={cache}">'
+			. '<script src="../modules/editors/editor/codemirror.js?v={cache}"></script>'
+			. '<script src="../modules/editors/editor/xml.js?v={cache}"></script>'
+			. '<script src="../modules/editors/editor/javascript.js?v={cache}"></script>'
+			. '<script src="../modules/editors/editor/css.js?v={cache}"></script>'
+			. '<script src="../modules/editors/editor/htmlmixed.js?v={cache}"></script>'
+			. '<script src="../modules/editors/editor/simplescrollbars.js?v={cache}"></script>'
+			. '<script src="../modules/editors/editor/fullscreen.js?v={cache}"></script>'
+			. '<script src="../modules/editors/editor/searchcursor.js?v={cache}"></script>'
+			. '<script src="../modules/editors/editor/search.js?v={cache}"></script>'
+			. '<script src="../modules/editors/editor/dialog.js?v={cache}"></script>',
+		'fixedWidth' => '<style>body {min-width: 1200px !important;} .wapper{min-width: 1200px !important;}</style>',
+		'tinymce' => '<script src="../modules/editors/tinymce/tinymce.min.js"></script>',
+		'gstatic' => '<script src="https://www.gstatic.com/charts/loader.js"></script>',
+		'tabs' => '<link rel="stylesheet" href="../templates/{template}/css/tabs.css">',
+		'modernizr' => '<script src="../templates/{template}/js/modernizr.js"></script>',
+		'jplayer'   => '<script src="../ajax/sound/jquery.jplayer.min.js"></script>',
+		'farbtastic'   => '<script src="../templates/admin/js/farbtastic.js"></script>'
+			. '<link rel="stylesheet" href="../templates/admin/css/farbtastic.css">'
+	];
+
+	$libsStr = '';
+
+	if(!is_array($libNames)) {
+		$libNames = [$libNames];
+	}
+
+	if(is_array($libNames)) {
+		foreach($libNames as $item) {
+			if(array_key_exists($item, $libs)) {
+				$libsStr .= $libs[$item];
+			}
+		}
+	}
+	
+	return $libsStr;
+}
+
+function uuid4()
+{
+	return sprintf(
+		'%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+		mt_rand(0, 0xffff),
+		mt_rand(0, 0xffff),
+		mt_rand(0, 0xffff),
+		mt_rand(0, 0x0fff) | 0x4000,
+		mt_rand(0, 0x3fff) | 0x8000,
+		mt_rand(0, 0xffff),
+		mt_rand(0, 0xffff),
+		mt_rand(0, 0xffff)
+	);
+}
+
+function isModuleActive($moduleName)
+{
+	$STH = pdo()->prepare("SELECT active FROM modules WHERE name=:name LIMIT 1");
+	$STH->execute([':name' => $moduleName]);
+
+	return $STH->fetchColumn() == 1;
+}
+
+function isEmailIntroduced($email) {
+	if(substr($email, 0, 6) != 'vk_id_' && !empty($email)) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function removeOldFiles($dir, $days) {
+	$files = glob($dir . '/*');
+	$now   = time();
+
+	foreach ($files as $file) {
+		if (is_file($file)) {
+			if ($now - filemtime($file) >= 60 * 60 * 24 * $days) {
+				unlink($file);
+			}
+		}
+	}
+}
+
+function findAndReplace($find, $replace, $path)
+{
+	foreach(glob($path, GLOB_BRACE) as $file) {
+		$fileData = file_get_contents($file);
+
+		if(stristr($fileData, $find) !== false) {
+			file_put_contents($file, str_replace($find, $replace, $fileData));
+		}
+	}
+}
+
+function getNameLike($name)
+{
+	if(mb_strlen($name, 'UTF-8') < 3) {
+		return $name;
+	} else {
+		return "%" . strip_data($name) . "%";
+	}
 }

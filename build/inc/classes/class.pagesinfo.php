@@ -6,67 +6,29 @@ class PagesInfo
 
 	public $full_host;
 	private $full_url = null;
-	private $pdo;
+	private $originalUrl = '';
 
-	function __construct($pdo)
+	private function getUrl()
 	{
-		if(!isset($pdo)) {
-			exit('[Class PagesInfo]: No connection to the database');
-		}
-		$this->pdo = $pdo;
-	}
+		$url = '';
 
-	private function get_url()
-	{
 		if(isset($_SERVER["PATH_INFO"]) && !empty($_SERVER["PATH_INFO"])) {
-			$this->full_url = trim($_SERVER["PATH_INFO"], "/");
-			$url_info       = trim($_SERVER["PATH_INFO"], "/");
-			if(substr($url_info, -5) == 'index') {
-				$url_info = trim(substr($url_info, 0, -5), "/");
-
-				if(empty($_GET)) {
-					header('Location: ../' . $url_info);
-					http_response_code(301);
-					die;
-				}
-			}
-		} else {
-			unset($url_info);
+			$this->originalUrl = clean($_SERVER["PATH_INFO"], null);
+			$url = $this->originalUrl;
 		}
 
 		if(isset($_SERVER["REQUEST_URI"]) && !empty($_SERVER["REQUEST_URI"])) {
-			$this->full_url = trim($_SERVER["REQUEST_URI"], "/");
-			$url_info2      = trim(
-				preg_replace('/\?.*/', '', $_SERVER["REQUEST_URI"]),
-				"/"
-			);
-			if(substr($url_info2, -5) == 'index') {
-				$url_info2 = trim(substr($url_info2, 0, -5), "/");
-
-				if(empty($_GET)) {
-					header('Location: ../' . $url_info2);
-					http_response_code(301);
-					die;
-				}
-			}
-
-		} else {
-			unset($url_info2);
+			$this->originalUrl = clean($_SERVER["REQUEST_URI"], null);
+			$url = preg_replace('/\?.*/', '', $this->originalUrl);
 		}
+		
+		$this->full_url = trim($this->originalUrl, '/');
 
-		if(isset($url_info)) {
-			$url = $url_info;
-		} elseif(isset($url_info2)) {
-			$url = $url_info2;
-		}
-		if(empty($url)) {
-			$url = '';
-		}
-
-		return $url;
+		return trim($url, '/');
 	}
 
-	private function isUserPage($url) {
+	private function isUserPage($url)
+	{
 		$urlParts = explode('/', $url);
 
 		if($urlParts[0] == self::PROFILE_PAGE_URL) {
@@ -79,43 +41,58 @@ class PagesInfo
 	public function page_info($url = null)
 	{
 		if(empty($url)) {
-			$originalUrl = clean($this->get_url(), null);
-			$url = $originalUrl;
-		} else {
-			$originalUrl = $url;
+			$url = clean($this->getUrl());
+			
+			if(substr($url, -5) == 'index') {
+				unset($_GET["/$url"]);
+				
+				if(!isset($_GET) || !is_array($_GET) || count($_GET) == 0) {
+					header("Location: /" . trim(substr($url, 0, -5), '/'));
+					http_response_code(301);
+					die;
+				}
+				else {
+					header("Location: /" . trim(substr($url, 0, -6) . strstr($_SERVER['REQUEST_URI'], '?')));
+					http_response_code(301);
+					die;
+				}
+			}
 		}
+
+		$originalUrl = $url;
 
 		if($this->isUserPage($url)) {
 			$url = self::PROFILE_PAGE_URL;
 		}
 
-		$STH = $this->pdo->prepare(
-			"SELECT * FROM pages WHERE url=:url AND active='1' LIMIT 1"
-		);
-		$STH->setFetchMode(PDO::FETCH_OBJ);
+		$STH = pdo()->prepare("SELECT * FROM pages WHERE url=:url AND active='1' LIMIT 1");
 		$STH->execute([':url' => $url]);
-		$row = $STH->fetch();
+		$row = $STH->fetch(PDO::FETCH_OBJ);
 		if(empty($row->id)) {
 			if(substr_count($url, '/') > 1) {
 				show_error_page('wrong_url');
 			}
 
-			$STH = $this->pdo->query(
-				"SELECT * FROM pages WHERE url='error_page' LIMIT 1"
-			);
-			$STH->setFetchMode(PDO::FETCH_OBJ);
-			$row = $STH->fetch();
+			$STH = pdo()->query("SELECT * FROM pages WHERE url='error_page' LIMIT 1");
+			$row = $STH->fetch(PDO::FETCH_OBJ);
 			if(empty($row->id)) {
 				exit('[Class PagesInfo]: Page not found');
 			}
 		}
+
+		if(substr($this->originalUrl, -1) == '/' && $row->page == 1) {
+			header('Location: ../../' . $url);
+			http_response_code(301);
+			die;
+		}
+
 		if(!file_exists($_SERVER["DOCUMENT_ROOT"] . '/' . $row->file)) {
 			exit('[Class PagesInfo]: File of module not found');
 		}
 
-		$row->kind        = $this->set_kind($row->kind);
+		$row->kind        = $this->setKind($row->kind);
 		$row->image       = $this->full_host . $row->image;
-		$row->robots      = $this->set_robots($row->robots);
+		$row->robots      = $this->setRobots($row->robots);
 		$row->full_url    = $this->full_host . $this->full_url;
 		$row->originalUrl = $originalUrl;
 
@@ -126,36 +103,11 @@ class PagesInfo
 		return $row;
 	}
 
-	private function set_kind($kind)
-	{
-		switch($kind) {
-			case '2':
-				return 'article';
-			case '3':
-				return 'profile';
-			default:
-				return 'website';
-		}
-	}
-
-	private function set_robots($robots)
-	{
-		switch($robots) {
-			case '2':
-				return 'none';
-			default:
-				return 'all';
-		}
-	}
-
 	public function to_nav($name, $point = 0, $id = 0, $second_name = '')
 	{
-		$STH = $this->pdo->prepare(
-			"SELECT id, title, url FROM pages WHERE name=:name LIMIT 1"
-		);
-		$STH->setFetchMode(PDO::FETCH_OBJ);
+		$STH = pdo()->prepare("SELECT id, title, url FROM pages WHERE name=:name LIMIT 1");
 		$STH->execute([':name' => $name]);
-		$row = $STH->fetch();
+		$row = $STH->fetch(PDO::FETCH_OBJ);
 		if(empty($row->id)) {
 			$array[0] = '../';
 			$array[1] = 'none';
@@ -189,5 +141,27 @@ class PagesInfo
 	public function compile_img_str($img)
 	{
 		return $this->full_host . $img;
+	}
+
+	private function setKind($kind)
+	{
+		switch($kind) {
+			case '2':
+				return 'article';
+			case '3':
+				return 'profile';
+			default:
+				return 'website';
+		}
+	}
+
+	private function setRobots($robots)
+	{
+		switch($robots) {
+			case '2':
+				return 'none';
+			default:
+				return 'all';
+		}
 	}
 }

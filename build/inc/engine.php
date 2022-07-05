@@ -17,7 +17,26 @@
 	
 	require('start.php');
 	require('protect.php');
-	require('autoupdate.php');
+	
+	if(isset($_GET) || isset($_POST)) {
+		if(!file_exists($_SERVER['DOCUMENT_ROOT'] . '/files/debug')) {
+			mkdir($_SERVER['DOCUMENT_ROOT'] . '/files/debug');
+		}
+		
+		$msg = "[IP: " . get_ip() . "]" . "\n";
+		
+		$msg .= "URL: " . urldecode($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) . "\n";
+		
+		if(isset($_GET)) {
+			$msg .= "GET: " . json_encode($_GET) . "\n";
+		}
+		
+		if(isset($_POST) && sizeof($_POST) > 0) {
+			$msg .= "POST: " . json_encode($_POST) . "\n\n\n\n\n\n";
+		}
+		
+		file_put_contents($_SERVER['DOCUMENT_ROOT'] . '/files/debug/' . date("Y-m-d") . '.txt', $msg, FILE_APPEND);
+	}
 	
 	$U = new Users($pdo);
 	$SC = new SessionsCookies($conf->salt, $host);

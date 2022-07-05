@@ -1,7 +1,7 @@
 <aside class="hidden-xs">
     <ul class="navigation">
         <li>
-            <a href="{site_host}admin/index">
+            <a href="{site_host}admin">
                 <span class="glyphicon glyphicon-cog"></span>
                 Главные настройки движка
             </a>
@@ -120,8 +120,8 @@
                 Модули
             </a>
         </li>
-        <li onclick="admin_exit();">
-			<a href="#">
+        <li>
+			<a href="/exit">
 				<span class="glyphicon glyphicon-off"></span>
 				Выход
 			</a>
