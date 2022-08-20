@@ -4,8 +4,8 @@
 	<td>
 		<span id="ban_length{bid}">{ban_length}</span>
 		{if('{price}' != '0')}
-		<a href="#" class="{disp}" id="buy_unban_btn{bid}" title="Купить разбан за {price} {{$messages['RUB']}}">
-			(Разбан {price}{{$messages['RUB']}})
+		<a href="#" class="{disp}" id="buy_unban_btn{bid}" title="Купить разбан за {price} {{sys()->currency()->lang}}">
+			(Разбан {price}{{sys()->currency()->lang}})
 		</a>
 		{/if}
 	</td>
@@ -90,8 +90,8 @@
 									<td><b> Разбан: </b></td>
 									<td>
 										{if('{price}' != '0')}
-										<button class="btn btn-outline-primary" onclick="buy_unban({bid},{server});" title="Купить разбан за {price} {{$messages['RUB']}}">
-											Купить разбан - {price} {{$messages['RUB']}}
+										<button class="btn btn-outline-primary" onclick="buy_unban({bid},{server});" title="Купить разбан за {price} {{sys()->currency()->lang}}">
+											Купить разбан - {price} {{sys()->currency()->lang}}
 										</button>
 										{/if}
 										<button class="btn btn-outline-primary {disp2}" onclick="close_ban2('{server}','{bid}');" id="unban_btn{bid}">

@@ -87,6 +87,12 @@ $act = get_active($row->bonuses, 2);
 $tpl->set("{bns_act}", $act[0]);
 $tpl->set("{bns_act2}", $act[1]);
 
+$currency = sys()->currency();
+$tpl
+->set("{code}", $currency->code)
+->set("{lang}", $currency->lang)
+->set("{html}", htmlspecialchars($currency->html));
+
 $tpl->set("{site_host}", $site_host);
 $tpl->set("{referral_percent}", $bank_conf->referral_percent );
 $tpl->set("{col_pass}", $conf->col_pass);

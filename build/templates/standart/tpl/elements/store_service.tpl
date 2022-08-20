@@ -21,7 +21,7 @@
 			{left}
 		</p>
 		{if('{sum}' != '0')}
-			<button id="return{id}" class="btn btn-default btn-sm" {if('{active}' != '2')}onclick="get_return({id});"{/if} {disabled}>Возврат {sum}{{$messages['RUB']}}</botton>
+			<button id="return{id}" class="btn btn-default btn-sm" {if('{active}' != '2')}onclick="get_return({id});"{/if} {disabled}>Возврат {sum}{{sys()->currency()->lang}}</botton>
 		{/if}
 	</td>
 </tr>

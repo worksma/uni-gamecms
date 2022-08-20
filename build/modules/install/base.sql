@@ -124,6 +124,7 @@ CREATE TABLE IF NOT EXISTS `config` (
   `violations_delta` varchar(5) NOT NULL,
   `ban_time` varchar(5) NOT NULL,
   `protect` int NOT NULL,
+  `geoip` int NOT NULL DEFAULT '1',
   `hide_players_id` int NOT NULL DEFAULT '0',
   `top_donators` int NOT NULL DEFAULT '1',
   `top_donators_count` int NOT NULL DEFAULT '5',
@@ -168,13 +169,14 @@ CREATE TABLE IF NOT EXISTS `config` (
   `captcha_secret` varchar(256) NOT NULL DEFAULT 'none',
   `date_cbr` varchar(64) NOT NULL DEFAULT '0000-00-00 00:00:00',
   `usd` varchar(32) NOT NULL DEFAULT '95.66',
+  `currency` varchar(255) NOT NULL DEFAULT '{\"code\":\"RUB\",\"lang\":\"\\u0440\\u0443\\u0431\",\"html\":\"&#8381;\"}',
   `token` int NOT NULL DEFAULT '1',
   `caching` int NOT NULL DEFAULT '2',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
-INSERT INTO `config` (`id`, `name`, `template`, `template_mobile`, `violations_number`, `violations_delta`, `ban_time`, `protect`, `hide_players_id`, `top_donators`, `top_donators_count`, `top_donators_show_sum`, `vk_api_version`, `update_server`, `stat`, `stat_number`, `show_news`, `show_events`, `bank`, `date`, `cont`, `col_nick`, `col_pass`, `col_type`, `conf_us`, `cote`, `widgets_type`, `vk_group`, `vk_group_id`, `vk_admin`, `vk_admin_id`, `disp_last_online`, `new_year`, `win_day`, `copyright_key`, `developer_mode`, `off`, `dell_admin_time`, `global_ban`, `time_zone`, `protocol`, `code`, `cache`, `salt`, `secret`, `ip_protect`, `privacy_policy`, `captcha`, `date_cbr`, `usd`, `token`, `caching`) VALUES
-(1, '<<project>>', 'standart', 'standart', 30, '2', '15', 2, 0, 1, 5, 2, 5.131, 1, 2, '3000', 0, 3, 0, '2021-10-13', 2, 1, 1, 1, 2, 2, 2, 2, '', 2, '', 1, 2, 2, 'none', 2, 2, '2021-10-14 02:19:00', 2, 'Etc/GMT-3', 1, '<<code>>', 38, '<<salt>>', 'none', 1, 2, '2', '2022-03-26 13:19:37', '95.66', 1, 2);
+INSERT INTO `config` (`id`, `name`, `template`, `template_mobile`, `violations_number`, `violations_delta`, `ban_time`, `protect`, `geoip`, `hide_players_id`, `top_donators`, `top_donators_count`, `top_donators_show_sum`, `vk_api_version`, `update_server`, `stat`, `stat_number`, `show_news`, `show_events`, `bank`, `date`, `cont`, `col_nick`, `col_pass`, `col_type`, `conf_us`, `cote`, `widgets_type`, `vk_group`, `vk_group_id`, `vk_admin`, `vk_admin_id`, `disp_last_online`, `new_year`, `win_day`, `copyright_key`, `developer_mode`, `off`, `dell_admin_time`, `global_ban`, `time_zone`, `protocol`, `code`, `cache`, `salt`, `secret`, `ip_protect`, `privacy_policy`, `captcha`, `date_cbr`, `usd`, `currency`, `token`, `caching`) VALUES
+(1, '<<project>>', 'standart', 'standart', 30, '2', '15', 2, 1, 0, 1, 5, 2, 5.131, 1, 2, '3000', 0, 3, 0, '2021-10-13', 2, 1, 1, 1, 2, 2, 2, 2, '', 2, '', 1, 2, 2, 'none', 2, 2, '2021-10-14 02:19:00', 2, 'Etc/GMT-3', 1, '<<code>>', 38, '<<salt>>', 'none', 1, 2, '2', '2022-03-26 13:19:37', '95.66', '{\"code\":\"RUB\",\"lang\":\"\\u0440\\u0443\\u0431\",\"html\":\"&#8381;\"}', 1, 2);
 
 CREATE TABLE IF NOT EXISTS `config__bank` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -706,7 +708,9 @@ INSERT INTO `pages` (`id`, `file`, `url`, `name`, `title`, `description`, `keywo
 (80, 'modules/complaints/complaint.php', 'complaints/complaint', 'complaints_complaint', 'Жалоба на {value}', 'Жалоба на {value}', 'Жалоба на {value}', 1, 'files/miniatures/standart.jpg', 1, 2, 1, 1, 0, 0, 0),
 (81, 'modules/complaints/add.php', 'complaints/add', 'complaints_add', 'Добавление жалобы', 'Добавление жалобы', 'Добавление жалобы', 1, 'files/miniatures/standart.jpg', 2, 0, 1, 1, 0, 0, 0),
 (82, 'modules/prefixes/index.php', 'store/prefixes', 'prefixes', 'Префиксы', 'Префиксы', 'Префиксы', 1, 'files/miniatures/standart.jpg', 1, 2, 1, 1, 0, 0, 0),
-(83, 'modules/admin/prefixes.php', 'admin/prefixes', 'admin_prefixes', 'Префиксы', 'none', 'none', 1, 'files/miniatures/standart.jpg', 0, 0, 2, 1, 0, 0, 0);
+(83, 'modules/admin/prefixes.php', 'admin/prefixes', 'admin_prefixes', 'Префиксы', 'none', 'none', 1, 'files/miniatures/standart.jpg', 0, 0, 2, 1, 0, 0, 0),
+(84, 'modules/index/register.php', 'register', 'register', 'Регистрация', 'Страница регистрации на проекте', 'регистрация, на сайте, зарегистрироваться, новый пользователь', 1, 'files/miniatures/standart.jpg', 2, 1, 1, 1, 0, 0, 0),
+(85, 'modules/index/login.php', 'login', 'login', 'Вход на сайт', 'Страница авторизации на сайте', 'войти на сайт, войти, авторизация', 1, 'files/miniatures/standart.jpg', 2, 1, 1, 1, 0, 0, 0);
 
 CREATE TABLE IF NOT EXISTS `pages__classes` (
   `id` int NOT NULL AUTO_INCREMENT,

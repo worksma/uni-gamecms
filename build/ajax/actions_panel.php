@@ -5475,7 +5475,7 @@ if(isset($_POST['load_vouchers'])) {
 		?>
 		<tr id="voucher_<?php echo $row[$l]['id']; ?>">
 			<td><?php echo $i; ?></td>
-			<td><?php echo $row[$l]['val'] . $messages['RUB']; ?>.</td>
+			<td><?php echo $row[$l]['val'] . sys()->currency()->lang; ?>.</td>
 			<td><?php echo $row[$l]['key']; ?></td>
 			<td><?php echo $status; ?></td>
 			<td>
@@ -5809,11 +5809,11 @@ if(isset($_POST['load_bonuses'])) {
 				} else {
 					$active_2 = 'selected';
 				}
-				echo '<div class="input-group" id="input_bonus_' . $i . '"><span class="input-group-btn"><button class="btn btn-default" type="button" onclick="dell_bonus_input(' . $i . ');">Удалить</button></span><input value="' . $data[$i]['start'] . '" type="text" name="bonus_start_' . $i . '" maxlength="5" placeholder="Начало диапазона" class="form-control w-25"><input value="' . $data[$i]['end'] . '" type="text" name="bonus_end_' . $i . '" maxlength="5" placeholder="Конец диапазона" class="form-control w-25"><select name="type_' . $i . '" class="form-control w-25"><option ' . $active . ' value="1">Бонус - N ' . $messages['RUB'] . '</option><option ' . $active_2 . ' value="2">Бонус - N% от пополненной суммы</option></select><input value="' . $data[$i]['value'] . '" type="text" name="bonus_' . $i . '" maxlength="5" placeholder="Введите значение N" class="form-control w-25"></div>';
+				echo '<div class="input-group" id="input_bonus_' . $i . '"><span class="input-group-btn"><button class="btn btn-default" type="button" onclick="dell_bonus_input(' . $i . ');">Удалить</button></span><input value="' . $data[$i]['start'] . '" type="text" name="bonus_start_' . $i . '" maxlength="5" placeholder="Начало диапазона" class="form-control w-25"><input value="' . $data[$i]['end'] . '" type="text" name="bonus_end_' . $i . '" maxlength="5" placeholder="Конец диапазона" class="form-control w-25"><select name="type_' . $i . '" class="form-control w-25"><option ' . $active . ' value="1">Бонус - N ' . sys()->currency()->lang . '</option><option ' . $active_2 . ' value="2">Бонус - N% от пополненной суммы</option></select><input value="' . $data[$i]['value'] . '" type="text" name="bonus_' . $i . '" maxlength="5" placeholder="Введите значение N" class="form-control w-25"></div>';
 			}
 		}
 	} else {
-		echo '<div class="input-group" id="input_bonus_0"><span class="input-group-btn"><button class="btn btn-default" type="button" onclick="dell_bonus_input(0);">Удалить</button></span><input type="text" name="bonus_start_0" maxlength="32" placeholder="Начало диапазона" class="form-control w-25"><input type="text" name="bonus_end_0" maxlength="32" placeholder="Конец диапазона" class="form-control w-25"><select name="type_0" class="form-control w-25"><option value="1">Бонус - N ' . $messages['RUB'] . '</option><option value="2">Бонус - N% от пополненной суммы</option></select><input type="text" name="bonus_0" maxlength="32" placeholder="Введите значение N" class="form-control w-25"></div>';
+		echo '<div class="input-group" id="input_bonus_0"><span class="input-group-btn"><button class="btn btn-default" type="button" onclick="dell_bonus_input(0);">Удалить</button></span><input type="text" name="bonus_start_0" maxlength="32" placeholder="Начало диапазона" class="form-control w-25"><input type="text" name="bonus_end_0" maxlength="32" placeholder="Конец диапазона" class="form-control w-25"><select name="type_0" class="form-control w-25"><option value="1">Бонус - N ' . sys()->currency()->lang . '</option><option value="2">Бонус - N% от пополненной суммы</option></select><input type="text" name="bonus_0" maxlength="32" placeholder="Введите значение N" class="form-control w-25"></div>';
 	}
 }
 if(isset($_POST['save_bonuses'])) {
@@ -5873,7 +5873,7 @@ if(isset($_POST['load_bank_info'])) {
 		  <?php
 		  }
 		  ?>
-        data.addColumn('number', <?php $messages['RUB']; ?>);
+        data.addColumn('number', <?php sys()->currency()->lang; ?>);
         data.addRows([
 			<?php
 			$temp_date = '';
@@ -6622,3 +6622,24 @@ if(isset($_POST['send_prefixes_conf'])):
 		exit(json_encode(['alert' => 'error', 'message' => 'Ошибка базы данных.']));
 	endif;
 endif;
+
+if(isset($_POST['edit_geoip'])) {
+	$status = clean($_POST['status'], 'int');
+	
+	pdo()->prepare("UPDATE `config` SET `geoip`=:status LIMIT 1")->execute([
+		':status' => $status
+	]);
+	
+	result(['status' => 'success', 'message' => 'Успех!']);
+}
+
+if(isset($_POST['edit_currency_site'])) {
+	$json = json_encode([
+		'code' => $_POST['cy_code'],
+		'lang' => $_POST['cy_lang'],
+		'html' => $_POST['cy_html'],
+	]);
+	
+	pdo()->prepare("UPDATE `config` SET `currency`=:currency LIMIT 1")->execute([':currency' => $json]);
+	result(['alert' => 'success', 'message' => 'Успех!']);
+}

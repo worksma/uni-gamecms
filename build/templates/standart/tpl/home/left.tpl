@@ -38,7 +38,7 @@
 				<a href="../settings">Настройки</a>
 			</li>
 			<li>
-				<a href="../purse">Баланс: <font id="balance">{balance}</font>{{$messages['RUB']}}</a>
+				<a href="../purse">Баланс: <font id="balance">{balance}</font> {{sys()->currency()->lang}}</a>
 			</li>
 			<li>
 				<a href="../notifications">Уведомления</a>

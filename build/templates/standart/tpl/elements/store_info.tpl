@@ -6,7 +6,7 @@
 				<td>
 					{if('{active}' == '2')}
 						<button id="on_{id}" onclick="start_srote({id});" class="btn btn-outline-primary" type="button">
-							Разблокировать - {price}{{$messages['RUB']}}
+							Разблокировать - {price}{{sys()->currency()->lang}}
 						</button>
 					{else}
 						{if('{pause}' != '0')}

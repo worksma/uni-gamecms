@@ -272,4 +272,8 @@
 
 			return true;
 		}
+		
+		public function currency() {
+			return json_decode(pdo()->query("SELECT * FROM `config` LIMIT 1")->fetch(PDO::FETCH_OBJ)->currency);
+		}
 	}

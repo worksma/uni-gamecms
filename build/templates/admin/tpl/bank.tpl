@@ -7,7 +7,7 @@
 				</div>
 				Баланс Вашего банка составляет
 				<a class="td-u c-p" title="Подробнее" onclick="load_bank_info('1');">{bank1}</a>
-				 {{$messages['RUB']}}, за данный месяц:
+				 {{sys()->currency()->lang}}, за данный месяц:
 				<a class="td-u c-p" title="Подробнее" onclick="load_bank_info('2');">{bank2}</a>
 				 , за прошлый месяц: 
 				<a class="td-u c-p" title="Подробнее" onclick="load_bank_info('3');">{bank3}</a>
@@ -19,6 +19,19 @@
 				<div class="block_head">
 					Основные настройки
 				</div>
+				<b>Валюта сайта</b>
+				<div class="form-group">
+					<div class="input-group">
+						<span class="input-group-btn">
+							<button class="btn btn-default pd-40-12" type="button" onclick="edit_currency_site();">Изменить</button>
+						</span>
+						<input id="cy_code" type="text" class="form-control" autocomplete="off" value="{code}" placeholder="Международный код">
+						<input id="cy_lang" type="text" class="form-control" autocomplete="off" value="{lang}" placeholder="Сокращенное название">
+						<input id="cy_html" type="text" class="form-control" autocomplete="off" value="{html}" placeholder="Код HTML">
+					</div>
+					<div id="edit_currency_site"></div>
+				</div>
+				<hr>
 				<b>Минимальная сумма для пополнения</b>
 				<div class="form-group">
 					<div class="input-group">
@@ -294,7 +307,7 @@
 	<div class="modal-dialog modal-lg2">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title">Статистика за все время ({bank1}{{$messages['RUB']}})</h4>
+				<h4 class="modal-title">Статистика за все время ({bank1}{{sys()->currency()->lang}})</h4>
 			</div>
 			<div class="modal-body">
 				<div id="bank_info1"></div>
@@ -310,7 +323,7 @@
 	<div class="modal-dialog modal-lg2">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title">Статистика за данный месяц ({bank2}{{$messages['RUB']}})</h4>
+				<h4 class="modal-title">Статистика за данный месяц ({bank2}{{sys()->currency()->lang}})</h4>
 			</div>
 			<div class="modal-body">
 				<div id="bank_info2"></div>
@@ -326,7 +339,7 @@
 	<div class="modal-dialog modal-lg2">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title">Статистика за прошлый месяц ({bank3}{{$messages['RUB']}})</h4>
+				<h4 class="modal-title">Статистика за прошлый месяц ({bank3}{{sys()->currency()->lang}})</h4>
 			</div>
 			<div class="modal-body">
 				<div id="bank_info3"></div>
@@ -374,7 +387,7 @@
 			</div>
 			<div class="modal-body">
 				<div class="bs-callout bs-callout-info mb-10 fs-14">
-					Данная функция позволяет пользователям получать бонусы при пополнении счета. К примеру, при настройках с диапазоном от 100 до 500{{$messages['RUB']}} и бонусом в 25{{$messages['RUB']}}, пользователь, при пополнеии счета на 200{{$messages['RUB']}} получит дополнительно 25{{$messages['RUB']}} как бонус. Второй пример: диапазон от 100 до 300{{$messages['RUB']}}, бонус в 5%, при пополнении счета на 200{{$messages['RUB']}} пользователь получит 5% от 200 как бонус - 10{{$messages['RUB']}}
+					Данная функция позволяет пользователям получать бонусы при пополнении счета. К примеру, при настройках с диапазоном от 100 до 500{{sys()->currency()->lang}} и бонусом в 25{{sys()->currency()->lang}}, пользователь, при пополнеии счета на 200{{sys()->currency()->lang}} получит дополнительно 25{{sys()->currency()->lang}} как бонус. Второй пример: диапазон от 100 до 300{{sys()->currency()->lang}}, бонус в 5%, при пополнении счета на 200{{sys()->currency()->lang}} пользователь получит 5% от 200 как бонус - 10{{sys()->currency()->lang}}
 				</div>
 
 				<form id="bonuses_list">

@@ -25,7 +25,7 @@ a.small {
   font-size: 12px;
   border-bottom: 1px solid #4d86d1;
 }
-a.small:hover, a.small:focus, a.small:visited {
+a.small:hover, a.small:visited {
   color: #555;
 }
 a:hover {
@@ -518,7 +518,6 @@ a[onclick] {
 .wapper .header .auth-in {
   float: right;
   margin-top: 21px;
-  padding: 0 10px;
 }
 .wapper .header .menu-trigger {
   font-family: Font Awesome\ 5 Free;

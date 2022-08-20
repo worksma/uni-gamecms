@@ -22,6 +22,21 @@
 				</div>
 				<div id="edit_site_name_result"></div>
 				<hr>
+				<b>Автоматическое определение GEO позиции</b>
+				<div class="form-group">
+					<div class="btn-group" data-toggle="buttons">
+						<label class="btn btn-default {geo_act}" onclick="edit_geo('1');">
+							<input type="radio">
+							Включить
+						</label>
+
+						<label class="btn btn-default {geo_act2}" onclick="edit_geo('2');">
+							<input type="radio">
+							Выключить
+						</label>
+					</div>
+				</div>
+				<hr>
 				<b>Привязка сессий к ip адресу</b>
 				<div class="form-group">
 					<div class="btn-group" data-toggle="buttons">

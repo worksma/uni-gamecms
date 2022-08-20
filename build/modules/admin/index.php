@@ -145,6 +145,10 @@
 	$act = get_active($conf->ip_protect, 2);
 	$tpl->set("{ipp_act}", $act[0]);
 	$tpl->set("{ipp_act2}", $act[1]);
+	
+	$act = get_active($conf->geoip, 2);
+	$tpl->set("{geo_act}", $act[0]);
+	$tpl->set("{geo_act2}", $act[1]);
 
 	$act = get_active($conf->win_day, 2);
 	$tpl->set("{win_day_act}", $act[0]);

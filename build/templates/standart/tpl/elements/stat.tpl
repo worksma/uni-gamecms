@@ -44,7 +44,7 @@
 												<td><b>Операции</b></td>
 												<td>
 													{if('{reset_stats}' == '1')}
-													<button class="btn btn-outline-primary mr-2" onclick="reset_stats({id}, {server})">Обнулить статистику - {reset_stats_price} {{$messages['RUB']}}</button>
+													<button class="btn btn-outline-primary mr-2" onclick="reset_stats({id}, {server})">Обнулить статистику - {reset_stats_price} {{sys()->currency()->lang}}</button>
 													{/if}
 													{if(is_worthy_specifically("h", {server}))}
 													<button class="btn btn-outline-primary" onclick="dell_user_stats({id}, {server})">Удалить</button>

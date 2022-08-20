@@ -15,8 +15,8 @@
 	<td>
 		<span id="mute_length{bid}">{ban_length}</span>
 		{if('{price}' != '0')}
-		<a class="{disp}" id="buy_unmute_btn{bid}" title="Купить размут за {price} {{$messages['RUB']}}">
-			(Размут {price}{{$messages['RUB']}})
+		<a class="{disp}" id="buy_unmute_btn{bid}" title="Купить размут за {price} {{sys()->currency()->lang}}">
+			(Размут {price} {{sys()->currency()->lang}})
 		</a>
 		{/if}
 	</td>
@@ -95,8 +95,8 @@
 									<td><b> Размут: </b></td>
 									<td>
 										{if('{price}' != '0')}
-										<button class="btn btn-outline-primary" onclick="buy_unmute({bid},{server});" title="Купить размут за {price} {{$messages['RUB']}}">
-											Купить размут - {price} {{$messages['RUB']}}
+										<button class="btn btn-outline-primary" onclick="buy_unmute({bid},{server});" title="Купить размут за {price} {{sys()->currency()->lang}}">
+											Купить размут - {price} {{sys()->currency()->lang}}
 										</button>
 										{/if}
 										<button class="btn btn-outline-primary {disp2}" onclick="close_mute('{server}','{bid}');" id="unmute_btn{bid}">

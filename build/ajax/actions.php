@@ -72,7 +72,19 @@ if(isset($_POST['user_login']) || isset($_POST['admin_login'])) {
 		}
 
 		$SC->set_user_cookie();
-
+		
+		if(addons()->IsGeoIp()) {
+			$query = @unserialize(file_get_contents("http://ip-api.com/php/" . get_ip() . "?lang=ru"));
+			
+			if($query && $query['status'] == 'success') {
+				pdo()->prepare("UPDATE `users` SET `country`=:country, `city`=:city WHERE `id`=:id LIMIT 1")->execute([
+					':country' => $query['country'],
+					':city' => $query['city'],
+					':id' => $user->id
+				]);
+			}
+		}
+		
 		write_log("Успешная авторизация на сайте");
 		exit("<script>reset_page();</script>");
 	}
@@ -812,9 +824,9 @@ if(isset($_POST['get_tarifs'])) {
 		$price = calculate_price($row->price, $proc);
 
 		if($price != $row->price) {
-			$data .= '<option value="'.$row->id.'">'.$time.' - '.$price.' '.$messages['RUB'].' (с учетом скидки в '.$proc.'%)</option>';
+			$data .= '<option value="'.$row->id.'">'.$time.' - '.$price.' '.sys()->currency()->lang.' (с учетом скидки в '.$proc.'%)</option>';
 		} else {
-			$data .= '<option value="'.$row->id.'">'.$time.' - '.$price.' '.$messages['RUB'].'</option>';
+			$data .= '<option value="'.$row->id.'">'.$time.' - '.$price.' '.sys()->currency()->lang.'</option>';
 		}
 	}
 	exit(json_encode(array('status' => '1', 'data' => $data, 'text' => $text)));

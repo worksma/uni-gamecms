@@ -24,13 +24,13 @@ if(isset($_POST['refill_balance'])) {
 		}
 
 		if($amount > 10000) {
-			throw new Exception('Не более 10000 ' . $messages['RUB']);
+			throw new Exception('Не более 10000 ' . sys()->currency()->lang);
 		}
 
 		$row = pdo()->query("SELECT min_amount FROM config__secondary LIMIT 1")->fetch(PDO::FETCH_OBJ);
 
 		if($amount < $row->min_amount) {
-			throw new Exception('Не менее ' . $row->min_amount . $messages['RUB']);
+			throw new Exception('Не менее ' . $row->min_amount . sys()->currency()->lang);
 		}
 
 		$Pm = new Payments;
@@ -780,7 +780,7 @@ if(isset($_POST['buy_service'])) {
 			json_encode(
 				[
 					'status' => '3',
-					'data'   => 'У Вас недостаточно средств <span class="m-icon icon-bank"></span><br><a href="../purse?price=' . $price_delta . '">Пополните баланс на ' . $price_delta . $messages['RUB'] . '.</a>'
+					'data'   => 'У Вас недостаточно средств <span class="m-icon icon-bank"></span><br><a href="../purse?price=' . $price_delta . '">Пополните баланс на ' . $price_delta . sys()->currency()->lang . '.</a>'
 				]
 			)
 		);
@@ -1211,7 +1211,7 @@ if(isset($_POST['activate_voucher'])) {
 	$noty = successful_activation_voucher($sum);
 	send_noty($pdo, $noty, $_SESSION['id'], 2);
 
-	write_log("Активирован ваучер на сумму " . $sum . $messages['RUB']);
+	write_log("Активирован ваучер на сумму " . $sum . sys()->currency()->lang);
 	exit ('<div class="bs-callout bs-callout-success mt-10"><h4>Ваучер успешно активирован</h4>' . $noty . '</div><script>$("#balance").empty();$("#balance").append("' . $shilings . '");$("#my_balance").empty();$("#my_balance").append("' . $shilings . '");$("#voucher_key").val("");</script>');
 }
 if(isset($_POST['buy_unmute'])) {
@@ -1549,9 +1549,9 @@ if(isset($_POST['get_stores_info'])) {
 				);
 				$price = calculate_price($service->price, $proc);
 				if($price != $service->price) {
-					$services .= '<option value="' . $service->id . '">' . $time . ' - ' . $price . ' ' . $messages['RUB'] . ' (с учетом скидки в ' . $proc . '%)</option>';
+					$services .= '<option value="' . $service->id . '">' . $time . ' - ' . $price . ' ' . sys()->currency()->lang . ' (с учетом скидки в ' . $proc . '%)</option>';
 				} else {
-					$services .= '<option value="' . $service->id . '">' . $time . ' - ' . $price . ' ' . $messages['RUB'] . '</option>';
+					$services .= '<option value="' . $service->id . '">' . $time . ' - ' . $price . ' ' . sys()->currency()->lang . '</option>';
 				}
 			}
 			$services .= '</select>';
@@ -1902,7 +1902,7 @@ if(isset($_POST['start_srote'])) {
 			json_encode(
 				[
 					'status' => '2',
-					'data'   => 'У Вас недостаточно средств! Пополните баланс на ' . $price_delta . $messages['RUB']
+					'data'   => 'У Вас недостаточно средств! Пополните баланс на ' . $price_delta . sys()->currency()->lang
 				]
 			)
 		);
@@ -2265,7 +2265,7 @@ if(isset($_POST['buy_extend'])) {
 		json_encode(
 			[
 				'status' => '2',
-				'data'   => 'У Вас недостаточно средств! Пополните баланс на ' . $price_delta . $messages['RUB']
+				'data'   => 'У Вас недостаточно средств! Пополните баланс на ' . $price_delta . sys()->currency()->lang
 			]
 		)
 		);

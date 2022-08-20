@@ -18,7 +18,7 @@
 	<td>
 		{name}
 		{if('{active}' == '2')}
-			<a id="admin{id}" class="text-danger" data-container="body" data-toggle="popover" data-placement="top" title="Приостановлен" data-content='Причина: {cause}<br>Цена разблокировки: {price}{{$messages['RUB']}}{if('{link}'!='')}<br>Ссылка на <a target="blank" href="{link}">доказательства</a>{/if}'>
+			<a id="admin{id}" class="text-danger" data-container="body" data-toggle="popover" data-placement="top" title="Приостановлен" data-content='Причина: {cause}<br>Цена разблокировки: {price}{{sys()->currency()->lang}}{if('{link}'!='')}<br>Ссылка на <a target="blank" href="{link}">доказательства</a>{/if}'>
 				(приостановлен)
 			</a>
 			<script>$('#admin{id}').popover({ html: true, animation: true, trigger: "click", delay: { "show": 100, "hide": 100 } });</script>

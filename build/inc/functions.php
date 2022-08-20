@@ -2474,3 +2474,18 @@ function getNameLike($name)
 		return "%" . strip_data($name) . "%";
 	}
 }
+
+function redirect($url = '/', $ajax = true) {
+	if($ajax) {
+		echo '<script>window.location.href = "'.$url.'";</script>';
+	}
+	else {
+		header("Location: $url");
+	}
+	
+	die;
+}
+
+function addons() {
+	return new Addons;
+}

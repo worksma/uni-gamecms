@@ -260,4 +260,14 @@
 			eval('$t = ' . $data . ';');
 			return (object)$t;
 		}
+		
+		public function IsGeoIp() {
+			$geoip = pdo()->query("SELECT * FROM `config` LIMIT 1")->fetch(PDO::FETCH_OBJ)->geoip;
+			
+			if($geoip != '1') {
+				return false;
+			}
+			
+			return true;
+		}
 	}

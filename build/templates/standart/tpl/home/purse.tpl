@@ -19,7 +19,7 @@
 				<div>
 					<i class="fas fa-ruble-sign"></i>
 					Баланс<br>
-					<font id="my_balance">{balance}</font>{{$messages['RUB']}}
+					<font id="my_balance">{balance} </font> {{sys()->currency()->lang}}
 				</div>
 			</div>
 			<div class="col-lg-3">
@@ -56,8 +56,8 @@
 				{for($i = 0; $i < count($bonuses); $i++)}
 					<div class="col-lg-{if(count($bonuses) % 4 == 0)}3{else}{if(count($bonuses) % 3 == 0)}4{else}{if(count($bonuses) % 2 == 0)}6{else}12{/if}{/if}{/if}">
 						<div class="noty-block">
-							<h5>+{{$bonuses[$i]['value']}}{if($bonuses[$i]['type'] == 1)}{{$messages['RUB']}}{else}%{/if}</h5>
-							При пополнении на сумму от {{$bonuses[$i]['start']}} до {{$bonuses[$i]['end']}}{{$messages['RUB']}}
+							<h5>+{{$bonuses[$i]['value']}}{if($bonuses[$i]['type'] == 1)} {{sys()->currency()->lang}}{else}%{/if}</h5>
+							При пополнении на сумму от {{$bonuses[$i]['start']}} до {{$bonuses[$i]['end']}} {{sys()->currency()->lang}}
 						</div>
 					</div>
 				{/for}

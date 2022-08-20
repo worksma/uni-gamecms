@@ -78,7 +78,7 @@
 	{else}
 	<div class="btn-group smiles_panel" role="group">
 		<button onclick="open_sticker('gcms_smiles');" type="button" class="btn btn-primary">Смайлы</button>
-		<button onclick="buy_stickers();" type="button" class="btn btn-primary">Стикеры - {price} {{$messages['RUB']}}</button>
+		<button onclick="buy_stickers();" type="button" class="btn btn-primary">Стикеры - {price} {{sys()->currency()->lang}}</button>
 	</div>
 	{/if}
 {/if}

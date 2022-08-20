@@ -31,7 +31,7 @@
 							<li>
 								<a>
 									<span class="m-icon icon-bank"></span> Баланс:
-									<span id="money">{shilings}</span> {{$messages['RUB']}}
+									<span id="money">{shilings}</span> {{sys()->currency()->lang}}
 								</a>
 							</li>
 							<li>
@@ -244,6 +244,12 @@
 							<td>Группа</td>
 							<td colspan="3"><span style="color: {group_color}">{group}</span></td>
 						</tr>
+						{if(isset($user->country) && isset($user->city))}
+						<tr>
+							<td>Откуда</td>
+							<td colspan="3">{{$user->country}}, {{$user->city}}</td>
+						</tr>
+						{/if}
 						<tr>
 							<td>Дата регистрации</td>
 							<td colspan="3">{regdate}</td>

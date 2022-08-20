@@ -3,7 +3,7 @@
 	<td id="new_name_{id}">{name}</td>
 	<td id="new_active_{id}">
 		{if('{active}' == '2')}
-			<font id="admin_block{id}" class="text-danger" data-container="body" data-toggle="popover" data-placement="top" title="Заблокирован" data-content='Причина: {cause}<br>Цена разблокировки: {price}{{$messages['RUB']}}{if('{link}'!='')}<br>Ссылка на <a target="blank" href="{link}">доказательства</a>{/if}'>
+			<font id="admin_block{id}" class="text-danger" data-container="body" data-toggle="popover" data-placement="top" title="Заблокирован" data-content='Причина: {cause}<br>Цена разблокировки: {price}{{sys()->currency()->lang}}{if('{link}'!='')}<br>Ссылка на <a target="blank" href="{link}">доказательства</a>{/if}'>
 				Заблокирован
 			</font>
 			<script>$('#admin_block{id}').popover({ html: true, animation: true, trigger: "click", delay: { "show": 100, "hide": 100 } });</script>
