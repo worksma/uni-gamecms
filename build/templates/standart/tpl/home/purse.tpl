@@ -17,7 +17,7 @@
 		<div class="row">
 			<div class="col-lg-3">
 				<div>
-					<i class="fas">{{sys()->currency()->html}}</i>
+					<i class="fas fa-ruble-sign"></i>
 					Баланс<br>
 					<font id="my_balance">{balance} </font> {{sys()->currency()->lang}}
 				</div>
