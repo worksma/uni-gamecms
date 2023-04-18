@@ -1,1 +1,0 @@
-<div class="win_day"></div>
